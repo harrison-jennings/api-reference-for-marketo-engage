@@ -154,12 +154,19 @@ pull request with the regenerated reference and a summary of the changes, for re
 ├── reference/           # Generated reference: Markdown, operation JSON and manifest.json
 ├── scripts/             # Reference generator, specification change summary and their tests
 ├── specs/               # Adobe's specifications
+├── CONTRIBUTING.md
 ├── LICENSE
 ├── Makefile
 ├── NOTICE
+├── SECURITY.md
 ├── mkdocs.yml
 └── requirements-docs.txt
 ```
+
+## Contributing
+
+This project doesn't accept pull requests. See [CONTRIBUTING.md](CONTRIBUTING.md) for how to report
+problems, and [SECURITY.md](SECURITY.md) to report a vulnerability privately.
 
 ## Sources and licence
 
