@@ -1,5 +1,10 @@
 # API Reference for Marketo Engage
 
+[![Licence](https://img.shields.io/github/license/harrison-jennings/api-reference-for-marketo-engage?label=licence)](LICENSE)
+[![Operations](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fharrison-jennings%2Fapi-reference-for-marketo-engage%2Fmain%2Freference%2Fmanifest.json&query=%24.summary.operations&label=operations)](reference/README.md)
+[![Models](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fharrison-jennings%2Fapi-reference-for-marketo-engage%2Fmain%2Freference%2Fmanifest.json&query=%24.summary.models&label=models)](reference/README.md)
+[![Adobe specs updated](https://img.shields.io/github/last-commit/harrison-jennings/api-reference-for-marketo-engage/main?path=specs&label=Adobe%20specs%20updated)](https://github.com/harrison-jennings/api-reference-for-marketo-engage/commits/main/specs)
+
 An independent reference for the Adobe Marketo Engage APIs, generated from Adobe's published Swagger
 and OpenAPI specifications.
 
