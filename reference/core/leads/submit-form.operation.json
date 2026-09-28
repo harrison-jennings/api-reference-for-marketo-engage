@@ -1,0 +1,274 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/v1/leads/submitForm.json": {
+      "post": {
+        "tags": [
+          "Leads"
+        ],
+        "summary": "Submit Form",
+        "description": "Upserts a lead and generates a \"Fill out Form\" activity which is associated back to program and/or campaign. Required Permissions: Read-Write Lead",
+        "operationId": "SubmitFormUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "submitFormRequest",
+            "description": "submitFormRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SubmitFormRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfSubmitForm"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "Form": {
+      "type": "object",
+      "required": [
+        "leadFormFields"
+      ],
+      "properties": {
+        "leadFormFields": {
+          "description": "List of form fields. Email is required field",
+          "$ref": "#/definitions/LeadFormFields"
+        },
+        "visitorData": {
+          "description": "Page visit-related data",
+          "$ref": "#/definitions/VisitorData"
+        },
+        "cookie": {
+          "type": "string",
+          "description": "Munchkin cookie value used to associate new lead with anonymous activities. e.g. id:123-XYZ-456&tooken:_mch-marketo.com-1594662481190-60776"
+        }
+      },
+      "description": "Form field data. May have any number of fields depending on the fields available in the form."
+    },
+    "FormResponse": {
+      "type": "object",
+      "description": "Disposition of lead",
+      "required": [
+        "id",
+        "status"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of lead"
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "created",
+            "updated",
+            "skipped"
+          ]
+        },
+        "reasons": {
+          "type": "array",
+          "description": "List of reasons why an operation did not succeed. Reasons are only present in API responses and should not be submitted",
+          "items": {
+            "$ref": "#/definitions/Reason"
+          }
+        }
+      }
+    },
+    "LeadFormFields": {
+      "type": "object",
+      "required": [
+        "email"
+      ],
+      "properties": {
+        "email": {
+          "type": "string",
+          "description": "Email address used as primary key during lead upsert"
+        }
+      },
+      "description": "Form fields. Always contains email, but may have any number of other fields depending on the fields available in the form."
+    },
+    "Reason": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Integer code of the reason"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the reason for the status of the operation"
+        }
+      }
+    },
+    "ResponseOfSubmitForm": {
+      "type": "object",
+      "required": [
+        "errors",
+        "requestId",
+        "result",
+        "success",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Id of the request made"
+        },
+        "result": {
+          "type": "array",
+          "description": "Array of results for individual records in the operation, may be empty",
+          "items": {
+            "$ref": "#/definitions/FormResponse"
+          }
+        },
+        "success": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the request succeeded"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Array of warnings given for the operation",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        }
+      }
+    },
+    "SubmitFormRequest": {
+      "type": "object",
+      "required": [
+        "input",
+        "formId"
+      ],
+      "properties": {
+        "input": {
+          "type": "array",
+          "description": "Single array item that contains form fields and visitor data to use during a form submittal",
+          "items": {
+            "$ref": "#/definitions/Form"
+          }
+        },
+        "formId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the form"
+        },
+        "programId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the program to add lead and/or program member custom fields to"
+        }
+      }
+    },
+    "VisitorData": {
+      "type": "object",
+      "properties": {
+        "pageURL": {
+          "type": "string",
+          "description": "Web page that hosts the form. Must be a fully formed URL"
+        },
+        "queryString": {
+          "type": "string",
+          "description": "Web page query string. Contains one or more ampersand delimited key=value pairs"
+        },
+        "leadClientIpAddress": {
+          "type": "string",
+          "description": "Client IP address. IPv4 format. Used to populate inferred fields on upserted lead record."
+        },
+        "userAgentString": {
+          "type": "string",
+          "description": "User agent of browser hosting the form"
+        }
+      },
+      "description": "Page visit related data. Used to populate additional activity fields for filtering and triggering."
+    },
+    "Warning": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer code of the warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the warning"
+        }
+      }
+    }
+  }
+}

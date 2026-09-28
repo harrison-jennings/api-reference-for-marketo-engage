@@ -1,0 +1,242 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/v1/namedaccounts.json": {
+      "get": {
+        "tags": [
+          "Named Accounts"
+        ],
+        "summary": "Get NamedAccounts",
+        "description": "Retrieves namedaccount records from the destination instance based on the submitted filter. Required Permissions: Read-Only Named Account, Read-Write Named Account",
+        "operationId": "getNamedAccountsUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "filterType",
+            "in": "query",
+            "description": "NamedAccounts field to filter on. Can be any searchable fields",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filterValues",
+            "in": "query",
+            "description": "A comma-separated list of values to match against",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "Comma-separated list of fields to include in the response",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "batchSize",
+            "in": "query",
+            "description": "The batch size to return. The max and default value is 300.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "nextPageToken",
+            "in": "query",
+            "description": "A token will be returned by this endpoint if the result set is greater than the batch size and can be passed in a subsequent call through this parameter. See Paging Tokens for more info.",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfNamedAccount"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "NamedAccount": {
+      "type": "object",
+      "required": [
+        "marketoGUID",
+        "seq"
+      ],
+      "properties": {
+        "marketoGUID": {
+          "type": "string",
+          "description": "Unique GUID of the custom object records"
+        },
+        "reasons": {
+          "type": "array",
+          "description": "List of reasons why an operation did not succeed. Reasons are only present in API responses and should not be submitted",
+          "items": {
+            "$ref": "#/definitions/Reason"
+          }
+        },
+        "seq": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer indicating the sequence of the record in response. This value is correlated to the order of the records included in the request input. Seq should only be part of responses and should not be submitted."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "created",
+            "updated",
+            "deleted",
+            "skipped",
+            "added",
+            "removed"
+          ]
+        }
+      }
+    },
+    "Reason": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Integer code of the reason"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the reason for the status of the operation"
+        }
+      }
+    },
+    "ResponseOfNamedAccount": {
+      "type": "object",
+      "required": [
+        "errors",
+        "requestId",
+        "result",
+        "success",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "moreResult": {
+          "type": "boolean",
+          "example": false,
+          "description": "Boolean indicating if there are more results in subsequent pages"
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Paging token given if the result set exceeded the allowed batch size"
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Id of the request made"
+        },
+        "result": {
+          "type": "array",
+          "description": "Array of results for individual records in the operation, may be empty",
+          "items": {
+            "$ref": "#/definitions/NamedAccount"
+          }
+        },
+        "success": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the request succeeded"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Array of warnings given for the operation",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        }
+      }
+    },
+    "Warning": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer code of the warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the warning"
+        }
+      }
+    }
+  }
+}

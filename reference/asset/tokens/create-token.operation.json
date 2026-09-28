@@ -1,0 +1,198 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/x-www-form-urlencoded"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v1/folder/{id}/tokens.json": {
+      "post": {
+        "tags": [
+          "Tokens"
+        ],
+        "summary": "Create Token",
+        "description": "Create or update a token in the parent folder. Required Permissions: Read-Write Assets",
+        "operationId": "addTokenTOFolderUsingPOST",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the folder to which the token will be associated with",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "in": "body",
+            "name": "createTokenRequest",
+            "description": "createTokenRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateTokenRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfTokenResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateTokenRequest": {
+      "type": "object",
+      "required": [
+        "folderType",
+        "name",
+        "type",
+        "value"
+      ],
+      "properties": {
+        "folderType": {
+          "type": "string",
+          "description": "Type of folder. 'Folder' or 'Program'",
+          "enum": [
+            "Program",
+            "Folder"
+          ]
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the token. Max length is 50 characters)"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of the token",
+          "enum": [
+            "date",
+            "number",
+            "rich text",
+            "score",
+            "sfdc campaign",
+            "text"
+          ]
+        },
+        "value": {
+          "type": "string",
+          "description": "Value of the token"
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "ResponseOfTokenResponse": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TokenResponse"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "TokenDTO": {
+      "type": "object",
+      "properties": {
+        "computedUrl": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "TokenResponse": {
+      "type": "object",
+      "required": [
+        "folder"
+      ],
+      "properties": {
+        "folder": {
+          "type": "string",
+          "example": "{\"id\":1001,\"type\":\"Program\"}",
+          "description": "JSON representation of parent folder, with members 'id', and 'type' which may be 'Folder' or 'Program'"
+        },
+        "tokens": {
+          "type": "array",
+          "description": "List of tokens in the folder",
+          "items": {
+            "$ref": "#/definitions/TokenDTO"
+          }
+        }
+      }
+    }
+  }
+}

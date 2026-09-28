@@ -1,0 +1,138 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v1/tagType/byName.json": {
+      "get": {
+        "tags": [
+          "Tags"
+        ],
+        "summary": "Get Tag By Name",
+        "description": "Retrieves a tag by its name. This will also return the set of valid values for the tag. Required Permissions: Read-Only Assets, Read-Write Assets",
+        "operationId": "getTagByNameUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Name of the tag",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfTagResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "ResponseOfTagResponse": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/TagResponse"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "TagResponse": {
+      "type": "object",
+      "required": [
+        "applicableProgramTypes",
+        "required",
+        "tagType"
+      ],
+      "properties": {
+        "allowableValues": {
+          "type": "string",
+          "description": "The list of acceptable values for the tag type"
+        },
+        "applicableProgramTypes": {
+          "type": "string",
+          "description": "Types of programs to which the tag can apply"
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Whether the tag is required for its applicable program types"
+        },
+        "tagType": {
+          "type": "string",
+          "description": "Name of the tag"
+        }
+      }
+    }
+  }
+}

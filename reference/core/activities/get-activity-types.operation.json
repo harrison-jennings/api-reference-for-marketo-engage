@@ -1,0 +1,201 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/v1/activities/types.json": {
+      "get": {
+        "tags": [
+          "Activities"
+        ],
+        "summary": "Get Activity Types",
+        "description": "Returns a list of available activity types in the target instance, along with associated metadata of each type. Required Permissions: Read-Only Activity, Read-Write Activity",
+        "operationId": "getAllActivityTypesUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfActivityType"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ActivityType": {
+      "type": "object",
+      "required": [
+        "attributes",
+        "id",
+        "name",
+        "primaryAttribute"
+      ],
+      "properties": {
+        "apiName": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "array",
+          "description": "List of secondary attributes of the type",
+          "items": {
+            "$ref": "#/definitions/ActivityTypeAttribute"
+          }
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the activity type"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the activity type"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the activity type"
+        },
+        "primaryAttribute": {
+          "description": "Primary attribute of the type",
+          "$ref": "#/definitions/ActivityTypeAttribute"
+        }
+      }
+    },
+    "ActivityTypeAttribute": {
+      "type": "object",
+      "required": [
+        "dataType",
+        "name"
+      ],
+      "properties": {
+        "apiName": {
+          "type": "string"
+        },
+        "dataType": {
+          "type": "string",
+          "description": "Datatype of the Attribute"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the attribute"
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "ResponseOfActivityType": {
+      "type": "object",
+      "required": [
+        "errors",
+        "requestId",
+        "result",
+        "success",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "moreResult": {
+          "type": "boolean",
+          "example": false,
+          "description": "Boolean indicating if there are more results in subsequent pages"
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Paging token given if the result set exceeded the allowed batch size"
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Id of the request made"
+        },
+        "result": {
+          "type": "array",
+          "description": "Array of results for individual records in the operation, may be empty",
+          "items": {
+            "$ref": "#/definitions/ActivityType"
+          }
+        },
+        "success": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the request succeeded"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Array of warnings given for the operation",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        }
+      }
+    },
+    "Warning": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer code of the warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the warning"
+        }
+      }
+    }
+  }
+}

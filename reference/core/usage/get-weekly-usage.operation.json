@@ -1,0 +1,186 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/v1/stats/usage/last7days.json": {
+      "get": {
+        "tags": [
+          "Usage"
+        ],
+        "summary": "Get Weekly Usage",
+        "description": "Returns the number of calls consumed in the past 7 days. Required Permissions: None",
+        "operationId": "getLast7DaysUsageUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfUsageData"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "ResponseOfUsageData": {
+      "type": "object",
+      "required": [
+        "errors",
+        "requestId",
+        "result",
+        "success",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "moreResult": {
+          "type": "boolean",
+          "example": false,
+          "description": "Boolean indicating if there are more results in subsequent pages"
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Paging token given if the result set exceeded the allowed batch size"
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Id of the request made"
+        },
+        "result": {
+          "type": "array",
+          "description": "Array of results for individual records in the operation, may be empty",
+          "items": {
+            "$ref": "#/definitions/UsageData"
+          }
+        },
+        "success": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the request succeeded"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Array of warnings given for the operation",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        }
+      }
+    },
+    "UsageData": {
+      "type": "object",
+      "required": [
+        "date"
+      ],
+      "properties": {
+        "date": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date of the collected calls"
+        },
+        "total": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Total number of calls in the time period"
+        },
+        "users": {
+          "type": "array",
+          "description": "Counts for individual users",
+          "items": {
+            "$ref": "#/definitions/UserCount"
+          }
+        }
+      }
+    },
+    "UserCount": {
+      "type": "object",
+      "required": [
+        "count",
+        "userId"
+      ],
+      "properties": {
+        "count": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Number of calls made in the time period"
+        },
+        "userId": {
+          "type": "string",
+          "description": "Id of the user"
+        }
+      }
+    },
+    "Warning": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer code of the warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the warning"
+        }
+      }
+    }
+  }
+}

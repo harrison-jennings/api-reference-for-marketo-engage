@@ -1,0 +1,356 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/x-www-form-urlencoded"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v1/form/{id}/fields.json": {
+      "post": {
+        "tags": [
+          "Form Fields"
+        ],
+        "summary": "Add Field to Form",
+        "description": "Adds a field to a form. Required Permissions: Read-Write Assets",
+        "operationId": "addFieldToAFormUsingPOST",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "in": "body",
+            "name": "addFormFieldSetRequest",
+            "description": "addFormFieldSetRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddFormFieldRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfLpFormFieldResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AddFormFieldRequest": {
+      "type": "object",
+      "required": [
+        "fieldId"
+      ],
+      "properties": {
+        "blankFields": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Number of blank fields to show when progressive profiling is enabled"
+        },
+        "defaultValue": {
+          "type": "string",
+          "description": "Optional default value for the field"
+        },
+        "fieldId": {
+          "type": "string",
+          "description": "Id of the field"
+        },
+        "fieldType": {
+          "type": "string",
+          "description": "Specifies the field type."
+        },
+        "fieldWidth": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Width of the input or select element"
+        },
+        "formPrefill": {
+          "type": "boolean",
+          "description": "Whether the field should prefill. Default true"
+        },
+        "isSensitive": {
+          "type": "boolean",
+          "description": "Whether the field is marked as sensitive. Default false"
+        },
+        "hintText": {
+          "type": "string",
+          "description": "Hint text for the field"
+        },
+        "initiallyChecked": {
+          "type": "boolean",
+          "description": "Whether the field should be checked upon loading. Default false"
+        },
+        "instructions": {
+          "type": "string",
+          "description": "Instructions for the field"
+        },
+        "label": {
+          "type": "string",
+          "description": "Label of the field"
+        },
+        "labelToRight": {
+          "type": "boolean",
+          "description": "Whether the field label should be displayed to the right of the input/select element. Default false"
+        },
+        "labelWidth": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Width of the field label element"
+        },
+        "maskInput": {
+          "type": "string",
+          "description": "Optional input mask for the field"
+        },
+        "maxLength": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Maximum length for text type fields"
+        },
+        "maxValue": {
+          "type": "number",
+          "format": "float",
+          "description": "Maximum value accepted by the field"
+        },
+        "minValue": {
+          "type": "number",
+          "format": "float",
+          "description": "Minimum value accepted by the field"
+        },
+        "multiSelect": {
+          "type": "boolean",
+          "description": "Whether the field should allow multiple selections. Default false"
+        },
+        "required": {
+          "type": "boolean",
+          "description": "Whether the field is required to submit the form. Default false"
+        },
+        "validationMessage": {
+          "type": "string",
+          "description": "Validation message to display on failed validation"
+        },
+        "values": {
+          "type": "string",
+          "description": "Comma-separated list of accepted values for the field. Only for select-field types"
+        },
+        "visibleLines": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Number of lines to display for the field element"
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "FormFieldVisibilityRuleResponse": {
+      "type": "object",
+      "properties": {
+        "ruleType": {
+          "type": "string"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FormVisibilityRuleDTO"
+          }
+        }
+      }
+    },
+    "FormVisibilityRuleDTO": {
+      "type": "object",
+      "properties": {
+        "altLabel": {
+          "type": "string"
+        },
+        "operator": {
+          "type": "string"
+        },
+        "picklistFilterValues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PickListDTO"
+          }
+        },
+        "subjectField": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "LpFormFieldResponse": {
+      "type": "object",
+      "properties": {
+        "blankFields": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "columnNumber": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "dataType": {
+          "type": "string"
+        },
+        "defaultValue": {
+          "type": "string"
+        },
+        "fieldMetaData": {
+          "type": "object"
+        },
+        "fieldWidth": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "fields": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "formPrefill": {
+          "type": "boolean"
+        },
+        "isSensitive": {
+          "type": "boolean"
+        },
+        "hintText": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "instructions": {
+          "type": "string"
+        },
+        "label": {
+          "type": "string"
+        },
+        "labelWidth": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "maxLength": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "required": {
+          "type": "boolean"
+        },
+        "rowNumber": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "text": {
+          "type": "string"
+        },
+        "validationMessage": {
+          "type": "object"
+        },
+        "visibilityRules": {
+          "$ref": "#/definitions/FormFieldVisibilityRuleResponse"
+        }
+      }
+    },
+    "PickListDTO": {
+      "type": "object",
+      "properties": {
+        "isDefault": {
+          "type": "boolean"
+        },
+        "label": {
+          "type": "string"
+        },
+        "selected": {
+          "type": "boolean"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "ResponseOfLpFormFieldResponse": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LpFormFieldResponse"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

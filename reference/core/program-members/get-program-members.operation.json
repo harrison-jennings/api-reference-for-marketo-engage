@@ -1,0 +1,252 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/v1/programs/{programId}/members.json": {
+      "get": {
+        "tags": [
+          "Program Members"
+        ],
+        "summary": "Get Program Members",
+        "description": "Returns a list of up to 300 program members on a list of values in a particular field. If you specify a filterType that is a custom field, the custom field’s dataType must be either “string” or “integer”. If you specify a filterType other than “leadId”, a maximum of 100,000 program member records can be processed by the request. Required Permissions: Read-Only Lead, Read-Write Lead",
+        "operationId": "getProgramMembersUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "programId",
+            "in": "path",
+            "description": "The id of target program.",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "filterType",
+            "in": "query",
+            "description": "The program member field to filter on. Any custom field (string or integer types only), \"updatedAt\", or any searchable field. Searchable fields can be obtained via the <a href=\"/rest-api/endpoint-reference/lead-database-endpoint-reference/#/Leads/describeProgramMemberUsingGET2\">Describe Program Member</a> endpoint.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "filterValues",
+            "in": "query",
+            "description": "A comma-separated list of values to filter on in the specified fields.",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "startAt",
+            "in": "query",
+            "description": "When using filterType=updatedAt, the start of date range filter (ISO 8601-format)",
+            "type": "string"
+          },
+          {
+            "name": "endAt",
+            "in": "query",
+            "description": "When using filterType=updatedAt, the end of date range filter (ISO 8601-format)",
+            "type": "string"
+          },
+          {
+            "name": "fields",
+            "in": "query",
+            "description": "A comma-separated list of lead fields to return for each record.",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "batchSize",
+            "in": "query",
+            "description": "The batch size to return. The max and default value is 300.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "nextPageToken",
+            "in": "query",
+            "description": "A token will be returned by this endpoint if the result set is greater than the batch size and can be passed in a subsequent call through this parameter. See Paging Tokens for more info.",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfProgramMember"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "ProgramMember": {
+      "type": "object",
+      "description": "Program member record. Always contains lead id, but may have any number of other fields, depending on the fields available in the target instance.",
+      "required": [
+        "seq",
+        "leadId",
+        "reachedSuccess",
+        "programId",
+        "acquiredBy",
+        "membershipDate"
+      ],
+      "properties": {
+        "seq": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer indicating the sequence of the record in response. This value is correlated to the order of the records included in the request input. Seq should only be part of responses and should not be submitted."
+        },
+        "leadId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Unique integer id of a lead record"
+        },
+        "reachedSuccess": {
+          "type": "boolean",
+          "example": false,
+          "description": "Boolean indicating if program member has reached success criteria for program"
+        },
+        "programId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Unique integer id of a program"
+        },
+        "acquiredBy": {
+          "type": "boolean",
+          "example": false,
+          "description": "Boolean indicating if program member was acquired by program"
+        },
+        "membershipDate": {
+          "type": "string",
+          "description": "Date the lead first became a member of the program"
+        }
+      }
+    },
+    "ResponseOfProgramMember": {
+      "type": "object",
+      "required": [
+        "errors",
+        "requestId",
+        "result",
+        "success",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "moreResult": {
+          "type": "boolean",
+          "example": false,
+          "description": "Boolean indicating if there are more results in subsequent pages"
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Paging token given if the result set exceeded the allowed batch size"
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Id of the request made"
+        },
+        "result": {
+          "type": "array",
+          "description": "Array of results for individual records in the operation, may be empty",
+          "items": {
+            "$ref": "#/definitions/ProgramMember"
+          }
+        },
+        "success": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the request succeeded"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Array of warnings given for the operation",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        }
+      }
+    },
+    "Warning": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer code of the warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the warning"
+        }
+      }
+    }
+  }
+}

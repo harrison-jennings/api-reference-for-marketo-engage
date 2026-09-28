@@ -1,0 +1,200 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/x-www-form-urlencoded"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v1/snippet/{id}.json": {
+      "get": {
+        "tags": [
+          "Snippets"
+        ],
+        "summary": "Get Snippet by Id",
+        "description": "Retrieves the target snippet record. Required Permissions: Read-Only Assets, Read-Write Assets",
+        "operationId": "getSnippetByIdUsingGET",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Status filter for draft or approved versions",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "approved",
+              "draft"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfSnippetResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "ResponseOfSnippetResponse": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SnippetResponse"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "SnippetFolder": {
+      "type": "object",
+      "required": [
+        "value",
+        "type",
+        "folderName"
+      ],
+      "properties": {
+        "value": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the folder"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of folder",
+          "enum": [
+            "Folder",
+            "Program"
+          ]
+        },
+        "folderName": {
+          "type": "string",
+          "description": "Name of folder"
+        }
+      },
+      "description": "JSON representation of a folder"
+    },
+    "SnippetResponse": {
+      "type": "object",
+      "required": [
+        "folder",
+        "status"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime the asset was created"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the asset"
+        },
+        "folder": {
+          "description": "JSON representation of parent folder, with members 'folderName', 'value', and 'type' which may be 'Folder' or 'Program'",
+          "$ref": "#/definitions/SnippetFolder"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Id of the asset"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the asset"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status filter for draft or approved versions"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime the asset was most recently updated"
+        },
+        "url": {
+          "type": "string",
+          "description": "Url of the asset in the Marketo UI"
+        },
+        "workspace": {
+          "type": "string",
+          "description": "Name of the workspace"
+        }
+      }
+    }
+  }
+}

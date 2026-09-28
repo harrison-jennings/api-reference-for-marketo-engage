@@ -1,0 +1,215 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/v1/leads/describe2.json": {
+      "get": {
+        "tags": [
+          "Leads"
+        ],
+        "summary": "Describe Lead2",
+        "description": "Returns list of searchable fields on lead objects in the target instance. Required Permissions: Read-Only Lead, Read-Write Lead",
+        "operationId": "describeUsingGET_6",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfLeadAttribute2"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "LeadAttribute2": {
+      "type": "object",
+      "required": [
+        "name",
+        "searchableFields",
+        "fields"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "\"API Lead\""
+        },
+        "searchableFields": {
+          "type": "array",
+          "description": "List of searchable fields",
+          "items": {
+            "$ref": "#/definitions/LeadAttribute2SearchableFields"
+          }
+        },
+        "fields": {
+          "type": "array",
+          "description": "Description of searchable fields",
+          "items": {
+            "$ref": "#/definitions/LeadAttribute2Fields"
+          }
+        }
+      }
+    },
+    "LeadAttribute2Fields": {
+      "type": "object",
+      "required": [
+        "name",
+        "displayName",
+        "dataType",
+        "updateable",
+        "crmManaged"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "REST API name of field"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name of field (friendly name)"
+        },
+        "dataType": {
+          "type": "string",
+          "description": "Data type of field"
+        },
+        "length": {
+          "type": "integer",
+          "description": "Length of field"
+        },
+        "updateable": {
+          "type": "boolean",
+          "description": "Is field updateable"
+        },
+        "crmManaged": {
+          "type": "boolean",
+          "description": "Is field managed by CRM"
+        }
+      }
+    },
+    "LeadAttribute2SearchableFields": {
+      "type": "array",
+      "description": "List of searchable fields",
+      "items": {
+        "type": "string",
+        "description": "Searchable field"
+      }
+    },
+    "ResponseOfLeadAttribute2": {
+      "type": "object",
+      "required": [
+        "errors",
+        "requestId",
+        "result",
+        "success",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "moreResult": {
+          "type": "boolean",
+          "example": false,
+          "description": "Boolean indicating if there are more results in subsequent pages"
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Paging token given if the result set exceeded the allowed batch size"
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Id of the request made"
+        },
+        "result": {
+          "type": "array",
+          "description": "Array of results for individual records in the operation, may be empty",
+          "items": {
+            "$ref": "#/definitions/LeadAttribute2"
+          }
+        },
+        "success": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the request succeeded"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Array of warnings given for the operation",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        }
+      }
+    },
+    "Warning": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer code of the warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the warning"
+        }
+      }
+    }
+  }
+}

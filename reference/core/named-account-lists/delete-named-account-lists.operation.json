@@ -1,0 +1,247 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/v1/namedAccountLists/delete.json": {
+      "post": {
+        "tags": [
+          "Named Account Lists"
+        ],
+        "summary": "Delete Named Account Lists",
+        "description": "Delete named account lists by dedupe fields, or by id field. Required Permissions: Read-Write Named Account List",
+        "operationId": "deleteNamedAccountListsUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "deleteNamedAccountListRequest",
+            "description": "deleteNamedAccountListRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/DeleteNamedAccountListRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfNamedAccountList"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "DeleteNamedAccountListRequest": {
+      "type": "object",
+      "required": [
+        "input"
+      ],
+      "properties": {
+        "deleteBy": {
+          "type": "string",
+          "description": "Key to use for deletion of the record"
+        },
+        "input": {
+          "type": "array",
+          "description": "List of input records",
+          "items": {
+            "$ref": "#/definitions/NamedAccountList"
+          }
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "NamedAccountList": {
+      "type": "object",
+      "required": [
+        "marketoGUID",
+        "seq"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "description": "Datetime when the named account list was created"
+        },
+        "marketoGUID": {
+          "type": "string",
+          "description": "Unique GUID of the custom object records"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of named account list"
+        },
+        "reasons": {
+          "type": "array",
+          "description": "List of reasons why an operation did not succeed. Reasons are only present in API responses and should not be submitted",
+          "items": {
+            "$ref": "#/definitions/Reason"
+          }
+        },
+        "seq": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer indicating the sequence of the record in response. This value is correlated to the order of the records included in the request input. Seq should only be part of responses and should not be submitted."
+        },
+        "status": {
+          "type": "string",
+          "enum": [
+            "created",
+            "updated",
+            "deleted",
+            "skipped",
+            "added",
+            "removed"
+          ]
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of named account list (\"default\" if created by user or API, \"external\" if managed by CRM-View)"
+        },
+        "updateable": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the list is updateable (true if created by user or API, false if managed by CRM-View)"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Datetime when the named account list was most recently updated"
+        }
+      }
+    },
+    "Reason": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Integer code of the reason"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the reason for the status of the operation"
+        }
+      }
+    },
+    "ResponseOfNamedAccountList": {
+      "type": "object",
+      "required": [
+        "errors",
+        "requestId",
+        "result",
+        "success",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "moreResult": {
+          "type": "boolean",
+          "example": false,
+          "description": "Boolean indicating if there are more results in subsequent pages"
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Paging token given if the result set exceeded the allowed batch size"
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Id of the request made"
+        },
+        "result": {
+          "type": "array",
+          "description": "Array of results for individual records in the operation, may be empty",
+          "items": {
+            "$ref": "#/definitions/NamedAccountList"
+          }
+        },
+        "success": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the request succeeded"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Array of warnings given for the operation",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        }
+      }
+    },
+    "Warning": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer code of the warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the warning"
+        }
+      }
+    }
+  }
+}

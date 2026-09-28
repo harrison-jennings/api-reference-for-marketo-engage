@@ -1,0 +1,260 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/v1/activities/external.json": {
+      "post": {
+        "tags": [
+          "Activities"
+        ],
+        "summary": "Add Custom Activities",
+        "description": "Allows insertion of custom activities associated to given lead records. Requires provisioning of custom activity types to utilize. Required Permissions: Read-Write Activity",
+        "operationId": "addCustomActivityUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "customActivityRequest",
+            "description": "customActivityRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CustomActivityRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfCustomActivity"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Attribute": {
+      "type": "object",
+      "required": [
+        "name",
+        "value"
+      ],
+      "properties": {
+        "apiName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the attribute"
+        },
+        "value": {
+          "type": "object",
+          "description": "Value of the attribute"
+        }
+      },
+      "description": "Name-Value pair"
+    },
+    "CustomActivity": {
+      "type": "object",
+      "required": [
+        "activityDate",
+        "activityTypeId",
+        "attributes",
+        "errors",
+        "id",
+        "leadId",
+        "primaryAttributeValue"
+      ],
+      "properties": {
+        "activityDate": {
+          "type": "string",
+          "description": "Datetime of the activity"
+        },
+        "activityTypeId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the activity type"
+        },
+        "apiName": {
+          "type": "string"
+        },
+        "attributes": {
+          "type": "array",
+          "description": "List of secondary attributes",
+          "items": {
+            "$ref": "#/definitions/Attribute"
+          }
+        },
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Integer id of the activity. For instances which have been migrated to Activity Service, this field may not be present, and should not be treated as unique."
+        },
+        "leadId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Id of the lead associated to the activity"
+        },
+        "marketoGUID": {
+          "type": "string",
+          "description": "Unique id of the activity (128 character string)"
+        },
+        "primaryAttributeValue": {
+          "type": "string",
+          "description": "Value of the primary attribute"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the operation performed on the record",
+          "enum": [
+            "created",
+            "updated",
+            "deleted",
+            "skipped",
+            "added",
+            "removed"
+          ]
+        }
+      }
+    },
+    "CustomActivityRequest": {
+      "type": "object",
+      "required": [
+        "input"
+      ],
+      "properties": {
+        "input": {
+          "type": "array",
+          "description": "List of custom activities to insert",
+          "items": {
+            "$ref": "#/definitions/CustomActivity"
+          }
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "ResponseOfCustomActivity": {
+      "type": "object",
+      "required": [
+        "errors",
+        "requestId",
+        "result",
+        "success",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "moreResult": {
+          "type": "boolean",
+          "example": false,
+          "description": "Boolean indicating if there are more results in subsequent pages"
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Paging token given if the result set exceeded the allowed batch size"
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Id of the request made"
+        },
+        "result": {
+          "type": "array",
+          "description": "Array of results for individual records in the operation, may be empty",
+          "items": {
+            "$ref": "#/definitions/CustomActivity"
+          }
+        },
+        "success": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the request succeeded"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Array of warnings given for the operation",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        }
+      }
+    },
+    "Warning": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer code of the warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the warning"
+        }
+      }
+    }
+  }
+}

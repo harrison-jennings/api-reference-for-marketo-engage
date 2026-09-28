@@ -1,0 +1,168 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "title": "Marketo Data Ingestion API",
+    "description": "High volume, low latency, highly available service designed to handle ingestion of large amounts of person and person-related data efficiently and with minimal delays. Data is ingested by submitting requests that execute asynchronously. Request status can be retrieved by subscribing to events from the Marketo Observability Data Stream.",
+    "version": "v1"
+  },
+  "host": "mkto-ingestion-api.adobe.io",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/subscriptions/{munchkinId}/lists/remove": {
+      "post": {
+        "tags": [
+          "Lists"
+        ],
+        "summary": "Remove Leads from List",
+        "description": "Remove leads from a static list. This endpoint uses POST rather than DELETE because the request requires a JSON body with structured data. Required permission: `Read-Write Lead`.",
+        "operationId": "removeFromList",
+        "parameters": [
+          {
+            "name": "munchkinId",
+            "in": "path",
+            "description": "Marketo subscription Munchkin ID",
+            "required": true,
+            "type": "string",
+            "example": "556-RJS-213"
+          },
+          {
+            "name": "X-Mkto-User-Token",
+            "in": "header",
+            "description": "Marketo API access token",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "X-Correlation-Id",
+            "in": "header",
+            "description": "Arbitrary string (max 255 characters). Used to trace requests through the system via Marketo Observability Data Stream.",
+            "type": "string"
+          },
+          {
+            "name": "X-Request-Source",
+            "in": "header",
+            "description": "Arbitrary string (max 50 characters). Used to trace the source of requests.",
+            "type": "string"
+          },
+          {
+            "name": "requestBody",
+            "in": "body",
+            "description": "",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/ListOperationRequest",
+              "example": {
+                "listId": 1064,
+                "input": [
+                  {
+                    "leadId": 10001
+                  },
+                  {
+                    "leadId": 10002
+                  }
+                ]
+              }
+            },
+            "x-selected-content-type": "application/json"
+          }
+        ],
+        "consumes": [
+          "application/json"
+        ],
+        "responses": {
+          "202": {
+            "description": "Accepted – request accepted for async processing",
+            "headers": {
+              "X-Request-Id": {
+                "description": "Unique request ID",
+                "type": "string"
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request – validation error (e.g. leads not specified, number of leads exceeded max size, invalid listId)",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          },
+          "401": {
+            "description": "Unauthorized – OAuth token is invalid",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        },
+        "produces": [
+          "application/json"
+        ]
+      }
+    }
+  },
+  "definitions": {
+    "ErrorResponse": {
+      "type": "object",
+      "description": "Error response body returned for non-202 responses.",
+      "properties": {
+        "error_code": {
+          "type": "string",
+          "description": "Error code.",
+          "example": "4000801"
+        },
+        "message": {
+          "type": "string",
+          "description": "Error message.",
+          "example": "Bad request"
+        }
+      }
+    },
+    "Lead": {
+      "required": [
+        "leadId"
+      ],
+      "type": "object",
+      "description": "Lead reference for list membership.",
+      "properties": {
+        "leadId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The Marketo lead ID.",
+          "example": 10001
+        }
+      }
+    },
+    "ListOperationRequest": {
+      "required": [
+        "listId",
+        "input"
+      ],
+      "type": "object",
+      "properties": {
+        "listId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "The Marketo static list ID. Must be a positive integer.",
+          "example": 1064
+        },
+        "input": {
+          "type": "array",
+          "description": "List of lead references to add to or remove from the list.",
+          "items": {
+            "$ref": "#/definitions/Lead"
+          }
+        }
+      }
+    }
+  },
+  "securityDefinitions": {},
+  "parameters": {},
+  "responses": {}
+}

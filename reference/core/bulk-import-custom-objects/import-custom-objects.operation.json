@@ -1,0 +1,223 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "multipart/form-data"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/bulk/v1/customobjects/{apiName}/import.json": {
+      "post": {
+        "tags": [
+          "Bulk Import Custom Objects"
+        ],
+        "summary": "Import Custom Objects",
+        "description": "Imports a file containing data records into the target instance. Required Permissions: Read-Write Custom Object",
+        "operationId": "importCustomObjectUsingPOST",
+        "consumes": [
+          "multipart/form-data"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "apiName",
+            "in": "path",
+            "description": "API Name of the custom object for the import batch job.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "format",
+            "in": "query",
+            "description": "Import file format.",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "csv",
+              "tsv",
+              "ssv"
+            ]
+          },
+          {
+            "name": "file",
+            "in": "formData",
+            "description": "File containing the data records to import.",
+            "required": true,
+            "type": "file"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfImportCustomObjectResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "ImportCustomObjectResponse": {
+      "type": "object",
+      "required": [
+        "batchId",
+        "objectApiName",
+        "operation",
+        "status"
+      ],
+      "properties": {
+        "batchId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Unique integer id of the import batch"
+        },
+        "importTime": {
+          "type": "string",
+          "description": "Time spent on the batch"
+        },
+        "message": {
+          "type": "string",
+          "description": "Status message of the batch"
+        },
+        "numOfObjectsProcessed": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Number of rows processed so far"
+        },
+        "numOfRowsFailed": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Number of rows failed so far"
+        },
+        "numOfRowsWithWarning": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Number of rows with a warning so far"
+        },
+        "objectApiName": {
+          "type": "string",
+          "description": "Object API Name"
+        },
+        "operation": {
+          "type": "string",
+          "description": "Bulk operation type. Can be import or export"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the batch"
+        }
+      },
+      "description": "Response containing import status information"
+    },
+    "ResponseOfImportCustomObjectResponse": {
+      "type": "object",
+      "required": [
+        "errors",
+        "requestId",
+        "result",
+        "success",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "moreResult": {
+          "type": "boolean",
+          "example": false,
+          "description": "Boolean indicating if there are more results in subsequent pages"
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Paging token given if the result set exceeded the allowed batch size"
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Id of the request made"
+        },
+        "result": {
+          "type": "array",
+          "description": "Array of results for individual records in the operation, may be empty",
+          "items": {
+            "$ref": "#/definitions/ImportCustomObjectResponse"
+          }
+        },
+        "success": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the request succeeded"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Array of warnings given for the operation",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        }
+      }
+    },
+    "Warning": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer code of the warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the warning"
+        }
+      }
+    }
+  }
+}

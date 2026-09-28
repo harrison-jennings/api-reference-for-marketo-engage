@@ -1,0 +1,211 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/x-www-form-urlencoded"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v1/form/fields.json": {
+      "get": {
+        "tags": [
+          "Form Fields"
+        ],
+        "summary": "Get Available Form Fields",
+        "description": "Retrieves a list of all valid fields for use in forms. Required Permissions: Read-Only Assets, Read-Write Assets",
+        "operationId": "getAllFieldsUsingGET",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "maxReturn",
+            "in": "query",
+            "description": "Maximum number of fields to return. Max 200, default 20",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Integer offset for paging",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfFieldsMetaDataResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "FieldsMetaDataResponse": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "dataType": {
+          "type": "string",
+          "description": "Type of field"
+        },
+        "defaultValue": {
+          "type": "string",
+          "description": "Optional default value for the field"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the field"
+        },
+        "fieldMaskValues": {
+          "type": "string",
+          "description": "Optional input mask for the field"
+        },
+        "fieldWidth": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Width of the input or select element"
+        },
+        "id": {
+          "type": "string",
+          "description": "Id of the field"
+        },
+        "initiallyChecked": {
+          "type": "boolean",
+          "description": "Whether the field should be checked upon loading. Default false"
+        },
+        "isLabelToRight": {
+          "type": "boolean",
+          "description": "Whether the field label should be displayed to the right of the input/select element. Default false"
+        },
+        "isMultiselect": {
+          "type": "boolean",
+          "description": "Whether the field should allow multiple selections. Default false"
+        },
+        "isRequired": {
+          "type": "boolean",
+          "description": "Whether the field is required to submit the form. Default false"
+        },
+        "isSensitive": {
+          "type": "boolean",
+          "description": "Whether the field is marked as sensitive. Default false"
+        },
+        "labelWidth": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Width of the field label element"
+        },
+        "maxLength": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Maximum length for text type fields"
+        },
+        "maximumNumber": {
+          "type": "number",
+          "format": "float",
+          "description": "Maximum value accepted by the field"
+        },
+        "minimumNumber": {
+          "type": "number",
+          "format": "float",
+          "description": "Minimum value accepted by the field"
+        },
+        "picklistValues": {
+          "type": "string",
+          "description": "Comma-separated list of available picklist values for the field"
+        },
+        "placeholderText": {
+          "type": "string",
+          "description": "Placeholder text for the field"
+        },
+        "validationMessage": {
+          "type": "string",
+          "description": "Validation message to display on failed validation"
+        },
+        "visibleRows": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Number of rows visible for progressive profiling"
+        }
+      }
+    },
+    "ResponseOfFieldsMetaDataResponse": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FieldsMetaDataResponse"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

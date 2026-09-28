@@ -1,0 +1,180 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v1/segmentation/{id}/segments.json": {
+      "get": {
+        "tags": [
+          "Segments"
+        ],
+        "summary": "Get Segments For Segmentation",
+        "description": "Retrieves a list of segments inside the target segmentation. Required Permissions: Read-Only Assets, Read-Write Assets",
+        "operationId": "getSegmentsForSegmentationUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Status filter for draft or approved versions",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "approved",
+              "draft"
+            ]
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Integer offset for paging",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "maxReturn",
+            "in": "query",
+            "description": "Maximum number of records to return. Max 200, default 20",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfSegmentsResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "ResponseOfSegmentsResponse": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SegmentsResponse"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "SegmentsResponse": {
+      "type": "object",
+      "required": [
+        "segmentationId"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime the asset was created"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the asset"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Id of the asset"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the asset"
+        },
+        "segmentationId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the Segmentation"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime the asset was most recently updated"
+        },
+        "url": {
+          "type": "string",
+          "description": "Url of the asset in the Marketo UI"
+        }
+      }
+    }
+  }
+}

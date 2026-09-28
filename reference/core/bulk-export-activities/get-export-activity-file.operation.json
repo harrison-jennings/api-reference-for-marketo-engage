@@ -1,0 +1,76 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/bulk/v1/activities/export/{exportId}/file.json": {
+      "get": {
+        "tags": [
+          "Bulk Export Activities"
+        ],
+        "summary": "Get Export Activity File",
+        "description": "Returns the file content of an export job. The export job must be in \"Completed\" state. Use Get Export Activity Job Status endpoint to retrieve status of export job. Required Permissions: Read-Only Activity<br><br>The file format is specified by calling the Create Export Activity Job endpoint. The following is an example of the default file format (\"CSV\"). Note that the \"attributes\" field is formatted as JSON.<br><br><code>marketoGUID,leadId,activityDate,activityTypeId,campaignId,primaryAttributeValueId,primaryAttributeValue, attributes</code><br><code>122323,6,2013-09-26T06:56:35+0000,12,11,6,Owyliphys Iledil,[{\"name\":\"Source Type\",\"value\":\"Web page visit\"}]</code>",
+        "operationId": "getExportActivitiesFileUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "exportId",
+            "in": "path",
+            "description": "Id of export batch job.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Range",
+            "in": "header",
+            "description": "To support partial retrieval of extracted data, the HTTP header \"Range\" of type \"bytes\" may be specified. See RFC 2616 \"Range Retrieval Requests\" for more information. If the header is not set, the entire contents will be returned.",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ObservableOfInputStreamRangeContent"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ObservableOfInputStreamRangeContent": {
+      "type": "object"
+    }
+  }
+}

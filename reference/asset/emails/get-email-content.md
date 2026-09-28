@@ -1,0 +1,78 @@
+# Get Email Content
+
+**Method:** `GET`  
+**Path:** `/rest/asset/v1/email/{id}/content.json`  
+**Tag:** Emails  
+**Operation ID:** `getEmailContentByIdUsingGET`  
+
+Returns the content of the designated email. Required Permissions: Read-Only Assets, Read-Write Assets
+
+## Formats
+
+- **Request:** `application/x-www-form-urlencoded`
+- **Response:** `application/json`
+
+## Request
+
+### Path parameters
+
+| Name | Type | Required | Description | Constraints |
+|---|---|:---:|---|---|
+| `id` | integer (int32) | Yes | id |  |
+
+### Query parameters
+
+| Name | Type | Required | Description | Constraints |
+|---|---|:---:|---|---|
+| `status` | string | No | Status filter for draft or approved versions | enum: approved, draft |
+
+### Example request
+
+```http
+GET {{base_url}}/rest/asset/v1/email/{{id}}/content.json?status=approved
+Accept: application/json
+```
+
+## Responses
+
+### 200 — OK
+
+**Schema:** [`ResponseOfEmailContentResponse`](../models/responseofemailcontentresponse.md)
+
+#### Generated example
+
+```json
+{
+  "errors": [
+    {
+      "code": "string",
+      "message": "string"
+    }
+  ],
+  "requestId": "123",
+  "result": [
+    {
+      "contentType": "string",
+      "htmlId": "123",
+      "index": 123,
+      "isLocked": true,
+      "parentHtmlId": "123",
+      "value": {}
+    }
+  ],
+  "success": true,
+  "warnings": [
+    "string"
+  ]
+}
+```
+
+### Referenced models
+
+- [`ResponseOfEmailContentResponse`](../models/responseofemailcontentresponse.md)
+
+## Source
+
+Generated from [`swagger-asset.json`](https://raw.githubusercontent.com/AdobeDocs/marketo-apis/main/static/swagger-asset.json).
+
+> Generated examples are inferred from the schema. They are illustrative and may not be valid production payloads.

@@ -1,0 +1,298 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/bulk/v1/activities/export/create.json": {
+      "post": {
+        "tags": [
+          "Bulk Export Activities"
+        ],
+        "summary": "Create Export Activity Job",
+        "description": "Create export job for search criteria defined via \"filter\" parameter. Request returns the \"exportId\" which is passed as a parameter in subsequent calls to Bulk Export Activities endpoints. Use Enqueue Export Activity Job endpoint to queue the export job for processing. Use Get Export Activity Job Status endpoint to retrieve status of export job. Required Permissions: Read-Only Activity",
+        "operationId": "createExportActivitiesUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "exportActivityRequest",
+            "description": "exportActivityRequest<br><br>ColumnHeaderNames: A JSON object containing key-value pairs of field and column header names.<br><br>Example:<br><code>\"columnHeaderNames\":{<br>  \"primaryAttributeValueId\":\"Attribute ID\",<br>  \"primaryAttributeValue\":\"Attribute Value\",<br>  \"attributes\":\"Secondary Attributes\"<br>}</code><br>",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/ExportActivityRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfExportResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ColumnHeaderNames": {
+      "type": "object",
+      "required": [
+        "name",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "REST API name for header field"
+        },
+        "value": {
+          "type": "string",
+          "description": "Value for header field"
+        }
+      }
+    },
+    "DateRange": {
+      "type": "object",
+      "properties": {
+        "endAt": {
+          "type": "string",
+          "description": "End of date range filter (ISO 8601-format)"
+        },
+        "startAt": {
+          "type": "string",
+          "description": "Start of date range filter (ISO-8601 format)"
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "ExportActivityFilter": {
+      "type": "object",
+      "required": [
+        "createdAt"
+      ],
+      "properties": {
+        "activityTypeIds": {
+          "type": "array",
+          "description": "List of activity type ids to filter on",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "primaryAttributeValueIds": {
+          "type": "array",
+          "description": "List of primary attribute ids to filter on",
+          "items": {
+            "type": "integer",
+            "format": "int32"
+          }
+        },
+        "primaryAttributeValues": {
+          "type": "array",
+          "description": "List of primary attribute values to filter on",
+          "items": {
+            "type": "string"
+          }
+        },
+        "createdAt": {
+          "description": "Date range to filter new activities on",
+          "$ref": "#/definitions/DateRange"
+        }
+      }
+    },
+    "ExportActivityRequest": {
+      "type": "object",
+      "required": [
+        "fields",
+        "filter"
+      ],
+      "properties": {
+        "columnHeaderNames": {
+          "description": "File header field names override (corresponds with REST API name)",
+          "$ref": "#/definitions/ColumnHeaderNames"
+        },
+        "fields": {
+          "type": "array",
+          "description": "Array of strings containing field values. Used to reduce the number of fields contained in export file. Select one or more of: marketoGUID, leadId, activityDate, activityTypeId, campaignId, primaryAttributeValueId, primaryAttributeValue, actionResult",
+          "items": {
+            "type": "string"
+          }
+        },
+        "filter": {
+          "description": "Record selection criteria. \"createdAt\" is required, \"activityTypeIds\", \"primaryAttributeValueIds\", and \"primaryAttributeValues\" are optional",
+          "$ref": "#/definitions/ExportActivityFilter"
+        },
+        "format": {
+          "type": "string",
+          "description": "File format to create(\"CSV\", \"TSV\", \"SSV\"). Default is \"CSV\""
+        }
+      }
+    },
+    "ExportResponse": {
+      "type": "object",
+      "required": [
+        "exportId",
+        "status"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Date when the export request was created"
+        },
+        "errorMsg": {
+          "type": "string",
+          "description": "Error message in case of \"Failed\" status"
+        },
+        "exportId": {
+          "type": "string",
+          "description": "Unique id of the export job"
+        },
+        "fileSize": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Size of exported file in bytes. This will have a value only when status is \"Completed\", otherwise null"
+        },
+        "fileChecksum": {
+          "type": "string",
+          "description": "SHA-256 hash of exported file. This will have a value only when status is \"Completed\", otherwise null"
+        },
+        "finishedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Finish time of export job. This will have value only when status is \"Completed\" or \"Failed\", otherwise null"
+        },
+        "format": {
+          "type": "string",
+          "description": "Format of file as given in the request (\"CSV\", \"TSV\", \"SSV\")"
+        },
+        "numberOfRecords": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Number of records in the export file. This will have value only when status is \"Completed\", otherwise null"
+        },
+        "queuedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Queue time of export job. This will have value when \"Queued\" status is reached, before that null"
+        },
+        "startedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Start time of export job. This will have value when \"Processing\" status is reached, before that null"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the export job (\"Created\",\"Queued\",\"Processing\",\"Canceled\",\"Completed\",\"Failed\")"
+        }
+      },
+      "description": "Response containing export job status information"
+    },
+    "ResponseOfExportResponse": {
+      "type": "object",
+      "required": [
+        "errors",
+        "requestId",
+        "result",
+        "success",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Id of the request made"
+        },
+        "result": {
+          "type": "array",
+          "description": "Array of results for individual records in the operation, may be empty",
+          "items": {
+            "$ref": "#/definitions/ExportResponse"
+          }
+        },
+        "success": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the request succeeded"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Array of warnings given for the operation",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        }
+      }
+    },
+    "Warning": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer code of the warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the warning"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,247 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/v1/programs/members/schema/fields.json": {
+      "post": {
+        "tags": [
+          "Program Members"
+        ],
+        "summary": "Create Program Member Fields",
+        "description": "Create program member fields in the target instance. Required Permissions: Read-Write Schema Custom Field",
+        "operationId": "createProgramMemberFieldUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "createLeadFieldRequest",
+            "description": "createLeadFieldRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateLeadFieldRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfCreateLeadField"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateLeadField": {
+      "type": "object",
+      "required": [
+        "displayName",
+        "name",
+        "dataType"
+      ],
+      "description": "Lead field record for create",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "UI display-name of the field. Must be unique, cannot contain special characters"
+        },
+        "name": {
+          "type": "string",
+          "description": "API name of the field. Must be unique, start with a letter, and only contain letters, numbers, or underscore"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the field. Default is no description"
+        },
+        "dataType": {
+          "type": "string",
+          "description": "Datatype of the field",
+          "enum": [
+            "boolean",
+            "currency",
+            "date",
+            "datetime",
+            "email",
+            "float",
+            "integer",
+            "percent",
+            "phone",
+            "score",
+            "string",
+            "url"
+          ]
+        },
+        "isHidden": {
+          "type": "boolean",
+          "example": false,
+          "description": "If set to true, the field is hidden. Default is false"
+        },
+        "isHtmlEncodingInEmail": {
+          "type": "boolean",
+          "example": false,
+          "description": "If set to true, field is encoded as HTML in email. Default is true"
+        },
+        "isSensitive": {
+          "type": "boolean",
+          "example": false,
+          "description": "If set to true, field is marked as sensitive. Default is false"
+        }
+      }
+    },
+    "CreateLeadFieldRequest": {
+      "type": "object",
+      "required": [
+        "input"
+      ],
+      "properties": {
+        "input": {
+          "type": "array",
+          "description": "List of lead fields for input",
+          "items": {
+            "$ref": "#/definitions/CreateLeadField"
+          }
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "LeadFieldStatus": {
+      "type": "object",
+      "required": [
+        "name",
+        "status"
+      ],
+      "description": "Lead field update status",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "API name of the field"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the operation performed on the record",
+          "enum": [
+            "created",
+            "updated"
+          ]
+        }
+      }
+    },
+    "ResponseOfCreateLeadField": {
+      "type": "object",
+      "required": [
+        "errors",
+        "requestId",
+        "result",
+        "success",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "moreResult": {
+          "type": "boolean",
+          "example": false,
+          "description": "Boolean indicating if there are more results in subsequent pages"
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Paging token given if the result set exceeded the allowed batch size"
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Id of the request made"
+        },
+        "result": {
+          "type": "array",
+          "description": "Array of results for individual records in the operation, may be empty",
+          "items": {
+            "$ref": "#/definitions/LeadFieldStatus"
+          }
+        },
+        "success": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the request succeeded"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Array of warnings given for the operation",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        }
+      }
+    },
+    "Warning": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer code of the warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the warning"
+        }
+      }
+    }
+  }
+}

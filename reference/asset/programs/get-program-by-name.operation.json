@@ -1,0 +1,293 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/x-www-form-urlencoded"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v1/program/byName.json": {
+      "get": {
+        "tags": [
+          "Programs"
+        ],
+        "summary": "Get Program by Name",
+        "description": "Retrieves the program record for the given name. Required Permissions: Read-Only Assets, Read-Write Assets",
+        "operationId": "getProgramByNameUsingGET",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "name",
+            "in": "query",
+            "description": "Name of the program",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "includeTags",
+            "in": "query",
+            "description": "Set true to populate program tags",
+            "required": false,
+            "type": "boolean"
+          },
+          {
+            "name": "includeCosts",
+            "in": "query",
+            "description": "Set true to populate program costs",
+            "required": false,
+            "type": "boolean"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfProgramResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Costs": {
+      "type": "object",
+      "required": [
+        "cost",
+        "startDate"
+      ],
+      "properties": {
+        "cost": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Amount of the cost"
+        },
+        "note": {
+          "type": "string",
+          "description": "Notes on the cost"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Start date of the period cost"
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "Folder": {
+      "type": "object",
+      "required": [
+        "id",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the folder"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of folder",
+          "enum": [
+            "Folder",
+            "Program"
+          ]
+        }
+      },
+      "description": "JSON representation of a folder"
+    },
+    "ProgramResponse": {
+      "type": "object",
+      "required": [
+        "channel",
+        "costs",
+        "folder",
+        "status",
+        "tags",
+        "type"
+      ],
+      "properties": {
+        "channel": {
+          "type": "string",
+          "description": "Channel of the program"
+        },
+        "costs": {
+          "type": "array",
+          "description": "Lists of associated period costs",
+          "items": {
+            "$ref": "#/definitions/Costs"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime the asset was created"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the asset"
+        },
+        "endDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "End date of the program. Applicable to event, email, and webinar type programs"
+        },
+        "folder": {
+          "description": "JSON representation of parent folder, with members 'id', and 'type' which may be 'Folder' or 'Program'",
+          "$ref": "#/definitions/Folder"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Id of the asset"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the asset"
+        },
+        "sfdcId": {
+          "type": "string",
+          "description": "SFDC id of the program if linked to an SFDC campaign"
+        },
+        "sfdcName": {
+          "type": "string",
+          "description": "Name of the linked SFDC campaign if applicable"
+        },
+        "startDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Start date of program. Applicable to event, email and webinar type programs"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the program. Only valid for Email and engagement program types.",
+          "enum": [
+            "locked",
+            "unlocked",
+            "on",
+            "off"
+          ]
+        },
+        "tags": {
+          "type": "array",
+          "description": "List of associated program tags",
+          "items": {
+            "$ref": "#/definitions/Tags"
+          }
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of the program",
+          "enum": [
+            "default",
+            "event",
+            "webinar",
+            "nurture"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime the asset was most recently updated"
+        },
+        "url": {
+          "type": "string",
+          "description": "Url of the asset in the Marketo UI"
+        },
+        "workspace": {
+          "type": "string",
+          "description": "Name of the workspace"
+        }
+      }
+    },
+    "ResponseOfProgramResponse": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ProgramResponse"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "Tags": {
+      "type": "object",
+      "required": [
+        "tagType",
+        "tagValue"
+      ],
+      "properties": {
+        "tagType": {
+          "type": "string",
+          "description": "Name of the tag"
+        },
+        "tagValue": {
+          "type": "string",
+          "description": "Value of the tag"
+        }
+      }
+    }
+  }
+}

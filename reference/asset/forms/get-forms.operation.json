@@ -1,0 +1,310 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/x-www-form-urlencoded"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v1/forms.json": {
+      "get": {
+        "tags": [
+          "Forms"
+        ],
+        "summary": "Get Forms",
+        "description": "Retrieves a list of accessible form records from the target instance. Required Permissions: Read-Only Assets, Read-Write Assets",
+        "operationId": "browseForms2UsingGET",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Status filter for draft or approved versions",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "approved",
+              "draft"
+            ]
+          },
+          {
+            "name": "folder",
+            "in": "query",
+            "description": "JSON representation of parent folder, with members 'id', and 'type' which may be 'Folder' or 'Program'",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "maxReturn",
+            "in": "query",
+            "description": "Maximum number of forms to return. Max 200, default 20",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Integer offset for paging",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfLpFormResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "Folder": {
+      "type": "object",
+      "required": [
+        "id",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the folder"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of folder",
+          "enum": [
+            "Folder",
+            "Program"
+          ]
+        }
+      },
+      "description": "JSON representation of a folder"
+    },
+    "FormKnownVisitorDTO": {
+      "type": "object",
+      "properties": {
+        "template": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "FormThankYouPageDTO": {
+      "type": "object",
+      "properties": {
+        "default": {
+          "type": "boolean"
+        },
+        "followupType": {
+          "type": "string"
+        },
+        "followupValue": {
+          "type": "object"
+        },
+        "operator": {
+          "type": "string"
+        },
+        "subjectField": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "LpFormResponse": {
+      "type": "object",
+      "required": [
+        "buttonLabel",
+        "buttonLocation",
+        "folder",
+        "fontFamily",
+        "fontSize",
+        "knownVisitor",
+        "labelPosition",
+        "language",
+        "locale",
+        "progressiveProfiling",
+        "status",
+        "thankYouList",
+        "theme",
+        "waitingLabel"
+      ],
+      "properties": {
+        "buttonLabel": {
+          "type": "string",
+          "description": "Label text of the button"
+        },
+        "buttonLocation": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Location in pixels of the button relative to the left of the form"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime the asset was created"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the asset"
+        },
+        "folder": {
+          "description": "JSON representation of parent folder, with members 'id', and 'type' which may be 'Folder' or 'Program'",
+          "$ref": "#/definitions/Folder"
+        },
+        "fontFamily": {
+          "type": "string",
+          "description": "font-family property for the form"
+        },
+        "fontSize": {
+          "type": "string",
+          "description": "font-size property of the form"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Id of the asset"
+        },
+        "knownVisitor": {
+          "description": "Known visitor behavior for the form",
+          "$ref": "#/definitions/FormKnownVisitorDTO"
+        },
+        "labelPosition": {
+          "type": "string",
+          "description": "Default positioning of labels."
+        },
+        "language": {
+          "type": "string",
+          "description": "Language of the form"
+        },
+        "locale": {
+          "type": "string",
+          "description": "Locale of the form"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the asset"
+        },
+        "progressiveProfiling": {
+          "type": "boolean",
+          "description": "Whether progressive profiling is enabled for the form"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status filter for draft or approved versions",
+          "enum": [
+            "approved",
+            "draft"
+          ]
+        },
+        "thankYouList": {
+          "type": "array",
+          "description": "List of thank you page behaviors for the form",
+          "items": {
+            "$ref": "#/definitions/FormThankYouPageDTO"
+          }
+        },
+        "theme": {
+          "type": "string",
+          "description": "CSS theme for the form to use"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime the asset was most recently updated"
+        },
+        "url": {
+          "type": "string",
+          "description": "Url of the asset in the Marketo UI"
+        },
+        "waitingLabel": {
+          "type": "string",
+          "description": "Waiting text of the button"
+        }
+      }
+    },
+    "ResponseOfLpFormResponse": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LpFormResponse"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

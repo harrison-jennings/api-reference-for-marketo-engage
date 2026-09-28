@@ -1,0 +1,183 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/x-www-form-urlencoded"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v1/email/{id}/dynamicContent/{contentId}.json": {
+      "get": {
+        "tags": [
+          "Emails"
+        ],
+        "summary": "Get Email Dynamic Content",
+        "description": "Retrieves the dynamic content record for the given section. Required Permissions: Read-Only Assets, Read-Write Assets",
+        "operationId": "getEmailDynamicContentUsingGET",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of email",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "contentId",
+            "in": "path",
+            "description": "Id of email dynamic content section",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Status filter for draft or approved versions",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "approved",
+              "draft"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfEmailDynamicContentResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "EmailDynamicContentItem": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "string"
+        },
+        "id": {
+          "type": "string"
+        },
+        "segmentId": {
+          "type": "string"
+        },
+        "segmentName": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string"
+        }
+      }
+    },
+    "EmailDynamicContentResponse": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "array",
+          "description": "List of variations in the section",
+          "items": {
+            "$ref": "#/definitions/EmailDynamicContentItem"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime when the section was created"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the dnamic content section"
+        },
+        "segmentation": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Segmentation to which the section is linked"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime when the section was last updated"
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "ResponseOfEmailDynamicContentResponse": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmailDynamicContentResponse"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

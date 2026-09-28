@@ -1,0 +1,254 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v2/emailtemplate/usedby": {
+      "post": {
+        "tags": [
+          "Email Templates (New)"
+        ],
+        "summary": "Get Email Template Used By",
+        "description": "Returns a list of assets that reference the specified email template. Required Permissions: Read-Only Assets, Access Design Studio.",
+        "operationId": "getContentUsedByUsingPOST_emailtemplate",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "access_token",
+            "in": "query",
+            "description": "Token for Authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-app-type",
+            "in": "header",
+            "description": "Application type header",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "marketo"
+            ]
+          },
+          {
+            "in": "body",
+            "name": "usedByRequest",
+            "description": "usedByRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UsedByRequestDto"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/UsedByResponse"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AppDataDTO": {
+      "type": "object",
+      "properties": {
+        "editorType": {
+          "type": "string"
+        },
+        "folderId": {
+          "type": "string"
+        },
+        "workspaceId": {
+          "type": "string"
+        }
+      },
+      "title": "AppDataDTO"
+    },
+    "ContentWaveErrorDTO": {
+      "type": "object",
+      "description": "An entry in the errors array. The type field marks it as info, warning, or error — there is no separate warnings array; warnings appear here with type \"warning\".",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "dynamicMessage": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "description": "Severity of the entry: info, warning, or error."
+        },
+        "source": {
+          "type": "string",
+          "description": "Origin of the entry, e.g. validation, template, fragment, message_render, asset_publish."
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "errorPosition": {
+          "type": "object",
+          "description": "Location in the content the entry refers to (for script/validation errors).",
+          "properties": {
+            "line": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "column": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      },
+      "title": "ContentWaveErrorDTO"
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContentWaveErrorDTO"
+          }
+        }
+      },
+      "title": "ErrorResponse"
+    },
+    "PageDetailsDTO": {
+      "type": "object",
+      "properties": {
+        "totalItems": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "currentPage": {
+          "type": "integer",
+          "format": "int32"
+        }
+      },
+      "title": "PageDetailsDTO"
+    },
+    "UsedByItemDTO": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "appData": {
+          "$ref": "#/definitions/AppDataDTO"
+        },
+        "channel": {
+          "type": "string"
+        },
+        "contentType": {
+          "type": "string"
+        },
+        "externalId": {
+          "type": "string"
+        }
+      },
+      "title": "UsedByItemDTO"
+    },
+    "UsedByRequestDto": {
+      "type": "object",
+      "required": [
+        "assetId"
+      ],
+      "properties": {
+        "assetId": {
+          "type": "string"
+        },
+        "pageIndex": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "pageSize": {
+          "type": "integer",
+          "format": "int32"
+        },
+        "type": {
+          "type": "string"
+        }
+      },
+      "title": "UsedByRequestDto"
+    },
+    "UsedByResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/UsedByItemDTO"
+          }
+        },
+        "pageDetails": {
+          "$ref": "#/definitions/PageDetailsDTO"
+        }
+      },
+      "title": "UsedByResponse"
+    }
+  }
+}

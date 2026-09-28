@@ -1,0 +1,26 @@
+# Environment and secret files
+.env
+.env.*
+!.env.example
+
+# Local Postman environments
+*.local.postman_environment.json
+*.private.postman_environment.json
+
+# Python
+__pycache__/
+*.pyc
+
+# Operating system files
+.DS_Store
+Thumbs.db
+
+# VS Code local configuration
+.vscode/
+# Reference generator log (its summary is printed when generating)
+reference/validation-report.md
+
+# Documentation site build output and local environments
+site/
+.venv/
+node_modules/

@@ -1,0 +1,8 @@
+# Documentation site build dependencies. The reference generator itself needs
+# only the Python standard library.
+#
+# MkDocs 2.0 is not compatible with Material for MkDocs or its plugin/theme
+# system, so both are pinned to the 1.x-compatible releases.
+mkdocs==1.6.1
+mkdocs-material==9.7.7
+pymdown-extensions==11.0.1

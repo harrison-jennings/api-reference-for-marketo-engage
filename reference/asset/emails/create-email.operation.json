@@ -1,0 +1,359 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/x-www-form-urlencoded"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v1/emails.json": {
+      "post": {
+        "tags": [
+          "Emails"
+        ],
+        "summary": "Create Email",
+        "description": "Creates a new email asset. Required Permissions: Read-Write Assets",
+        "operationId": "createEmailUsingPOST",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "createEmailRequest",
+            "description": "createEmailRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/CreateEmailRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfEmailResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "CreateEmailRequest": {
+      "type": "object",
+      "required": [
+        "folder",
+        "fromEmail",
+        "fromName",
+        "name",
+        "replyEmail",
+        "subject",
+        "template"
+      ],
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Description of the asset"
+        },
+        "folder": {
+          "description": "JSON representation of parent folder, with members 'id', and 'type' which may be 'Folder' or 'Program'",
+          "$ref": "#/definitions/Folder"
+        },
+        "fromEmail": {
+          "type": "string",
+          "description": "From-address of the Email"
+        },
+        "fromName": {
+          "type": "string",
+          "description": "From-name of the Email"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the email"
+        },
+        "operational": {
+          "type": "boolean",
+          "description": "Whether the email is operational. Operational emails bypass unsubscribe status. Defaults to false"
+        },
+        "replyEmail": {
+          "type": "string",
+          "description": "Reply-To address of the Email"
+        },
+        "subject": {
+          "type": "string",
+          "description": "Subject Line of the Email"
+        },
+        "template": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the parent template"
+        },
+        "textOnly": {
+          "type": "boolean",
+          "description": "Setting to include text-only version of email when sent"
+        },
+        "autoCopyToText": {
+          "type": "boolean",
+          "description": "Setting to automatically copy HTML version to Text version"
+        }
+      }
+    },
+    "EmailCCFields": {
+      "type": "object",
+      "required": [
+        "attributeId",
+        "objectName",
+        "displayName",
+        "apiName"
+      ],
+      "properties": {
+        "attributeId": {
+          "type": "string",
+          "description": "Attribute identifier"
+        },
+        "objectName": {
+          "type": "string",
+          "description": "Object name. 'lead' or 'company'"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "Display name"
+        },
+        "apiName": {
+          "type": "string",
+          "description": "API name"
+        }
+      }
+    },
+    "EmailHeaderField": {
+      "type": "object",
+      "required": [
+        "type",
+        "value"
+      ],
+      "properties": {
+        "type": {
+          "type": "string",
+          "description": "Field type"
+        },
+        "value": {
+          "type": "string",
+          "description": "Value of field"
+        }
+      }
+    },
+    "EmailResponse": {
+      "type": "object",
+      "required": [
+        "folder",
+        "fromEmail",
+        "fromName",
+        "operational",
+        "publishToMSI",
+        "replyEmail",
+        "status",
+        "subject",
+        "template",
+        "textOnly",
+        "webView",
+        "autoCopyToText",
+        "preHeader"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime the asset was created"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the asset"
+        },
+        "folder": {
+          "description": "JSON representation of parent folder, with members 'id', and 'type' which may be 'Folder' or 'Program'",
+          "$ref": "#/definitions/Folder"
+        },
+        "fromEmail": {
+          "description": "From-address of the Email",
+          "$ref": "#/definitions/EmailHeaderField"
+        },
+        "fromName": {
+          "description": "From-name of the Email",
+          "$ref": "#/definitions/EmailHeaderField"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Id of the asset"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the asset"
+        },
+        "operational": {
+          "type": "boolean",
+          "description": "Whether the email is operational. Operational emails bypass unsubscribe status. Defaults to false"
+        },
+        "publishToMSI": {
+          "type": "boolean",
+          "description": "Whether the email is published to Marketo Sales Insight"
+        },
+        "replyEmail": {
+          "description": "Reply-To address of the Email",
+          "$ref": "#/definitions/EmailHeaderField"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status filter for draft or approved versions"
+        },
+        "subject": {
+          "description": "Subject Line of the Email",
+          "$ref": "#/definitions/EmailHeaderField"
+        },
+        "template": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the parent template"
+        },
+        "textOnly": {
+          "type": "boolean",
+          "description": "Setting to include text-only version of email when sent"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime the asset was most recently updated"
+        },
+        "url": {
+          "type": "string",
+          "description": "Url of the asset in the Marketo UI"
+        },
+        "version": {
+          "type": "integer",
+          "format": "int32",
+          "description": "The type version of the email",
+          "enum": [
+            1,
+            2
+          ]
+        },
+        "webView": {
+          "type": "boolean",
+          "description": "Whether 'View as Webpage' function is enabled for the email"
+        },
+        "workspace": {
+          "type": "string",
+          "description": "Name of the workspace"
+        },
+        "autoCopyToText": {
+          "type": "boolean",
+          "description": "Setting to automatically copy HTML version to Text version"
+        },
+        "preHeader": {
+          "type": "string",
+          "description": "The email preheader text (max 1024 characters)"
+        },
+        "ccFields": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmailCCFields"
+          }
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "Folder": {
+      "type": "object",
+      "required": [
+        "id",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the folder"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of folder",
+          "enum": [
+            "Folder",
+            "Program"
+          ]
+        }
+      },
+      "description": "JSON representation of a folder"
+    },
+    "ResponseOfEmailResponse": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmailResponse"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

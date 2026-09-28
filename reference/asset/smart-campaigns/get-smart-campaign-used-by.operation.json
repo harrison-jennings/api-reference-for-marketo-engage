@@ -1,0 +1,220 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/x-www-form-urlencoded"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v1/smartCampaign/{id}/usedBy.json": {
+      "get": {
+        "tags": [
+          "Smart Campaigns"
+        ],
+        "summary": "Get Smart Campaign Used By",
+        "description": "Returns a list of assets that reference the specified smart campaign. Required Permissions: Read-Only Assets, Read-Write Assets",
+        "operationId": "getSmartCampaignUsedByUsingGET",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the smart campaign",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Integer offset for paging",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "maxReturn",
+            "in": "query",
+            "description": "Maximum number of results to return. Max 50, default 50",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "sortByColumn",
+            "in": "query",
+            "description": "Column to sort results by. Default updated_at",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "updatedAt",
+              "name",
+              "updated_at"
+            ]
+          },
+          {
+            "name": "order",
+            "in": "query",
+            "description": "Sort order. Default desc",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "asc",
+              "desc"
+            ]
+          },
+          {
+            "name": "query",
+            "in": "query",
+            "description": "Filter results by name",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfSmartCampaignUsedBy"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "ResponseOfSmartCampaignUsedBy": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SmartCampaignUsedBy"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "SmartCampaignUsedBy": {
+      "type": "object",
+      "properties": {
+        "usedByCount": {
+          "type": "string",
+          "description": "Number of assets that use the smart campaign"
+        },
+        "usedBy": {
+          "type": "array",
+          "description": "Assets that use the smart campaign",
+          "items": {
+            "$ref": "#/definitions/SmartCampaignUsedByAsset"
+          }
+        }
+      }
+    },
+    "SmartCampaignUsedByAsset": {
+      "type": "object",
+      "required": [
+        "id",
+        "name"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Id of the asset"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the asset"
+        },
+        "compType": {
+          "type": "string",
+          "description": "Type of the asset"
+        },
+        "subType": {
+          "type": "string",
+          "description": "Subtype of the asset"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the asset"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime the asset was most recently updated"
+        },
+        "programId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the program containing the asset"
+        },
+        "accessZoneId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the workspace containing the asset"
+        }
+      }
+    }
+  }
+}

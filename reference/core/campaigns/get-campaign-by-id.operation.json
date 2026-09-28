@@ -1,0 +1,208 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/v1/campaigns/{campaignId}.json": {
+      "get": {
+        "tags": [
+          "Campaigns"
+        ],
+        "summary": "Get Campaign By Id",
+        "description": "Returns the record of a campaign by its id. Required Permissions: Read-Only Campaigns, Read-Write Campaigns<br><br><b>Note: This endpoint has been superseded.</b>  Use <a href=\"https://developer.adobe.com/marketo-apis/api/asset/#operation/getSmartCampaignByIdUsingGET\">Get Smart Campaign by Id</a> endpoint instead.",
+        "operationId": "getCampaignByIdUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "campaignId",
+            "in": "path",
+            "description": "campaignId",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfCampaign"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Campaign": {
+      "type": "object",
+      "required": [
+        "createdAt",
+        "id",
+        "name",
+        "type",
+        "updatedAt"
+      ],
+      "properties": {
+        "active": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the campaign is active. Only applicable to trigger campaigns"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Datetime when the campaign was created"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the Smart Campaign"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Unique integer id of the Smart Campaign"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the Smart Campaign"
+        },
+        "programId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the parent program if applicable"
+        },
+        "programName": {
+          "type": "string",
+          "description": "Name of the parent program if applicable"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of the Smart Campaign",
+          "enum": [
+            "batch",
+            "trigger"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Datetime when the campaign was most recently updated"
+        },
+        "workspaceName": {
+          "type": "string",
+          "description": "Name of the parent workspace if applicable"
+        }
+      },
+      "description": "Record of a Marketo Smart Campaign"
+    },
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "ResponseOfCampaign": {
+      "type": "object",
+      "required": [
+        "errors",
+        "requestId",
+        "result",
+        "success",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Paging token given if the result set exceeded the allowed batch size"
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Id of the request made"
+        },
+        "result": {
+          "type": "array",
+          "description": "Array of results for individual records in the operation, may be empty",
+          "items": {
+            "$ref": "#/definitions/Campaign"
+          }
+        },
+        "success": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the request succeeded"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Array of warnings given for the operation",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        }
+      }
+    },
+    "Warning": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer code of the warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the warning"
+        }
+      }
+    }
+  }
+}

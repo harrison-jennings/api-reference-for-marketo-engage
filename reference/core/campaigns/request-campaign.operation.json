@@ -1,0 +1,282 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/v1/campaigns/{campaignId}/trigger.json": {
+      "post": {
+        "tags": [
+          "Campaigns"
+        ],
+        "summary": "Request Campaign",
+        "description": "Passes a set of leads to a trigger campaign to run through the campaign's flow. The designated campaign must have a Campaign is Requested: Web Service API trigger, and must be active. My tokens local to the campaign's parent program can be overridden for the run to customize content. A maximum of 100 leads are allowed per call. Required Permissions: Execute Campaign",
+        "operationId": "triggerCampaignUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "campaignId",
+            "in": "path",
+            "description": "The id of the campaign to trigger",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "in": "body",
+            "name": "triggerCampaignRequest",
+            "description": "triggerCampaignRequest",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/TriggerCampaignRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfCampaign"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Campaign": {
+      "type": "object",
+      "required": [
+        "createdAt",
+        "id",
+        "name",
+        "type",
+        "updatedAt"
+      ],
+      "properties": {
+        "active": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the campaign is active. Only applicable to trigger campaigns"
+        },
+        "createdAt": {
+          "type": "string",
+          "description": "Datetime when the campaign was created"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the Smart Campaign"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Unique integer id of the Smart Campaign"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the Smart Campaign"
+        },
+        "programId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the parent program if applicable"
+        },
+        "programName": {
+          "type": "string",
+          "description": "Name of the parent program if applicable"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of the Smart Campaign",
+          "enum": [
+            "batch",
+            "trigger"
+          ]
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Datetime when the campaign was most recently updated"
+        },
+        "workspaceName": {
+          "type": "string",
+          "description": "Name of the parent workspace if applicable"
+        }
+      },
+      "description": "Record of a Marketo Smart Campaign"
+    },
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "InputLead": {
+      "type": "object",
+      "required": [
+        "id"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Unique integer id of a lead record"
+        }
+      },
+      "description": "Lead record containing only lead id"
+    },
+    "ResponseOfCampaign": {
+      "type": "object",
+      "required": [
+        "errors",
+        "requestId",
+        "result",
+        "success",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Paging token given if the result set exceeded the allowed batch size"
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Id of the request made"
+        },
+        "result": {
+          "type": "array",
+          "description": "Array of results for individual records in the operation, may be empty",
+          "items": {
+            "$ref": "#/definitions/Campaign"
+          }
+        },
+        "success": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the request succeeded"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Array of warnings given for the operation",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        }
+      }
+    },
+    "Token": {
+      "type": "object",
+      "required": [
+        "name",
+        "value"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the token. Should be formatted as \"{{my.name}}\""
+        },
+        "value": {
+          "type": "string",
+          "description": "Value of the token"
+        }
+      }
+    },
+    "TriggerCampaignData": {
+      "type": "object",
+      "required": [
+        "leads"
+      ],
+      "properties": {
+        "leads": {
+          "type": "array",
+          "description": "List of leads for input",
+          "items": {
+            "$ref": "#/definitions/InputLead"
+          }
+        },
+        "tokens": {
+          "type": "array",
+          "description": "List of my tokens to replace during the run of the target campaign. The tokens must be available in a parent program or folder to be replaced during the run",
+          "items": {
+            "$ref": "#/definitions/Token"
+          }
+        }
+      }
+    },
+    "TriggerCampaignRequest": {
+      "type": "object",
+      "required": [
+        "input"
+      ],
+      "properties": {
+        "input": {
+          "description": "Object describing trigger configuration for the campaign",
+          "$ref": "#/definitions/TriggerCampaignData"
+        }
+      }
+    },
+    "Warning": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer code of the warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the warning"
+        }
+      }
+    }
+  }
+}

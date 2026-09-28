@@ -1,0 +1,214 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/x-www-form-urlencoded"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v1/smartLists.json": {
+      "get": {
+        "tags": [
+          "Smart Lists"
+        ],
+        "summary": "Get Smart Lists",
+        "description": "Retrieves a list of user created Smart List records. Required Permissions: Read-Asset or Read-Write Asset",
+        "operationId": "getSmartListsUsingGET",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "folder",
+            "in": "query",
+            "description": "JSON representation of parent folder, with members 'id', and 'type' which may be 'Folder' or 'Program'",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "offset",
+            "in": "query",
+            "description": "Integer offset for paging",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "maxReturn",
+            "in": "query",
+            "description": "Maximum number of smart lists to return. Max 200, default 20.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "earliestUpdatedAt",
+            "in": "query",
+            "description": "Exclude smart lists prior to this date. Must be valid ISO-8601 string. See <a href=\"http://developers.marketo.com/rest-api/lead-database/fields/field-types/\">Datetime</a> field type description.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "latestUpdatedAt",
+            "in": "query",
+            "description": "Exclude smart lists after this date. Must be valid ISO-8601 string. See <a href=\"http://developers.marketo.com/rest-api/lead-database/fields/field-types/\">Datetime</a> field type description.",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfSmartListResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "Folder": {
+      "type": "object",
+      "required": [
+        "id",
+        "type"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the folder"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of folder",
+          "enum": [
+            "Folder",
+            "Program"
+          ]
+        }
+      },
+      "description": "JSON representation of a folder"
+    },
+    "ResponseOfSmartListResponse": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/SmartListResponse"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "SmartListResponse": {
+      "type": "object",
+      "required": [
+        "id",
+        "name",
+        "description",
+        "createdAt",
+        "updatedAt",
+        "folder",
+        "workspace"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Id of the smart list"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the smart list"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the smart list"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime the smart list was created"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime the smart list was most recently updated"
+        },
+        "url": {
+          "type": "string",
+          "description": "Url of the smart list in the Marketo UI"
+        },
+        "folder": {
+          "description": "JSON representation of parent folder, with members 'id', and 'type' which may be 'Folder' or 'Program'",
+          "$ref": "#/definitions/Folder"
+        },
+        "workspace": {
+          "type": "string",
+          "description": "Name of the workspace"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,170 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/x-www-form-urlencoded"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v1/email/{id}/fullContent.json": {
+      "get": {
+        "tags": [
+          "Emails"
+        ],
+        "summary": "Get Email Full Content",
+        "description": "Returns the serialized HTML version of the email. Required Permissions: Read-Only Assets, Read-Write Assets. If leadId is passed in the request: Read-Only Lead, Read-Write Lead.",
+        "operationId": "getEmailFullContentUsingGET",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of the email",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Status filter for draft or approved versions. Defaults to approved if asset is approved, draft if not.",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "approved",
+              "draft"
+            ]
+          },
+          {
+            "name": "leadId",
+            "in": "query",
+            "description": "The lead id to impersonate. Email is rendered as though it was received by this lead.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "type",
+            "in": "query",
+            "description": "Email content type to return. Default is HTML.",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "Text",
+              "HTML"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfGetEmailFullContentResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "GetEmailFullContentResponse": {
+      "type": "object",
+      "required": [
+        "content",
+        "id",
+        "status"
+      ],
+      "properties": {
+        "content": {
+          "type": "string",
+          "description": "HTML content of the email"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Unique integer id of the email"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status filter for draft or approved versions",
+          "enum": [
+            "approved",
+            "draft"
+          ]
+        }
+      }
+    },
+    "ResponseOfGetEmailFullContentResponse": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/GetEmailFullContentResponse"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

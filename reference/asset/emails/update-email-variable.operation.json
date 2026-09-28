@@ -1,0 +1,168 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/x-www-form-urlencoded"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v1/email/{id}/variable/{name}.json": {
+      "post": {
+        "tags": [
+          "Emails"
+        ],
+        "summary": "Update Email Variable",
+        "description": "Updates the value of a given variable in an email. Required Permissions: Read-Write Assets",
+        "operationId": "updateVariableUsingPOST",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "name",
+            "in": "path",
+            "description": "name",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "updateVariableRequest",
+            "description": "updateVariableRequest",
+            "required": false,
+            "schema": {
+              "$ref": "#/definitions/UpdateVariableRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfEmailVariableResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "EmailVariableResponse": {
+      "type": "object",
+      "required": [
+        "name",
+        "value",
+        "moduleScope"
+      ],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Name of the email variable"
+        },
+        "value": {
+          "type": "string",
+          "description": "Value of the email variable"
+        },
+        "moduleScope": {
+          "type": "boolean",
+          "description": "Returns true for local variables else returns false"
+        },
+        "moduleId": {
+          "type": "string",
+          "description": "Returns the moduleId associated with the variable, only in case of local variable"
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "ResponseOfEmailVariableResponse": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmailVariableResponse"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "UpdateVariableRequest": {
+      "type": "object",
+      "properties": {
+        "value": {
+          "type": "string",
+          "description": "Value to update variable with"
+        },
+        "moduleId": {
+          "type": "string",
+          "description": "Module that variable is associated with. Required for updating module variables. Not needed for global variables."
+        }
+      }
+    }
+  }
+}

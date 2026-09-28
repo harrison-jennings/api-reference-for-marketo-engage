@@ -1,0 +1,227 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/v1/leads/schema/fields/{fieldApiName}.json": {
+      "post": {
+        "tags": [
+          "Leads"
+        ],
+        "summary": "Update Lead Field",
+        "description": "Update metadata for a lead field in the target instance. See update rules <a href=\"https://developers.marketo.com/rest-api/lead-database/leads/#update_field\">here</a>. Required Permissions: Read-Write Schema Standard Field, Read-Write Schema Custom Field",
+        "operationId": "updateLeadFieldUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "fieldApiName",
+            "in": "path",
+            "description": "The API name of lead field",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "updateLeadFieldRequest",
+            "description": "updateLeadFieldRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/UpdateLeadFieldRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfUpdateLeadField"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "LeadFieldStatus": {
+      "type": "object",
+      "required": [
+        "name",
+        "status"
+      ],
+      "description": "Lead field update status",
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "API name of the field"
+        },
+        "status": {
+          "type": "string",
+          "description": "Status of the operation performed on the record",
+          "enum": [
+            "created",
+            "updated"
+          ]
+        }
+      }
+    },
+    "ResponseOfUpdateLeadField": {
+      "type": "object",
+      "required": [
+        "errors",
+        "requestId",
+        "result",
+        "success",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "moreResult": {
+          "type": "boolean",
+          "example": false,
+          "description": "Boolean indicating if there are more results in subsequent pages"
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Paging token given if the result set exceeded the allowed batch size"
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Id of the request made"
+        },
+        "result": {
+          "type": "array",
+          "description": "Array of results for individual records in the operation, may be empty",
+          "items": {
+            "$ref": "#/definitions/LeadFieldStatus"
+          }
+        },
+        "success": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the request succeeded"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Array of warnings given for the operation",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        }
+      }
+    },
+    "UpdateLeadField": {
+      "type": "object",
+      "description": "Lead field record for update",
+      "properties": {
+        "displayName": {
+          "type": "string",
+          "description": "UI display-name of the field"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the field"
+        },
+        "isHidden": {
+          "type": "boolean",
+          "example": false,
+          "description": "If set to true, the field is hidden. Default is false"
+        },
+        "isHtmlEncodingInEmail": {
+          "type": "boolean",
+          "example": false,
+          "description": "If set to true, field is encoded as HTML in email. Default is true"
+        },
+        "isSensitive": {
+          "type": "boolean",
+          "example": false,
+          "description": "If set to true, field is marked as sensitive. Default is false"
+        }
+      }
+    },
+    "UpdateLeadFieldRequest": {
+      "type": "object",
+      "required": [
+        "input"
+      ],
+      "properties": {
+        "input": {
+          "type": "array",
+          "description": "Single lead field for input",
+          "items": {
+            "$ref": "#/definitions/UpdateLeadField"
+          }
+        }
+      }
+    },
+    "Warning": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer code of the warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the warning"
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,312 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/v1/opportunities/describe.json": {
+      "get": {
+        "tags": [
+          "Opportunities"
+        ],
+        "summary": "Describe Opportunity",
+        "description": "Returns object and field metadata for Opportunity type records in the target instance. Required Permissions: Read-Only Opportunity, Read-Write Named Opportunity",
+        "operationId": "describeUsingGET_4",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfObjectMetaData"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "ObjectField": {
+      "type": "object",
+      "properties": {
+        "dataType": {
+          "type": "string",
+          "description": "Datatype of the field"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "UI display-name of the field"
+        },
+        "length": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Max length of the field. Only applicable to text, string, and text area."
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the field"
+        },
+        "updateable": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the field is updateable"
+        },
+        "crmManaged": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the field is managed by CRM (native sync)"
+        }
+      }
+    },
+    "ObjectMetaData": {
+      "type": "object",
+      "required": [
+        "createdAt",
+        "dedupeFields",
+        "description",
+        "displayName",
+        "pluralName",
+        "fields",
+        "idField",
+        "apiName",
+        "relationships",
+        "searchableFields",
+        "updatedAt",
+        "status",
+        "version"
+      ],
+      "properties": {
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime when the object type was created"
+        },
+        "dedupeFields": {
+          "type": "array",
+          "description": "List of dedupe fields. Arrays with multiple members are compound keys",
+          "items": {
+            "type": "string"
+          }
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the object type"
+        },
+        "displayName": {
+          "type": "string",
+          "description": "UI display-name of the object type"
+        },
+        "pluralName": {
+          "type": "string",
+          "description": "UI plural-name of the custom object type"
+        },
+        "fields": {
+          "type": "array",
+          "description": "List of fields available on the object type",
+          "items": {
+            "$ref": "#/definitions/ObjectField"
+          }
+        },
+        "idField": {
+          "type": "string",
+          "description": "Primary id key of the object type"
+        },
+        "apiName": {
+          "type": "string",
+          "description": "Name of the object type"
+        },
+        "relationships": {
+          "type": "array",
+          "description": "List of relationships which the object has",
+          "items": {
+            "$ref": "#/definitions/ObjectRelation"
+          }
+        },
+        "searchableFields": {
+          "type": "array",
+          "description": "List of fields valid for use as a filter type in a query",
+          "items": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          }
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime when the object type was most recently updated"
+        },
+        "state": {
+          "type": "string",
+          "description": "Approval state of object type",
+          "enum": [
+            "draft",
+            "approved",
+            "approvedWithDraft"
+          ]
+        },
+        "version": {
+          "type": "string",
+          "description": "Version of object type that is returned in response",
+          "enum": [
+            "draft",
+            "approved"
+          ]
+        }
+      }
+    },
+    "ObjectRelation": {
+      "type": "object",
+      "required": [
+        "field",
+        "relatedTo",
+        "type"
+      ],
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "API Name of link field"
+        },
+        "relatedTo": {
+          "description": "Object to which the field is linked",
+          "$ref": "#/definitions/RelatedObject"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of the relationship field"
+        }
+      }
+    },
+    "RelatedObject": {
+      "type": "object",
+      "required": [
+        "field",
+        "name"
+      ],
+      "properties": {
+        "field": {
+          "type": "string",
+          "description": "Name of link field (within link object)"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the link object"
+        }
+      }
+    },
+    "ResponseOfObjectMetaData": {
+      "type": "object",
+      "required": [
+        "errors",
+        "requestId",
+        "result",
+        "success",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "moreResult": {
+          "type": "boolean",
+          "example": false,
+          "description": "Boolean indicating if there are more results in subsequent pages"
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Paging token given if the result set exceeded the allowed batch size"
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Id of the request made"
+        },
+        "result": {
+          "type": "array",
+          "description": "Array of results for individual records in the operation, may be empty",
+          "items": {
+            "$ref": "#/definitions/ObjectMetaData"
+          }
+        },
+        "success": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the request succeeded"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Array of warnings given for the operation",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        }
+      }
+    },
+    "Warning": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer code of the warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the warning"
+        }
+      }
+    }
+  }
+}

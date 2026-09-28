@@ -1,0 +1,184 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/v1/customobjects/schema.json": {
+      "post": {
+        "tags": [
+          "Custom Objects"
+        ],
+        "summary": "Sync Custom Object Type",
+        "description": "Inserts, updates, or upserts custom object type record to the target instance. Required Permissions: Read-Write Custom Object Type",
+        "operationId": "syncCustomObjectTypeUsingPOST",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "in": "body",
+            "name": "syncCustomObjectTypeRequest",
+            "description": "JSON object containing custom object type attributes",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/SyncCustomObjectTypeRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfCustomObjectType"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Empty": {},
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "ResponseOfCustomObjectType": {
+      "type": "object",
+      "required": [
+        "errors",
+        "requestId",
+        "result",
+        "success",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Id of the request made"
+        },
+        "result": {
+          "type": "array",
+          "description": "Empty array",
+          "items": {
+            "$ref": "#/definitions/Empty"
+          }
+        },
+        "success": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the request succeeded"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Array of warnings given for the operation",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        }
+      }
+    },
+    "SyncCustomObjectTypeRequest": {
+      "type": "object",
+      "required": [
+        "apiName",
+        "displayName"
+      ],
+      "properties": {
+        "action": {
+          "type": "string",
+          "description": "Type of sync operation to perform. Default is createOrUpdate.",
+          "enum": [
+            "createOnly",
+            "updateOnly",
+            "createOrUpdate"
+          ]
+        },
+        "displayName": {
+          "type": "string",
+          "description": "UI display-name of the custom object type"
+        },
+        "apiName": {
+          "type": "string",
+          "description": "API name of the custom object type"
+        },
+        "pluralName": {
+          "type": "string",
+          "description": "UI plural-name of the custom object type"
+        },
+        "description": {
+          "type": "string",
+          "description": "Description of the custom object type"
+        },
+        "showInLeadDetail": {
+          "type": "boolean",
+          "description": "Whether to show custom object type in lead detail of UI. Default is false"
+        }
+      }
+    },
+    "Warning": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer code of the warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the warning"
+        }
+      }
+    }
+  }
+}

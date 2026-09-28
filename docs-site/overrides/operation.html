@@ -1,0 +1,19 @@
+{#-
+  Operation pages: generated reference content alongside the Request Builder.
+  The hook sets page.meta.operation_id from reference/manifest.json.
+-#}
+{% extends "main.html" %}
+
+{% block content %}
+  <div class="op-layout">
+    <div class="op-layout__doc">
+      {{ super() }}
+    </div>
+    <aside class="op-layout__builder" id="request-builder" aria-label="Request Builder">
+      <div class="op-layout__builder-inner" data-request-builder="{{ page.meta.operation_id }}">
+        <p class="rb-loading">Loading Request Builder…</p>
+        <noscript><p>The Request Builder needs JavaScript. The reference documentation on this page does not.</p></noscript>
+      </div>
+    </aside>
+  </div>
+{% endblock %}

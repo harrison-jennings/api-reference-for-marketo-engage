@@ -1,0 +1,254 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/v1/leads/{leadId}/programMembership.json": {
+      "get": {
+        "tags": [
+          "Leads"
+        ],
+        "summary": "Get Programs by Lead Id",
+        "description": "Query program membership for one lead. Required Permissions: Read-Only Asset",
+        "operationId": "getProgramMembershipUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "leadId",
+            "in": "path",
+            "description": "The Marketo lead id",
+            "required": true,
+            "type": "integer",
+            "format": "int64"
+          },
+          {
+            "name": "nextPageToken",
+            "in": "query",
+            "description": "A token will be returned by this endpoint if the result set is greater than the batch size and can be passed in a subsequent call through this parameter. See Paging Tokens for more info.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "batchSize",
+            "in": "query",
+            "description": "Maximum number of records to return. Maximum and default is 300.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "earliestUpdatedAt",
+            "in": "query",
+            "description": "Exclude programs prior to this date. Must be valid ISO-8601 string. See <a href=\"http://developers.marketo.com/rest-api/lead-database/fields/field-types/\">Datetime</a> field type description.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "latestUpdatedAt",
+            "in": "query",
+            "description": "Exclude programs after this date. Must be valid ISO-8601 string. See <a href=\"http://developers.marketo.com/rest-api/lead-database/fields/field-types/\">Datetime</a> field type description.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filterType",
+            "in": "query",
+            "description": "Set to \"programId\" to filter a set of programs.",
+            "required": false,
+            "type": "string"
+          },
+          {
+            "name": "filterValues",
+            "in": "query",
+            "description": "Comma-separated list of program ids to match against",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "collectionFormat": "multi"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfPrograms"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "Program": {
+      "type": "object",
+      "required": [
+        "id",
+        "progressionStatus",
+        "isExhausted",
+        "acquiredBy",
+        "reachedSuccess",
+        "membershipDate",
+        "updatedAt"
+      ],
+      "properties": {
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Unique integer id of a program record"
+        },
+        "acquiredBy": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the lead was acquired by the parent program"
+        },
+        "isExhausted": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the lead is currently exhausted in the stream, if applicable"
+        },
+        "membershipDate": {
+          "type": "string",
+          "description": "Date the lead first became a member of the program"
+        },
+        "nurtureCadence": {
+          "type": "string",
+          "description": "Cadence of the parent stream if applicable"
+        },
+        "progressionStatus": {
+          "type": "string",
+          "description": "Program status of the lead in the parent program"
+        },
+        "reachedSuccess": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the lead is in a success-status in the parent program"
+        },
+        "stream": {
+          "type": "string",
+          "description": "Stream that the lead is a member of, if the parent program is an engagement program"
+        },
+        "updatedAt": {
+          "type": "string",
+          "description": "Datetime when the program was most recently updated"
+        }
+      }
+    },
+    "ResponseOfPrograms": {
+      "type": "object",
+      "required": [
+        "errors",
+        "requestId",
+        "result",
+        "success",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "moreResult": {
+          "type": "boolean",
+          "example": false,
+          "description": "Boolean indicating if there are more results in subsequent pages"
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Paging token given if the result set exceeded the allowed batch size"
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Id of the request made"
+        },
+        "result": {
+          "type": "array",
+          "description": "Array of results for individual records in the operation, may be empty",
+          "items": {
+            "$ref": "#/definitions/Program"
+          }
+        },
+        "success": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the request succeeded"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Array of warnings given for the operation",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        }
+      }
+    },
+    "Warning": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer code of the warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the warning"
+        }
+      }
+    }
+  }
+}

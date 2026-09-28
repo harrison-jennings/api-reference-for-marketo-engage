@@ -1,0 +1,186 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/x-www-form-urlencoded"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v1/landingPage/{id}/dynamicContent/{contentId}.json": {
+      "get": {
+        "tags": [
+          "Landing Page Content"
+        ],
+        "summary": "Get Landing Page Dynamic Content",
+        "description": "Retrieves the dynamic content from the target section. Required Permissions: Read-Only Assets, Read-Write Assets",
+        "operationId": "getLandingPageDynamicContentsUsingGET",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "Id of landing page",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "contentId",
+            "in": "path",
+            "description": "Id of landing page dynamic content section",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfLandingPageDynamicContentResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "LandingPageDynamicContentResponse": {
+      "type": "object",
+      "properties": {
+        "content": {
+          "type": "array",
+          "description": "List of variations in the section",
+          "items": {
+            "$ref": "#/definitions/SegmentContent"
+          }
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime when the section was created"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the dnamic content section"
+        },
+        "segmentation": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Segmentation to which the section is linked"
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime when the section was last updated"
+        }
+      }
+    },
+    "ResponseOfLandingPageDynamicContentResponse": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LandingPageDynamicContentResponse"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "SegmentContent": {
+      "type": "object",
+      "required": [
+        "content",
+        "segmentId",
+        "segmentName",
+        "type"
+      ],
+      "properties": {
+        "content": {
+          "type": "object",
+          "description": "Type of content section"
+        },
+        "followupType": {
+          "type": "string"
+        },
+        "followupValue": {
+          "type": "string"
+        },
+        "segmentId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Segmentation to which the section is linked"
+        },
+        "segmentName": {
+          "type": "string",
+          "description": "Name of the segment to display content section for"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of content section"
+        }
+      }
+    }
+  }
+}

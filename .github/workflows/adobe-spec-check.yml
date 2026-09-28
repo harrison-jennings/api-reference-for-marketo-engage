@@ -1,0 +1,289 @@
+name: Weekly Adobe spec check
+
+# Downloads Adobe's latest Marketo Engage specifications, regenerates the
+# reference, and opens a DRAFT pull request when anything changed.
+#
+# Merge safeguards:
+# - The pull request is always a draft. GitHub does not merge drafts, manually
+#   or through auto-merge, until a person marks them "Ready for review".
+# - This workflow has no merge or approve step, and GitHub does not let a
+#   workflow approve its own pull request.
+# - The main branch ruleset requires the "Build and validate" check.
+# - Changes are pushed only to the automation/adobe-spec-update branch.
+#
+# Token exposure:
+# - "check" runs everything that executes third-party code (dependency
+#   installation, spec generation, make docs-ci) with a read-only token that is
+#   neither persisted by checkout nor exported to those steps.
+# - "publish" is the only job with write permissions. It runs no project code,
+#   only git and gh, and each step receives the token only if it calls GitHub.
+# - "publish" commits the patch from "check" only if it changes nothing outside
+#   specs/ and reference/, so third-party code can't alter anything else.
+#
+# Alerts:
+# - Every run (no changes, pull request opened or updated, CI failure, error)
+#   comments on a tracking issue assigned to the repository owner and
+#   @mentions them.
+# - Pull requests are assigned to the owner with a review request.
+# - Failed runs also trigger GitHub's failed-workflow notification.
+#
+# CI on the pull request: pushes made with GITHUB_TOKEN do create
+# "Documentation site" pull_request runs, but GitHub holds them until someone
+# with write access selects "Approve workflows to run". The check job also runs
+# make docs-ci itself so the pull request shows a result immediately.
+
+on:
+  schedule:
+    # Sundays 23:00 UTC: Monday 9am in Sydney (10am during daylight saving).
+    - cron: "0 23 * * 0"
+  workflow_dispatch:
+
+permissions: {}
+
+concurrency:
+  group: adobe-spec-check
+  cancel-in-progress: false
+
+env:
+  UPDATE_BRANCH: automation/adobe-spec-update
+  PR_LABEL: adobe-spec-update
+  LOG_LABEL: adobe-spec-check-log
+  LOG_TITLE: Weekly Adobe spec checks
+  ARTIFACT: adobe-spec-update
+
+jobs:
+  check:
+    name: Check for specification changes
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    permissions:
+      contents: read
+    outputs:
+      changed: ${{ steps.changes.outputs.changed }}
+      ci: ${{ steps.ci.outcome }}
+      default_branch: ${{ steps.branch.outputs.default }}
+    steps:
+      - name: Require the default branch
+        id: branch
+        env:
+          GH_TOKEN: ${{ github.token }}
+          GH_REPO: ${{ github.repository }}
+        run: |
+          # Runs before checkout, so query the API rather than a local repository.
+          default="$(gh api "repos/$GH_REPO" --jq .default_branch)"
+          if [ "$GITHUB_REF_NAME" != "$default" ]; then
+            echo "::error::Run this workflow from $default; it compares Adobe's specifications with the committed snapshot there."
+            exit 1
+          fi
+          echo "default=$default" >> "$GITHUB_OUTPUT"
+
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python
+        uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-docs.txt
+
+      - name: Set up Node.js
+        uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
+        with:
+          node-version: "22"
+
+      - name: Install documentation dependencies
+        run: python -m pip install -r requirements-docs.txt
+
+      - name: Download specifications and regenerate reference
+        run: make specs-update PYTHON=python
+
+      - name: Detect changes
+        id: changes
+        run: |
+          if [ -n "$(git status --porcelain -- specs reference)" ]; then
+            echo "changed=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "changed=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Summarise changes
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          mkdir -p "$RUNNER_TEMP/update"
+          python scripts/summarise_spec_changes.py --base HEAD > "$RUNNER_TEMP/update/summary.md"
+
+      - name: Run CI checks
+        id: ci
+        if: steps.changes.outputs.changed == 'true'
+        continue-on-error: true
+        run: make docs-ci PYTHON=python
+
+      - name: Package the update
+        if: steps.changes.outputs.changed == 'true'
+        run: |
+          git add --all specs reference
+          git diff --cached --binary > "$RUNNER_TEMP/update/specs.patch"
+
+      - name: Upload the update
+        if: steps.changes.outputs.changed == 'true'
+        uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: ${{ runner.temp }}/update
+          if-no-files-found: error
+          retention-days: 7
+
+  publish:
+    name: Publish result
+    needs: check
+    if: always()
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: write # push the update branch
+      pull-requests: write # open and update the draft pull request
+      issues: write # comment on the tracking issue
+    env:
+      GH_REPO: ${{ github.repository }}
+      OWNER: ${{ github.repository_owner }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      CHANGED: ${{ needs.check.outputs.changed }}
+    steps:
+      - name: Check out repository
+        if: needs.check.result == 'success' && env.CHANGED == 'true'
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.sha }}
+          persist-credentials: false
+
+      - name: Download the update
+        if: needs.check.result == 'success' && env.CHANGED == 'true'
+        uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c # v8.0.1
+        with:
+          name: ${{ env.ARTIFACT }}
+          path: ${{ runner.temp }}/update
+
+      - name: Commit and push update branch
+        id: push
+        if: needs.check.result == 'success' && env.CHANGED == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git apply --index "$RUNNER_TEMP/update/specs.patch"
+          # The check job built this patch while running third-party code, so
+          # publish it only if it changes nothing outside specs/ and reference/.
+          unexpected="$(git diff --cached --no-renames --name-only | grep -vE '^(specs|reference)/' || true)"
+          if [ -n "$unexpected" ]; then
+            echo "::error::The update changes files outside specs/ and reference/; not publishing it."
+            printf '%s\n' "$unexpected"
+            exit 1
+          fi
+          git config user.name "github-actions[bot]"
+          git config user.email "41898283+github-actions[bot]@users.noreply.github.com"
+          git commit --quiet -m "Update Adobe specifications to $(date -u +%F)" \
+            -m "Automated weekly check: $RUN_URL"
+          # Supply the token for this push only; checkout didn't persist it.
+          auth="$(printf 'x-access-token:%s' "$GH_TOKEN" | base64 -w0)"
+          echo "::add-mask::$auth"
+          git -c "http.https://github.com/.extraheader=AUTHORIZATION: basic $auth" \
+            push --force origin "HEAD:refs/heads/$UPDATE_BRANCH"
+
+      - name: Open or update draft pull request
+        id: pr
+        if: steps.push.outcome == 'success'
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CI_OUTCOME: ${{ needs.check.outputs.ci }}
+          DEFAULT_BRANCH: ${{ needs.check.outputs.default_branch }}
+        run: |
+          gh label create "$PR_LABEL" --color 1D76DB --force \
+            --description "Automated Adobe specification update" > /dev/null
+          today="$(date -u +%F)"
+          if [ "$CI_OUTCOME" = "success" ]; then
+            ci="✅ \`make docs-ci\` passed in the weekly check: tests, reference check, strict build and site validation."
+          else
+            ci="❌ \`make docs-ci\` **failed** in the weekly check. See the [run log]($RUN_URL). Tests may need updating if Adobe removed or renamed an operation they use."
+          fi
+          {
+            echo "Automated weekly check found changes in Adobe's Marketo Engage specifications."
+            echo
+            echo "> [!NOTE]"
+            echo "> This is a **draft**, so it can't be merged until you select **Ready for review**."
+            echo
+            echo "## Before merging"
+            echo
+            echo "1. Review the changes below, especially removed operations and dated notices."
+            echo "2. Update the counts in the README's *What's included* and *API coverage* sections if they changed."
+            echo "3. In the **Checks** section, select **Approve workflows to run**. GitHub holds CI runs for pull requests pushed by GitHub Actions until someone approves them."
+            echo "4. Wait for the required **Build and validate** check to pass."
+            echo "5. Select **Ready for review**, then merge."
+            echo
+            echo "## CI"
+            echo
+            echo "$ci"
+            echo
+            echo "## Changes"
+            echo
+            cat "$RUNNER_TEMP/update/summary.md"
+          } > "$RUNNER_TEMP/body.md"
+
+          number="$(gh pr list --head "$UPDATE_BRANCH" --state open --json number --jq '.[0].number')"
+          if [ -n "$number" ]; then
+            gh pr edit "$number" --title "Update Adobe specifications to $today" --body-file "$RUNNER_TEMP/body.md" > /dev/null
+            gh pr ready "$number" --undo > /dev/null 2>&1 || true
+            gh pr comment "$number" --body "@$OWNER Updated with Adobe's specifications as of $today. Approve the workflow runs again before merging. [Run log]($RUN_URL)" > /dev/null
+            echo "action=updated" >> "$GITHUB_OUTPUT"
+          else
+            # Use the URL gh prints: a just-created pull request may not appear in listings yet.
+            url="$(gh pr create --draft --base "$DEFAULT_BRANCH" --head "$UPDATE_BRANCH" \
+              --title "Update Adobe specifications to $today" --body-file "$RUNNER_TEMP/body.md" \
+              --label "$PR_LABEL" --assignee "$OWNER")"
+            number="${url##*/}"
+            gh pr edit "$number" --add-reviewer "$OWNER" > /dev/null 2>&1 || true
+            echo "action=opened" >> "$GITHUB_OUTPUT"
+          fi
+          echo "url=$(gh pr view "$number" --json url --jq .url)" >> "$GITHUB_OUTPUT"
+
+      - name: Report result
+        if: always()
+        env:
+          GH_TOKEN: ${{ github.token }}
+          CHECK_RESULT: ${{ needs.check.result }}
+          JOB_STATUS: ${{ job.status }}
+          CI_OUTCOME: ${{ needs.check.outputs.ci }}
+          PR_ACTION: ${{ steps.pr.outputs.action }}
+          PR_URL: ${{ steps.pr.outputs.url }}
+          WORKFLOW_URL: ${{ github.server_url }}/${{ github.repository }}/actions/workflows/adobe-spec-check.yml
+        run: |
+          today="$(date -u +%F)"
+          if [ "$CHECK_RESULT" != "success" ] || [ "$JOB_STATUS" != "success" ]; then
+            message="❌ **Error.** The weekly check failed. See the [run log]($RUN_URL)."
+            if [ -n "$PR_URL" ]; then message="$message Draft pull request: $PR_URL"; fi
+          elif [ "$CHANGED" != "true" ]; then
+            message="✅ **No changes.** Adobe's specifications match the committed snapshot. [Run log]($RUN_URL)"
+          elif [ "$CI_OUTCOME" != "success" ]; then
+            message="⚠️ **Changes found, but CI checks failed.** Draft pull request $PR_ACTION: $PR_URL. See the [run log]($RUN_URL)."
+          else
+            message="🆕 **Changes found.** Draft pull request $PR_ACTION: $PR_URL. CI checks passed. [Run log]($RUN_URL)"
+          fi
+          echo "$message" >> "$GITHUB_STEP_SUMMARY"
+
+          gh label create "$LOG_LABEL" --color C5DEF5 --force \
+            --description "Log of automated Adobe specification checks" > /dev/null
+          issue="$(gh issue list --label "$LOG_LABEL" --state open --json number --jq '.[0].number')"
+          if [ -z "$issue" ]; then
+            # Use the URL gh prints: a just-created issue may not appear in listings yet.
+            url="$(gh issue create --title "$LOG_TITLE" --label "$LOG_LABEL" --assignee "$OWNER" \
+              --body "Each run of the [weekly Adobe spec check]($WORKFLOW_URL) comments here. You're assigned, so you're notified of every result. Keep this issue open; closing it makes the next run open a new one.")"
+            issue="${url##*/}"
+          fi
+          gh issue comment "$issue" --body "@$OWNER $today — $message" > /dev/null
+
+      - name: Fail the run when CI checks fail
+        if: needs.check.result == 'success' && env.CHANGED == 'true' && needs.check.outputs.ci != 'success'
+        run: |
+          echo "::error::make docs-ci failed on the updated specifications. See the draft pull request."
+          exit 1

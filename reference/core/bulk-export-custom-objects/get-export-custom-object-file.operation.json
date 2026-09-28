@@ -1,0 +1,83 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/bulk/v1/customobjects/{apiName}/export/{exportId}/file.json": {
+      "get": {
+        "tags": [
+          "Bulk Export Custom Objects"
+        ],
+        "summary": "Get Export Custom Object File",
+        "description": "Returns the file content of an export job. The export job must be in \"Completed\" state. Use Get Export Custom Object Job Status endpoint to retrieve status of export job. Required Permissions: Read-Only Custom Object<br><br>The file format is specified by calling the Create Export Custom Object Job endpoint. The following is an example of the default file format (\"CSV\").<br><br><code>leadId,marketoGUID,itemName</code><br><code>11,c93f0494-bbd9-44e8-9c0e-dae9b525073f,Hoka One One Mach 4</code>",
+        "operationId": "getExportCustomObjectsFileUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "apiName",
+            "in": "path",
+            "description": "API Name of the custom object for the export batch job.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "exportId",
+            "in": "path",
+            "description": "Id of export batch job.",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "Range",
+            "in": "header",
+            "description": "To support partial retrieval of extracted data, the HTTP header \"Range\" of type \"bytes\" may be specified. See RFC 2616 \"Range Retrieval Requests\" for more information. If the header is not set, the entire contents will be returned.",
+            "required": false,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ObservableOfInputStreamRangeContent"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ObservableOfInputStreamRangeContent": {
+      "type": "object"
+    }
+  }
+}

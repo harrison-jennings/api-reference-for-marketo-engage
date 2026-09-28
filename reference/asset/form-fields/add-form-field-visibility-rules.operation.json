@@ -1,0 +1,283 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/x-www-form-urlencoded"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v1/form/{formId}/field/{fieldId}/visibility.json": {
+      "post": {
+        "tags": [
+          "Form Fields"
+        ],
+        "summary": "Add Form Field Visibility Rules",
+        "description": "Adds a visibility rule to the target form field. Required Permissions: Read-Write Assets",
+        "operationId": "addFormFieldVisibilityRuleUsingPOST",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "formId",
+            "in": "path",
+            "description": "formId",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "fieldId",
+            "in": "path",
+            "description": "fieldId",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "addFormFieldVisibilityRequest",
+            "description": "addFormFieldVisibilityRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/AddFormFieldVisibilityRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfFormVisibilityRuleResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AddFormFieldVisibilityRequest": {
+      "type": "object",
+      "properties": {
+        "visibilityRule": {
+          "$ref": "#/definitions/FormFieldVisibilityRequest"
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "FormFieldVisibilityRequest": {
+      "type": "object",
+      "required": [
+        "ruleType",
+        "rules"
+      ],
+      "properties": {
+        "ruleType": {
+          "type": "string",
+          "description": "Type of rule to apply",
+          "enum": [
+            "show",
+            "alwaysShow",
+            "hide"
+          ]
+        },
+        "rules": {
+          "type": "array",
+          "description": "JSON Array of rules",
+          "items": {
+            "$ref": "#/definitions/VisibilityRuleRequest"
+          }
+        }
+      }
+    },
+    "FormVisibilityRuleDTO": {
+      "type": "object",
+      "properties": {
+        "altLabel": {
+          "type": "string"
+        },
+        "operator": {
+          "type": "string"
+        },
+        "picklistFilterValues": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/PickListDTO"
+          }
+        },
+        "subjectField": {
+          "type": "string"
+        },
+        "values": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "FormVisibilityRuleResponse": {
+      "type": "object",
+      "properties": {
+        "formFieldId": {
+          "type": "string"
+        },
+        "ruleType": {
+          "type": "string"
+        },
+        "rules": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FormVisibilityRuleDTO"
+          }
+        }
+      }
+    },
+    "PickListDTO": {
+      "type": "object",
+      "properties": {
+        "isDefault": {
+          "type": "boolean"
+        },
+        "label": {
+          "type": "string"
+        },
+        "selected": {
+          "type": "boolean"
+        },
+        "value": {
+          "type": "string"
+        }
+      }
+    },
+    "ResponseOfFormVisibilityRuleResponse": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/FormVisibilityRuleResponse"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    },
+    "VisibilityRuleRequest": {
+      "type": "object",
+      "required": [
+        "operator",
+        "subjectField",
+        "values"
+      ],
+      "properties": {
+        "altLabel": {
+          "type": "string"
+        },
+        "operator": {
+          "type": "string",
+          "description": "Operation to apply to target field. Evaluated against the list of values when applicable.",
+          "enum": [
+            "is",
+            "isNot",
+            "isEmpty",
+            "isNotEmpty",
+            "startsWith",
+            "notStartsWith",
+            "endsWith",
+            "notEndsWith",
+            "contains",
+            "notContains",
+            "greaterThan",
+            "lessThan",
+            "atLeast",
+            "atMost",
+            "between",
+            "notBetween",
+            "notInTimeFrame",
+            "inPast",
+            "notInPast",
+            "after",
+            "before",
+            "inTimeFrame",
+            "onOrAfter",
+            "onOrBefore"
+          ]
+        },
+        "pickListValues": {
+          "type": "array",
+          "description": "Alternative label to display when rules are applied.",
+          "items": {
+            "$ref": "#/definitions/PickListDTO"
+          }
+        },
+        "subjectField": {
+          "type": "string",
+          "description": "Target field id to apply the operation defined by operator to"
+        },
+        "values": {
+          "type": "array",
+          "description": "Comma-separated list of values to match against. Valid for operators 'is', 'isNot', 'startsWith', 'notStartsWith', 'endsWith', 'notEndsWith', 'contains', and 'notContains'",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

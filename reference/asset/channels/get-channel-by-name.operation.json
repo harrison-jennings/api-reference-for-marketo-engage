@@ -1,0 +1,184 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/x-www-form-urlencoded"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v1/channel/byName.json": {
+      "get": {
+        "tags": [
+          "Channels"
+        ],
+        "summary": "Get Channel by Name",
+        "description": "Retrieves channels based on the provided name. Required Permissions: Read-Only Assets, Read-Write Assets",
+        "operationId": "getChannelByNameUsingGET",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "Name",
+            "in": "query",
+            "description": "Name of channel to retrieve",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfChannelResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "ChannelProgression": {
+      "type": "object",
+      "properties": {
+        "description": {
+          "type": "string",
+          "description": "Description of the program status"
+        },
+        "hidden": {
+          "type": "boolean",
+          "description": "Whether the status has been hidden"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the status"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of the status"
+        },
+        "step": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Step number of the status"
+        },
+        "success": {
+          "type": "boolean",
+          "description": "Whether this status is a success step for program members"
+        }
+      }
+    },
+    "ChannelResponse": {
+      "type": "object",
+      "required": [
+        "applicableProgramType",
+        "createdAt",
+        "id",
+        "name",
+        "updatedAt"
+      ],
+      "properties": {
+        "applicableProgramType": {
+          "type": "string",
+          "description": "Types of programs to which the channel can apply"
+        },
+        "createdAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime when the channel was created"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the Channel"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the Channel"
+        },
+        "progressionStatuses": {
+          "type": "array",
+          "description": "List of available statuses for members of programs with the channel",
+          "items": {
+            "$ref": "#/definitions/ChannelProgression"
+          }
+        },
+        "updatedAt": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime when the channel was most recently updated"
+        }
+      }
+    },
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "ResponseOfChannelResponse": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ChannelResponse"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

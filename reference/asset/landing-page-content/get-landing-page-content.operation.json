@@ -1,0 +1,259 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/x-www-form-urlencoded"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v1/landingPage/{id}/content.json": {
+      "get": {
+        "tags": [
+          "Landing Page Content"
+        ],
+        "summary": "Get Landing Page Content",
+        "description": "Retrieves the list of content sections in the target landing page. Required Permissions: Read-Only Assets, Read-Write Assets",
+        "operationId": "getLandingPageContentUsingGET",
+        "consumes": [
+          "application/x-www-form-urlencoded"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "status",
+            "in": "query",
+            "description": "Status filter for draft or approved versions",
+            "required": false,
+            "type": "string",
+            "enum": [
+              "approved",
+              "draft"
+            ]
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfLandingPageContentResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "JsonNode": {
+      "type": "object",
+      "properties": {
+        "array": {
+          "type": "boolean"
+        },
+        "bigDecimal": {
+          "type": "boolean"
+        },
+        "bigInteger": {
+          "type": "boolean"
+        },
+        "binary": {
+          "type": "boolean"
+        },
+        "boolean": {
+          "type": "boolean"
+        },
+        "containerNode": {
+          "type": "boolean"
+        },
+        "double": {
+          "type": "boolean"
+        },
+        "float": {
+          "type": "boolean"
+        },
+        "floatingPointNumber": {
+          "type": "boolean"
+        },
+        "int": {
+          "type": "boolean"
+        },
+        "integralNumber": {
+          "type": "boolean"
+        },
+        "long": {
+          "type": "boolean"
+        },
+        "missingNode": {
+          "type": "boolean"
+        },
+        "nodeType": {
+          "type": "string",
+          "enum": [
+            "ARRAY",
+            "BINARY",
+            "BOOLEAN",
+            "MISSING",
+            "NULL",
+            "NUMBER",
+            "OBJECT",
+            "POJO",
+            "STRING"
+          ]
+        },
+        "null": {
+          "type": "boolean"
+        },
+        "number": {
+          "type": "boolean"
+        },
+        "object": {
+          "type": "boolean"
+        },
+        "pojo": {
+          "type": "boolean"
+        },
+        "short": {
+          "type": "boolean"
+        },
+        "textual": {
+          "type": "boolean"
+        },
+        "valueNode": {
+          "type": "boolean"
+        }
+      }
+    },
+    "LandingPageContentResponse": {
+      "type": "object",
+      "required": [
+        "id",
+        "type"
+      ],
+      "properties": {
+        "content": {
+          "type": "object",
+          "description": "Content of the section. Expected values vary based on type. Image: An image URL. RichText: HTML Content. HTML: HTML Content. Form: A form id. Rectangle: Empty. Snippet: A snippet id."
+        },
+        "followupType": {
+          "type": "string",
+          "description": "Follow-up behavior of a form. Only available for form-type content sections. Defaults to form defined behavior.",
+          "enum": [
+            "url",
+            "lp",
+            "formDefined"
+          ]
+        },
+        "followupValue": {
+          "type": "string",
+          "description": "Where to follow-up on form submission. When followupType is lp, accepts the integer id of a landing page. For url, it accepts a url string."
+        },
+        "formattingOptions": {
+          "$ref": "#/definitions/JsonNode"
+        },
+        "id": {
+          "type": "object",
+          "description": "Id of the content section, may be a string or an int"
+        },
+        "index": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Index of the content section. Index orients the elements from lowest to highest"
+        },
+        "type": {
+          "type": "string",
+          "description": "Type of content section",
+          "enum": [
+            "Image",
+            "SocialButton",
+            "Form",
+            "DynamicContent",
+            "Rectangle",
+            "Snippet",
+            "RichText",
+            "HTML",
+            "Video",
+            "Poll",
+            "ReferralOffer",
+            "Sweepstakes"
+          ]
+        }
+      }
+    },
+    "ResponseOfLandingPageContentResponse": {
+      "type": "object",
+      "properties": {
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/LandingPageContentResponse"
+          }
+        },
+        "success": {
+          "type": "boolean"
+        },
+        "warnings": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        }
+      }
+    }
+  }
+}

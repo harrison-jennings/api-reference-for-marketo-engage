@@ -1,0 +1,402 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v2/email/{id}": {
+      "get": {
+        "tags": [
+          "Emails (New)"
+        ],
+        "summary": "Get Email by Id",
+        "description": "Retrieves an email asset by its ID. Required Permissions: Read-Only Assets, Access Design Studio, Access Email.",
+        "operationId": "getContentUsingGET_email",
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "access_token",
+            "in": "query",
+            "description": "Token for Authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-app-type",
+            "in": "header",
+            "description": "Application type header",
+            "required": true,
+            "type": "string",
+            "enum": [
+              "marketo"
+            ]
+          },
+          {
+            "name": "id",
+            "in": "path",
+            "description": "id",
+            "required": true,
+            "type": "string"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/EmailNewResponse"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "AssociatedStateDTO": {
+      "type": "object",
+      "description": "A version/state of the asset (e.g. draft or approved).",
+      "properties": {
+        "contentId": {
+          "type": "string"
+        },
+        "externalId": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        }
+      },
+      "title": "AssociatedStateDTO"
+    },
+    "ContentMetadataDTO": {
+      "type": "object",
+      "description": "Audit information for the asset.",
+      "properties": {
+        "createdBy": {
+          "type": "string"
+        },
+        "createdAt": {
+          "type": "string"
+        },
+        "createdById": {
+          "type": "string"
+        },
+        "createdByAepId": {
+          "type": "string"
+        },
+        "modifiedBy": {
+          "type": "string"
+        },
+        "modifiedAt": {
+          "type": "string"
+        },
+        "modifiedById": {
+          "type": "string"
+        },
+        "modifiedByAepId": {
+          "type": "string"
+        }
+      },
+      "title": "ContentMetadataDTO"
+    },
+    "ContentWaveErrorDTO": {
+      "type": "object",
+      "description": "An entry in the errors array. The type field marks it as info, warning, or error — there is no separate warnings array; warnings appear here with type \"warning\".",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "dynamicMessage": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "description": "Severity of the entry: info, warning, or error."
+        },
+        "source": {
+          "type": "string",
+          "description": "Origin of the entry, e.g. validation, template, fragment, message_render, asset_publish."
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "errorPosition": {
+          "type": "object",
+          "description": "Location in the content the entry refers to (for script/validation errors).",
+          "properties": {
+            "line": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "column": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      },
+      "title": "ContentWaveErrorDTO"
+    },
+    "DataDTO": {
+      "type": "object",
+      "properties": {
+        "html": {
+          "$ref": "#/definitions/HtmlDataDTO"
+        },
+        "text": {
+          "$ref": "#/definitions/TextDataDTO"
+        }
+      },
+      "title": "DataDTO"
+    },
+    "EditorContextDto": {
+      "type": "object",
+      "properties": {
+        "dynamicContent": {
+          "type": "object"
+        }
+      },
+      "title": "EditorContextDto"
+    },
+    "EmailAppDataResponseDTO": {
+      "type": "object",
+      "description": "Location and program context of the email. Program fields are only present when the email lives under a program.",
+      "properties": {
+        "editorType": {
+          "type": "string"
+        },
+        "workspaceId": {
+          "type": "string"
+        },
+        "folderId": {
+          "type": "string"
+        },
+        "programId": {
+          "type": "string"
+        },
+        "programName": {
+          "type": "string"
+        },
+        "programType": {
+          "type": "string"
+        }
+      },
+      "title": "EmailAppDataResponseDTO"
+    },
+    "EmailContentDTO": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string"
+        },
+        "description": {
+          "type": "string"
+        },
+        "appType": {
+          "type": "string"
+        },
+        "headers": {
+          "$ref": "#/definitions/EmailHeadersDTO"
+        },
+        "metadata": {
+          "$ref": "#/definitions/ContentMetadataDTO"
+        },
+        "settings": {
+          "$ref": "#/definitions/EmailSettingsResponseDTO"
+        },
+        "status": {
+          "type": "string"
+        },
+        "state": {
+          "type": "string"
+        },
+        "virtualId": {
+          "type": "string"
+        },
+        "associatedStates": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/AssociatedStateDTO"
+          }
+        },
+        "appData": {
+          "$ref": "#/definitions/EmailAppDataResponseDTO"
+        },
+        "templateId": {
+          "type": "string"
+        },
+        "externalId": {
+          "type": "string"
+        },
+        "editorContext": {
+          "$ref": "#/definitions/EditorContextDto"
+        },
+        "scriptEngine": {
+          "type": "string"
+        }
+      },
+      "title": "EmailContentDTO"
+    },
+    "EmailDetailDTO": {
+      "allOf": [
+        {
+          "$ref": "#/definitions/EmailContentDTO"
+        },
+        {
+          "type": "object",
+          "properties": {
+            "data": {
+              "$ref": "#/definitions/DataDTO"
+            }
+          }
+        }
+      ],
+      "title": "EmailDetailDTO"
+    },
+    "EmailHeadersDTO": {
+      "type": "object",
+      "properties": {
+        "ccEmails": {
+          "type": "array",
+          "items": {
+            "type": "string"
+          }
+        },
+        "fromEmail": {
+          "type": "string"
+        },
+        "fromName": {
+          "type": "string"
+        },
+        "preheader": {
+          "type": "string"
+        },
+        "replyEmail": {
+          "type": "string"
+        },
+        "subject": {
+          "type": "string"
+        }
+      },
+      "title": "EmailHeadersDTO",
+      "required": [
+        "subject"
+      ]
+    },
+    "EmailNewResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "result": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/EmailDetailDTO"
+          }
+        }
+      },
+      "title": "EmailNewResponse"
+    },
+    "EmailSettingsResponseDTO": {
+      "type": "object",
+      "properties": {
+        "isOperational": {
+          "type": "boolean"
+        },
+        "isWebPageView": {
+          "type": "boolean"
+        },
+        "isTextOnly": {
+          "type": "boolean"
+        },
+        "disableOpenTracking": {
+          "type": "boolean"
+        },
+        "enableUrlTracking": {
+          "type": "boolean"
+        }
+      },
+      "title": "EmailSettingsResponseDTO"
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContentWaveErrorDTO"
+          }
+        }
+      },
+      "title": "ErrorResponse"
+    },
+    "HtmlDataDTO": {
+      "type": "object",
+      "properties": {
+        "body": {
+          "type": "string"
+        }
+      },
+      "title": "HtmlDataDTO"
+    },
+    "TextDataDTO": {
+      "type": "object",
+      "properties": {
+        "body": {
+          "type": "string"
+        },
+        "syncFromHtml": {
+          "type": "boolean"
+        }
+      },
+      "title": "TextDataDTO"
+    }
+  }
+}

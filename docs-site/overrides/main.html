@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+
+{% block extrahead %}
+  {#- The site is not meant to appear in search engines. Crawlers must be able to
+      fetch pages to see this, so there is no robots.txt disallow. #}
+  <meta name="robots" content="noindex, nofollow">
+  {%- set title = page.meta.title if page and page.meta and page.meta.title else (page.title if page and page.title else config.site_name) -%}
+  {%- set description = page.meta.description if page and page.meta and page.meta.description else config.site_description -%}
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="{{ config.site_name }}">
+  <meta property="og:title" content="{{ title | striptags }}">
+  <meta property="og:description" content="{{ description | striptags }}">
+  {%- if page and page.canonical_url %}
+  <meta property="og:url" content="{{ page.canonical_url }}">
+  {%- endif %}
+  <meta name="twitter:card" content="summary">
+{% endblock %}

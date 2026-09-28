@@ -1,0 +1,27 @@
+API Reference for Marketo Engage
+Copyright 2026 Harrison Jennings
+
+This product is licensed under the Apache License, Version 2.0 (see LICENSE).
+
+This product includes material from Adobe's Marketo Engage API specifications,
+from https://github.com/AdobeDocs/marketo-apis:
+
+    © Copyright 2015-2020 Adobe. All rights reserved.
+
+    Adobe holds the copyright for all the files found in this repository.
+
+    See the LICENSE file for licensing information.
+
+Adobe licenses that material under the Apache License, Version 2.0.
+
+- specs/ contains unmodified copies of Adobe's specification files.
+- reference/ is generated from those files by scripts/build_marketo_api_reference.py,
+  which reformats them into Markdown pages and operation JSON files. Each
+  generated section index names the specification it was generated from.
+
+Use of the Marketo APIs themselves is subject to Adobe's API License Agreement:
+https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license
+
+THIS PROJECT IS NOT AUTHORIZED, ENDORSED OR SPONSORED BY ADOBE, PUBLISHER OF
+ADOBE MARKETO ENGAGE. Adobe, Marketo and Marketo Engage are either registered
+trademarks or trademarks of Adobe in the United States and/or other countries.

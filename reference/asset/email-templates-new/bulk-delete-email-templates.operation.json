@@ -1,0 +1,182 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/asset/v2/emailtemplate/bulk/delete": {
+      "post": {
+        "tags": [
+          "Email Templates (New)"
+        ],
+        "summary": "Bulk Delete Email Templates",
+        "description": "Deletes multiple email templates by their IDs in a single request. Maximum 20 assets per request. Required Permissions: Read-Write Assets, Access Design Studio, Delete Email Template.",
+        "operationId": "bulkDeleteUsingPOST_emailtemplate",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "access_token",
+            "in": "query",
+            "description": "Token for Authorization",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "x-app-type",
+            "in": "header",
+            "description": "Application type header",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "in": "body",
+            "name": "bulkDeleteRequest",
+            "description": "bulkDeleteRequest",
+            "required": true,
+            "schema": {
+              "$ref": "#/definitions/BulkDeleteRequest"
+            }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/DeleteResponse"
+            }
+          },
+          "default": {
+            "description": "Error",
+            "schema": {
+              "$ref": "#/definitions/ErrorResponse"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "BulkDeleteRequest": {
+      "type": "object",
+      "required": [
+        "assetIds"
+      ],
+      "properties": {
+        "assetIds": {
+          "type": "array",
+          "description": "Set of asset IDs to delete. Maximum 20 per request.",
+          "items": {
+            "type": "string"
+          }
+        },
+        "ignoreUsedBy": {
+          "type": "boolean",
+          "description": "If true, deletes assets even if they are referenced by other assets."
+        }
+      },
+      "title": "BulkDeleteRequest"
+    },
+    "ContentWaveErrorDTO": {
+      "type": "object",
+      "description": "An entry in the errors array. The type field marks it as info, warning, or error — there is no separate warnings array; warnings appear here with type \"warning\".",
+      "properties": {
+        "key": {
+          "type": "string"
+        },
+        "message": {
+          "type": "string"
+        },
+        "code": {
+          "type": "string"
+        },
+        "dynamicMessage": {
+          "type": "string"
+        },
+        "type": {
+          "type": "string",
+          "description": "Severity of the entry: info, warning, or error."
+        },
+        "source": {
+          "type": "string",
+          "description": "Origin of the entry, e.g. validation, template, fragment, message_render, asset_publish."
+        },
+        "errorMessage": {
+          "type": "string"
+        },
+        "errorPosition": {
+          "type": "object",
+          "description": "Location in the content the entry refers to (for script/validation errors).",
+          "properties": {
+            "line": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "column": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      },
+      "title": "ContentWaveErrorDTO"
+    },
+    "DeleteResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "requestId": {
+          "type": "string"
+        }
+      },
+      "title": "DeleteResponse"
+    },
+    "ErrorResponse": {
+      "type": "object",
+      "properties": {
+        "success": {
+          "type": "boolean"
+        },
+        "requestId": {
+          "type": "string"
+        },
+        "errors": {
+          "type": "array",
+          "items": {
+            "$ref": "#/definitions/ContentWaveErrorDTO"
+          }
+        }
+      },
+      "title": "ErrorResponse"
+    }
+  }
+}

@@ -1,0 +1,282 @@
+{
+  "swagger": "2.0",
+  "info": {
+    "description": "Marketo Engage Rest API",
+    "version": "1.0",
+    "title": "Marketo Engage Rest API",
+    "termsOfService": "https://www.adobe.com/legal.html",
+    "contact": {
+      "name": "Adobe Developer Relations",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/home",
+      "email": ""
+    },
+    "license": {
+      "name": "API License Agreement",
+      "url": "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license"
+    }
+  },
+  "host": "localhost:8080",
+  "basePath": "/",
+  "schemes": [
+    "https"
+  ],
+  "consumes": [
+    "application/json"
+  ],
+  "produces": [
+    "application/json"
+  ],
+  "paths": {
+    "/rest/v1/activities.json": {
+      "get": {
+        "tags": [
+          "Activities"
+        ],
+        "summary": "Get Lead Activities",
+        "description": "Returns a list of activities from after a datetime given by the `nextPageToken` parameter. Also allows for filtering by lead static list membership, or by a list of up to 30 lead ids. Beginning 2026-09-30, calls to the `Get Lead Activities` and `Get Lead Changes` endpoints which includes the `listId` parameter will fail (error code 1003) if the target lists contain 10,000 or more leads. To avoid service disruptions, ensure that calls are properly scoped to avoid this limit. Required Permissions: Read-Only Activity, Read-Write Activity",
+        "operationId": "getLeadActivitiesUsingGET",
+        "consumes": [
+          "application/json"
+        ],
+        "produces": [
+          "application/json"
+        ],
+        "parameters": [
+          {
+            "name": "nextPageToken",
+            "in": "query",
+            "description": "Token representation of a datetime returned by the Get Paging Token endpoint. This endpoint will return activities after this datetime",
+            "required": true,
+            "type": "string"
+          },
+          {
+            "name": "activityTypeIds",
+            "in": "query",
+            "description": "Comma-separated list of activity type ids. These can be retrieved with the Get Activity Types API.",
+            "required": true,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "assetIds",
+            "in": "query",
+            "description": "Id of the primary asset for an activity. This is based on the primary asset id of a given activity type. Should only be used when a single activity type is set",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "listId",
+            "in": "query",
+            "description": "Id of a static list. If set, will only return activities of members of this static list.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          },
+          {
+            "name": "leadIds",
+            "in": "query",
+            "description": "Comma-separated list of lead ids. If set, will only return activities of the leads with these ids. Allows up to 30 entries.",
+            "required": false,
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "collectionFormat": "multi"
+          },
+          {
+            "name": "batchSize",
+            "in": "query",
+            "description": "Maximum number of records to return. Maximum and default is 300.",
+            "required": false,
+            "type": "integer",
+            "format": "int32"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "OK",
+            "schema": {
+              "$ref": "#/definitions/ResponseOfActivity"
+            }
+          }
+        }
+      }
+    }
+  },
+  "definitions": {
+    "Activity": {
+      "type": "object",
+      "required": [
+        "activityDate",
+        "activityTypeId",
+        "attributes",
+        "id",
+        "leadId"
+      ],
+      "properties": {
+        "activityDate": {
+          "type": "string",
+          "format": "date-time",
+          "description": "Datetime of the activity"
+        },
+        "activityTypeId": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Id of the activity type"
+        },
+        "attributes": {
+          "type": "array",
+          "description": "List of secondary attributes",
+          "items": {
+            "$ref": "#/definitions/Attribute"
+          }
+        },
+        "campaignId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Id of the associated Smart Campaign, if applicable"
+        },
+        "id": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Integer id of the activity. This value could exceed Int.MAX. For instances which have been migrated to Activity Service, this field may not be present, and should not be treated as unique."
+        },
+        "leadId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Id of the lead associated to the activity"
+        },
+        "marketoGUID": {
+          "type": "string",
+          "description": "Unique id of the activity (128 character string)"
+        },
+        "primaryAttributeValue": {
+          "type": "string",
+          "description": "Value of the primary attribute"
+        },
+        "primaryAttributeValueId": {
+          "type": "integer",
+          "format": "int64",
+          "description": "Id of the primary attribute field"
+        }
+      }
+    },
+    "Attribute": {
+      "type": "object",
+      "required": [
+        "name",
+        "value"
+      ],
+      "properties": {
+        "apiName": {
+          "type": "string"
+        },
+        "name": {
+          "type": "string",
+          "description": "Name of the attribute"
+        },
+        "value": {
+          "type": "object",
+          "description": "Value of the attribute"
+        }
+      },
+      "description": "Name-Value pair"
+    },
+    "Error": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "string",
+          "description": "Error code of the error. See full list of error codes <a href=\"https://developers.marketo.com/rest-api/error-codes/\">here</a>"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the cause of the error"
+        }
+      }
+    },
+    "ResponseOfActivity": {
+      "type": "object",
+      "required": [
+        "errors",
+        "requestId",
+        "result",
+        "success",
+        "warnings"
+      ],
+      "properties": {
+        "errors": {
+          "type": "array",
+          "description": "Array of errors that occurred if the request was unsuccessful",
+          "items": {
+            "$ref": "#/definitions/Error"
+          }
+        },
+        "moreResult": {
+          "type": "boolean",
+          "example": false,
+          "description": "Boolean indicating if there are more results in subsequent pages"
+        },
+        "nextPageToken": {
+          "type": "string",
+          "description": "Paging token given if the result set exceeded the allowed batch size"
+        },
+        "requestId": {
+          "type": "string",
+          "description": "Id of the request made"
+        },
+        "result": {
+          "type": "array",
+          "description": "Array of results for individual records in the operation, may be empty",
+          "items": {
+            "$ref": "#/definitions/Activity"
+          }
+        },
+        "success": {
+          "type": "boolean",
+          "example": false,
+          "description": "Whether the request succeeded"
+        },
+        "warnings": {
+          "type": "array",
+          "description": "Array of warnings given for the operation",
+          "items": {
+            "$ref": "#/definitions/Warning"
+          }
+        }
+      }
+    },
+    "Warning": {
+      "type": "object",
+      "required": [
+        "code",
+        "message"
+      ],
+      "properties": {
+        "code": {
+          "type": "integer",
+          "format": "int32",
+          "description": "Integer code of the warning"
+        },
+        "message": {
+          "type": "string",
+          "description": "Message describing the warning"
+        }
+      }
+    }
+  }
+}
