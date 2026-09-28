@@ -76,7 +76,9 @@ HTTP_METHODS = ("GET", "POST", "PUT", "PATCH", "DELETE", "HEAD", "OPTIONS")
 MODEL_ROW = re.compile(r"^\|\s*\[([^\]]+)\]\(([^)]+\.md)\)\s*\|", re.MULTILINE)
 PERMISSIONS = re.compile(r"Required Permissions?:\s*([^\n]+?)\.?\s*$", re.IGNORECASE)
 TABLE_METHOD = re.compile(r"^\| `(" + "|".join(HTTP_METHODS) + r")` \|", re.MULTILINE)
-INLINE_SCRIPT = re.compile(r"<script(?![^>]*\bsrc=)(?![^>]*type=\"application/json\")[^>]*>(.*?)</script>", re.DOTALL)
+INLINE_SCRIPT = re.compile(
+    r"<script(?![^>]*\bsrc=)(?![^>]*type=\"application/json\")[^>]*>(.*?)</script[^>]*>", re.DOTALL | re.IGNORECASE
+)
 
 
 @dataclass

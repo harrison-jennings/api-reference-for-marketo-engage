@@ -177,7 +177,9 @@ def main() -> int:
         for label, pattern in SECRET_PATTERNS.items():
             match = pattern.search(text)
             if match:
-                error(f"{relative}: possible {label}: {match.group(0)[:60]}")
+                # Report where, never the value: CI logs are public.
+                line = text.count("\n", 0, match.start()) + 1
+                error(f"{relative}:{line}: possible {label} (value not shown)")
 
     if errors:
         print(f"Site validation failed with {len(errors)} problem(s):", file=sys.stderr)
