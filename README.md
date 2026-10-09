@@ -24,8 +24,8 @@ and OpenAPI specifications.
   [`reference/manifest.json`](reference/manifest.json).
 - **Documentation site:** full-text search, and a Request Builder that turns any operation into a
   request, code samples and a mock response in the browser.
-- **Postman collection:** one request for every operation, with a blank environment template, in
-  [`postman/`](postman/).
+- **Postman collection:** one request for every operation, with a credential-free environment
+  template, in [`postman/`](postman/).
 - **Source specifications:** the Adobe specifications the reference is generated from, in
   [`specs/`](specs/).
 - **Generator:** a Python script, using only the standard library, that rebuilds the reference from
@@ -81,8 +81,9 @@ from `main`.
 ## Postman collection
 
 An unofficial [Postman](https://www.postman.com/) collection has one request for every operation, with
-documented parameters, native authentication and minimal starter bodies, and a blank environment
-template for your instance's settings:
+documented parameters, native authentication and minimal starter bodies, and a credential-free
+environment template: your instance's settings and credentials are blank, and only Adobe's public
+Data Ingestion API host is preconfigured.
 
 - [`postman/marketo-engage.postman_collection.json`](postman/marketo-engage.postman_collection.json)
 - [`postman/marketo-engage.postman_environment.json`](postman/marketo-engage.postman_environment.json)
@@ -104,7 +105,7 @@ Runner.
 |---|---|---|---|
 | Git | Any | Cloning the repository | macOS: `xcode-select --install`; Debian/Ubuntu: `sudo apt install git` |
 | Python | 3.10 or later, with `venv` | The generator and the site build | [python.org](https://www.python.org/downloads/) or `brew install python`; Debian/Ubuntu: `sudo apt install python3 python3-venv` |
-| Node.js | 20 or later | Request Builder tests and the Postman collection generator; there is nothing to `npm install` | [nodejs.org](https://nodejs.org/) or `brew install node` |
+| Node.js | 20 or later, with npm | Request Builder tests and the Postman collection generator, which need no packages. Only `make postman-runtime-test` installs packages: pinned, test-only copies of Postman's runtime | [nodejs.org](https://nodejs.org/) or `brew install node` |
 | Make | Any | Running the tasks below | macOS: `xcode-select --install`; Debian/Ubuntu: `sudo apt install make` |
 
 On Windows, use [WSL](https://learn.microsoft.com/windows/wsl/install) and follow the Debian/Ubuntu
@@ -124,7 +125,9 @@ automatically, so there's no need to activate it.
 
 Then run the same checks as CI: the Request Builder tests, the Python script tests, a check that
 `reference/` matches `specs/`, the Postman collection tests and a check that `postman/` matches
-`reference/`, a strict site build and validation of the built site.
+`reference/`, a strict site build and validation of the built site. CI also runs
+`make postman-runtime-test`, which sends the collection's requests with Postman's own runtime to a
+local server; it installs pinned, test-only npm packages first.
 
 ```bash
 make docs-ci

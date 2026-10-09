@@ -10,7 +10,7 @@ import { describe, it } from "node:test";
 
 import { createResolver, isPlainObject, isResponseModel } from "../../docs-site/docs/assets/request-builder/schema.js";
 import { normaliseOperation } from "../../docs-site/docs/assets/request-builder/operation.js";
-import { COLLECTION_NAME, COLLECTION_SCHEMA, FAMILIES, NOT_DOCUMENTED, plainText, sentence, stableId } from "../postman/collection.mjs";
+import { COLLECTION_NAME, COLLECTION_SCHEMA, FAMILIES, NOT_DOCUMENTED, OFFSET_PAGING, plainText, sentence, stableId } from "../postman/collection.mjs";
 import { code, htmlToMarkdown, inlineMarkdown, visibleWords } from "../postman/markdown.mjs";
 import { createValidator } from "../postman/schema-validator.mjs";
 import {
@@ -283,6 +283,33 @@ describe("input parity with the source specifications", () => {
     };
     for (const { entry, document } of operations) visit(document, "#", entry.json);
     assert.deepEqual(failures, []);
+  });
+});
+
+describe("pagination guidance", () => {
+  const POSITION = ["offset", "pageOffset", "pageIndex"];
+
+  it("quotes each offset-style paging parameter and reserves uncertainty for undescribed ones", () => {
+    sweep(({ entry, document, item, fail }) => {
+      const op = normaliseOperation(document);
+      const fields = new Map(op.fields.map((field) => [field.name, field]));
+      if (fields.has("nextPageToken") || !POSITION.some((name) => fields.has(name))) return;
+      const section = item.request.description.split("### Pagination\n\n")[1]?.split("\n### ")[0];
+      if (!section) return fail(": no Pagination section");
+      for (const name of ["offset", "maxReturn", "pageOffset", "pageIndex", "pageSize"].filter((key) => fields.has(key))) {
+        const line = `- \`${name}\`: ${sentence(inlineMarkdown(fields.get(name).description) || NOT_DOCUMENTED)}`;
+        if (!section.includes(line)) fail(`: ${name} not quoted from the source`);
+      }
+      const convention = OFFSET_PAGING.find(({ position, size }) => fields.has(position) && fields.has(size));
+      const uncertain = section.includes("does not say whether it counts records or pages");
+      if (convention) {
+        if (!section.includes(`](${convention.url})`) || !section.includes(`add the \`${convention.size}\` value you used to \`${convention.position}\``)) fail(": documented convention not explained");
+        if (uncertain) fail(": uncertainty notice despite a documented convention");
+      } else {
+        const undescribed = POSITION.some((name) => fields.has(name) && !fields.get(name).description.trim());
+        if (uncertain !== undescribed) fail(`: uncertainty notice ${uncertain ? "present" : "missing"}`);
+      }
+    });
   });
 });
 

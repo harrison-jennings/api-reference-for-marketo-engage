@@ -1,0 +1,16 @@
+{
+  "name": "api-reference-for-marketo-engage-postman-runtime-tests",
+  "private": true,
+  "description": "Test-only: runs the generated Postman collection with Postman's request engine against a local server. Not used to generate anything.",
+  "type": "module",
+  "engines": {
+    "node": ">=20"
+  },
+  "scripts": {
+    "test": "node --test \"*.test.mjs\""
+  },
+  "devDependencies": {
+    "postman-collection": "5.3.1",
+    "postman-runtime": "7.56.1"
+  }
+}

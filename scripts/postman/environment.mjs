@@ -1,5 +1,5 @@
 /**
- * The blank Postman environment template: tenant and credential settings only.
+ * The credential-free Postman environment template: instance and credential settings only.
  *
  * Every value is empty except the Data Ingestion API host, which the source
  * specification declares (servers[0].url) and which is the same for every

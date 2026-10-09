@@ -354,6 +354,54 @@ function isDeprecated(op) {
 // Activity endpoints document that their first token comes from the "Get Paging Token" endpoint.
 const GET_PAGING_TOKEN = /\bget paging token\b/i;
 
+/**
+ * Offset-style paging. The specifications only say "Integer offset for paging";
+ * Adobe's REST documentation says what the offset counts, so the next-page
+ * step is explained only for these documented pairs.
+ */
+export const OFFSET_PAGING = [
+  {
+    position: "offset",
+    size: "maxReturn",
+    meaning: "the position at which to begin returning results, not a page number",
+    source: "Asset API documentation",
+    url: "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/rest/assets/assets",
+  },
+  {
+    position: "pageOffset",
+    size: "pageSize",
+    meaning: "where to begin retrieving entries, not a page number",
+    source: "User Management API documentation",
+    url: "https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/rest/user-management",
+  },
+];
+const OFFSET_PARAMETERS = ["offset", "maxReturn", "pageOffset", "pageIndex", "pageSize"];
+const POSITION_PARAMETERS = ["offset", "pageOffset", "pageIndex"];
+
+function offsetPagingNotes(op, entry, context) {
+  const fields = new Map(op.fields.map((field) => [field.name, field]));
+  const present = OFFSET_PARAMETERS.filter((name) => fields.has(name));
+  if (!POSITION_PARAMETERS.some((name) => fields.has(name))) return [];
+  const notes = present.map((name) => `- ${code(name)}: ${sentence(inlineMarkdown(fields.get(name).description) || NOT_DOCUMENTED)}`);
+  notes.push("");
+  const convention = OFFSET_PAGING.find(({ position, size }) => fields.has(position) && fields.has(size));
+  const undescribed = POSITION_PARAMETERS.filter((name) => fields.has(name) && !fields.get(name).description.trim());
+  if (convention) {
+    const { position, size } = convention;
+    notes.push(
+      `Adobe's ${link(convention.source, convention.url)} describes ${code(position)} as ${convention.meaning}. To get the next page, add the ${code(size)} value you used to ${code(position)} and send the request again.`,
+      "",
+      `Continue until a response returns no more records. The source specification does not say that a page with fewer than ${code(size)} records is the last one.`,
+    );
+  } else if (undescribed.length) {
+    notes.push(`The source specification does not describe ${undescribed.map(code).join(" or ")}, so this collection does not say whether it counts records or pages. See the ${link("reference page", pageUrl(context.siteUrl, entry.markdown))}, and send each page as a separate request.`);
+  } else {
+    const position = POSITION_PARAMETERS.find((name) => fields.has(name));
+    notes.push(`To get another page, change ${code(position)} as described above and send the request again.`);
+  }
+  return notes;
+}
+
 function paginationNotes(op, entry, context) {
   const names = new Set(op.fields.map((field) => field.name));
   const success = op.responses.find((response) => /^2/.test(response.code));
@@ -372,15 +420,8 @@ function paginationNotes(op, entry, context) {
     if ("moreResult" in responseProperties) steps.push(`Stop when ${code("moreResult")} is ${code("false")}.`);
     if (names.has("batchSize")) steps.push(`${code("batchSize")} sets the maximum number of records per response.`);
     notes.push(...steps.map((step, index) => `${index + 1}. ${step}`));
-  } else if (names.has("offset") && names.has("maxReturn")) {
-    notes.push(
-      `${code("offset")} is the number of records to skip, not a page number. To get the next page, add the ${code("maxReturn")} value you used to ${code("offset")} and send the request again.`,
-      "",
-      `Continue until a response returns no more records. The source specification does not say that a page with fewer than ${code("maxReturn")} records is the last one.`,
-    );
-  } else if (["pageOffset", "pageIndex", "offset"].some((name) => names.has(name))) {
-    const present = ["pageOffset", "pageIndex", "offset", "pageSize", "maxReturn"].filter((name) => names.has(name)).map(code).join(", ");
-    notes.push(`This request pages with ${present}. The source specification does not define whether the offset counts records or pages; see the ${link("reference page", pageUrl(context.siteUrl, entry.markdown))} and send each page as a separate request.`);
+  } else {
+    notes.push(...offsetPagingNotes(op, entry, context));
   }
 
   if (!names.has("nextPageToken") && "nextPageToken" in responseProperties && context.pagingTokenConsumers.has(entry.json)) {
@@ -698,6 +739,7 @@ function collectionDescription(context) {
     "",
     "- Requests run only when you send them. There are no pre-request scripts, no automatic token refresh, no retries, no request chaining and no automatic pagination. The only script is on the Identity requests, and it only saves the token and its expiry time.",
     "- Required parameters are enabled and empty unless the source specification gives a default; optional parameters are disabled until you enable them.",
+    `- Postman sends ${code("+")} in query values as-is, and servers read it as a space. Enter a literal plus sign as ${code("%2B")}, for example in a date-time with a time zone offset: ${code("2026-10-01T00:00:00%2B10:00")}.`,
     `- JSON bodies start with required properties only, set to ${code("null")} where you must supply a value. Request descriptions list every documented property.`,
     "- Paging is manual: request descriptions explain each operation's paging parameters, and you send each page yourself.",
     "- The collection includes operations that create, change, delete, send or trigger things. Their descriptions say so. **Don't run the whole collection or a folder with the Collection Runner:** it sends every selected request, including destructive ones. Use credentials with the least privilege you need, and a sandbox instance when testing.",

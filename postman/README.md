@@ -1,8 +1,8 @@
 # Postman collection for Marketo Engage
 
 An unofficial [Postman](https://www.postman.com/) collection with one request for every operation in
-the Adobe Marketo Engage API specifications, and a blank environment template to go with it. Both are
-generated from the same specifications as the rest of this repository.
+the Adobe Marketo Engage API specifications, and a credential-free environment template to go with
+it. Both are generated from the same specifications as the rest of this repository.
 
 > [!NOTE]
 > THIS PROJECT IS NOT AUTHORIZED, ENDORSED OR SPONSORED BY ADOBE, PUBLISHER OF ADOBE MARKETO
@@ -12,7 +12,7 @@ generated from the same specifications as the rest of this repository.
 | File | What it is |
 |---|---|
 | [`marketo-engage.postman_collection.json`](marketo-engage.postman_collection.json) | The collection (Postman Collection Format v2.1): Identity, Asset, Core, User Management and Data Ingestion APIs |
-| [`marketo-engage.postman_environment.json`](marketo-engage.postman_environment.json) | The environment template: tenant and credential settings, all blank |
+| [`marketo-engage.postman_environment.json`](marketo-engage.postman_environment.json) | The credential-free environment template: instance settings and credentials are blank; only Adobe's public Data Ingestion API host is preconfigured |
 
 Both files are also on the [documentation site](https://mkto-ref.harrisonjennings.au/postman/).
 
@@ -79,7 +79,9 @@ specification's description, type, allowed values, default and limits. Required 
 enabled; optional ones are disabled until you enable them, so empty values aren't sent by accident.
 Where the specification gives a default, the row is pre-filled with it. Lists are entered as the
 specification documents them: comma-separated in a single value for most Marketo parameters, or one
-row per value where a parameter is repeated (the request description says which).
+row per value where a parameter is repeated (the request description says which). Postman sends `+`
+in query values as-is, and servers read it as a space, so enter a literal plus sign as `%2B`, for
+example in a date-time with a time zone offset: `2026-10-01T00:00:00%2B10:00`.
 
 **Bodies.** Each request uses the body type the specification declares: raw JSON,
 x-www-form-urlencoded or form-data.
@@ -121,9 +123,9 @@ create, update, delete, approve, send, trigger, import or merge. Their descripti
 - Many Marketo paths end in a path variable followed by `.json`, such as `/email/:id.json`. Postman
   substitutes these since its runtime added support for path variables followed by a dot in 2022;
   older Postman versions may send `:id.json` unchanged.
-- The collection was validated against the Postman Collection v2.1 schema and run with Postman's
-  open-source runtime against a local test server. It has not been tested against a live Marketo
-  instance.
+- The collection is validated against the Postman Collection v2.1 schema, and CI sends its requests
+  with Postman's open-source runtime to a local test server. It has not been tested against a live
+  Marketo instance.
 
 ## Keeping it up to date
 
@@ -136,6 +138,7 @@ Don't edit the JSON files by hand.
 | `make postman` | Regenerates both files from `reference/`, without network access |
 | `make postman-check` | Checks that the committed files match a fresh build |
 | `make postman-test` | Tests the committed files: schema, coverage, inputs, authentication, scripts, privacy and reproducibility |
+| `make postman-runtime-test` | Sends the collection's requests with Postman's own runtime to a local test server, and checks what arrives: path variables, query encoding, bodies, authentication and the Identity script. Installs pinned, test-only npm packages |
 | `make postman-summary` | Summarises how the collection differs from the last commit |
 
 The weekly Adobe specification check regenerates the collection along with the reference, and its

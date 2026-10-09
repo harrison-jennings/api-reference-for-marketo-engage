@@ -4,7 +4,7 @@ PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 NODE ?= node
 SITE_DIR ?= site
 
-.PHONY: help check-prereqs setup docs-install reference specs-update specs-summary postman postman-check postman-test postman-summary docs-serve docs-test scripts-test reference-check docs-build docs-ci clean
+.PHONY: help check-prereqs setup docs-install reference specs-update specs-summary postman postman-check postman-test postman-runtime-test postman-summary docs-serve docs-test scripts-test reference-check docs-build docs-ci clean
 
 help:
 	@echo "Setup"
@@ -19,6 +19,8 @@ help:
 	@echo "  postman          Regenerate the Postman collection and environment template in postman/ from reference/"
 	@echo "  postman-check    Verify postman/ matches the generator output for reference/"
 	@echo "  postman-test     Test the Postman files: schema, coverage, inputs, auth, scripts, privacy"
+	@echo "  postman-runtime-test  Send the collection's requests with Postman's runtime to a local server"
+	@echo "                   (installs pinned, test-only npm packages in scripts/postman-runtime/)"
 	@echo "  postman-summary  Summarise how postman/ differs from the last commit (BASE=<ref> to compare elsewhere)"
 	@echo "Site"
 	@echo "  docs-serve       Preview the site at http://127.0.0.1:8000/ with live reload"
@@ -83,6 +85,15 @@ postman-check:
 
 postman-test:
 	$(NODE) --test "scripts/tests/postman-*.test.mjs"
+
+# Sends requests from the collection with Postman's own request engine to a
+# server on 127.0.0.1. Unlike every other target, it installs npm packages:
+# the test-only versions pinned in scripts/postman-runtime/package-lock.json.
+POSTMAN_RUNTIME_DIR := scripts/postman-runtime
+
+postman-runtime-test:
+	cd $(POSTMAN_RUNTIME_DIR) && npm ci --ignore-scripts --no-audit --no-fund
+	$(NODE) --test "$(POSTMAN_RUNTIME_DIR)/*.test.mjs"
 
 postman-summary:
 	@$(NODE) scripts/summarise_postman_changes.mjs --base $(BASE)

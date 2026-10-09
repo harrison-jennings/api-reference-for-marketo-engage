@@ -1,16 +1,17 @@
 ---
-description: Download an unofficial Postman collection with every Marketo Engage API operation, and a blank environment template.
+description: Download an unofficial Postman collection with every Marketo Engage API operation, and a credential-free environment template.
 ---
 
 # Postman collection
 
 An unofficial Postman collection with one request for every operation in this reference, generated
-from the same Adobe specifications, and a blank environment template for your instance's settings.
+from the same Adobe specifications, and a credential-free environment template for your instance's
+settings.
 
 - [Download the collection](downloads/marketo-engage.postman_collection.json){: download="marketo-engage.postman_collection.json" }
   (Postman Collection Format v2.1)
 - [Download the environment template](downloads/marketo-engage.postman_environment.json){: download="marketo-engage.postman_environment.json" }
-  (all values blank)
+  (instance settings and credentials blank; Adobe's public Data Ingestion API host preconfigured)
 
 ## Get started
 
