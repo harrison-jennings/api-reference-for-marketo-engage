@@ -18,6 +18,15 @@ Adobe licenses that material under the Apache License, Version 2.0.
 - reference/ is generated from those files by scripts/build_marketo_api_reference.py,
   which reformats them into Markdown pages and operation JSON files. Each
   generated section index names the specification it was generated from.
+- postman/marketo-engage.postman_collection.json is generated from reference/
+  by scripts/build_postman_collection.mjs, which turns each operation into a
+  Postman request and includes Adobe's descriptions.
+
+This product includes the Postman Collection Format v2.1.0 JSON Schema, from
+https://schema.getpostman.com/json/collection/v2.1.0/collection.json
+(source: https://github.com/postmanlabs/schemas), unmodified in
+scripts/postman/collection-v2.1.0.schema.json and used only to validate the
+generated collection. Postman licenses it under the Apache License, Version 2.0.
 
 Use of the Marketo APIs themselves is subject to Adobe's API License Agreement:
 https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license

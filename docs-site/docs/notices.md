@@ -8,11 +8,11 @@ hide:
 
 ## Adobe Marketo Engage API specifications
 
-The API reference, operation files and Request Builder data on this site are generated from Adobe's Marketo Engage API specifications, sourced from [AdobeDocs/marketo-apis](https://github.com/AdobeDocs/marketo-apis).
+The API reference, operation files, Request Builder data and Postman collection on this site are generated from Adobe's Marketo Engage API specifications, sourced from [AdobeDocs/marketo-apis](https://github.com/AdobeDocs/marketo-apis).
 
 Adobe holds the copyright in the source specification files and makes them available under the Apache License, Version 2.0. This project uses and transforms those specifications under that licence.
 
-The generated reference is an independent derivative work. The source specifications are mechanically processed and reformatted into searchable documentation and machine-readable operation data, and are supplemented with independently developed tooling including the Request Builder and mock response generator.
+The generated reference is an independent derivative work. The source specifications are mechanically processed and reformatted into searchable documentation and machine-readable operation data, and are supplemented with independently developed tooling including the Request Builder, mock response generator and Postman collection exporter.
 
 The copyright notice and Apache License 2.0 reproduced below are taken from the AdobeDocs/marketo-apis repository. The Apache licence applies to the source specification material and derivatives of that material. Use of the Marketo APIs themselves remains subject to Adobe's applicable API terms.
 
@@ -244,3 +244,5 @@ THIS SITE IS NOT AUTHORIZED, ENDORSED OR SPONSORED BY ADOBE, PUBLISHER OF ADOBE 
 
 Adobe, Marketo and Marketo Engage are either registered trademarks or trademarks of Adobe in the
 United States and/or other countries.
+
+Postman is a trademark of Postman, Inc. This project is not affiliated with or endorsed by Postman.

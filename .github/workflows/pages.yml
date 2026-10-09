@@ -59,6 +59,12 @@ jobs:
       - name: Check generated reference is up to date
         run: make reference-check PYTHON=python
 
+      - name: Test Postman collection
+        run: make postman-test
+
+      - name: Check Postman collection is up to date
+        run: make postman-check
+
       - name: Build and validate site
         env:
           PAGES_BASE_URL: ${{ steps.pages.outputs.base_url }}

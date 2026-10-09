@@ -4,7 +4,7 @@ PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
 NODE ?= node
 SITE_DIR ?= site
 
-.PHONY: help check-prereqs setup docs-install reference specs-update specs-summary docs-serve docs-test scripts-test reference-check docs-build docs-ci clean
+.PHONY: help check-prereqs setup docs-install reference specs-update specs-summary postman postman-check postman-test postman-summary docs-serve docs-test scripts-test reference-check docs-build docs-ci clean
 
 help:
 	@echo "Setup"
@@ -15,13 +15,18 @@ help:
 	@echo "  reference        Rebuild reference/ from the committed specifications in specs/"
 	@echo "  specs-update     Download Adobe's latest specifications into specs/ and rebuild reference/"
 	@echo "  specs-summary    Summarise how reference/ differs from the last commit (BASE=<ref> to compare elsewhere)"
+	@echo "Postman collection"
+	@echo "  postman          Regenerate the Postman collection and environment template in postman/ from reference/"
+	@echo "  postman-check    Verify postman/ matches the generator output for reference/"
+	@echo "  postman-test     Test the Postman files: schema, coverage, inputs, auth, scripts, privacy"
+	@echo "  postman-summary  Summarise how postman/ differs from the last commit (BASE=<ref> to compare elsewhere)"
 	@echo "Site"
 	@echo "  docs-serve       Preview the site at http://127.0.0.1:8000/ with live reload"
 	@echo "  docs-test        Run Request Builder unit tests (Node.js 20+, no npm install needed)"
 	@echo "  scripts-test     Run Python unit tests for the repository scripts"
 	@echo "  reference-check  Verify reference/ matches the generator output for specs/"
 	@echo "  docs-build       Build the site with strict checks and validate the output"
-	@echo "  docs-ci          Everything CI runs: tests, reference check, build and validation"
+	@echo "  docs-ci          Everything CI runs: tests, reference and Postman checks, build and validation"
 	@echo "  clean            Remove the built site"
 
 check-prereqs:
@@ -58,6 +63,30 @@ BASE ?= HEAD
 specs-summary:
 	@$(PYTHON) scripts/summarise_spec_changes.py --base $(BASE)
 
+# The Postman collection and environment template are generated from reference/
+# by a Node.js script with no dependencies, and committed for review.
+POSTMAN_FILES := marketo-engage.postman_collection.json marketo-engage.postman_environment.json
+
+postman:
+	$(NODE) scripts/build_postman_collection.mjs --output postman
+
+postman-check:
+	@tmp="$$(mktemp -d)"; \
+	$(NODE) scripts/build_postman_collection.mjs --output "$$tmp" > /dev/null; \
+	status=$$?; \
+	for file in $(POSTMAN_FILES); do \
+		[ $$status -ne 0 ] || cmp "postman/$$file" "$$tmp/$$file" || status=1; \
+	done; \
+	rm -rf "$$tmp"; \
+	if [ $$status -ne 0 ]; then echo "postman/ is out of date: run make postman." >&2; exit $$status; fi; \
+	echo "postman/ is up to date with reference/."
+
+postman-test:
+	$(NODE) --test "scripts/tests/postman-*.test.mjs"
+
+postman-summary:
+	@$(NODE) scripts/summarise_postman_changes.mjs --base $(BASE)
+
 docs-serve:
 	$(PYTHON) -m mkdocs serve
 
@@ -80,7 +109,7 @@ docs-build:
 	$(PYTHON) -m mkdocs build --strict --site-dir "$(SITE_DIR)"
 	$(PYTHON) docs-site/scripts/check_site.py "$(SITE_DIR)"
 
-docs-ci: docs-test scripts-test reference-check docs-build
+docs-ci: docs-test scripts-test reference-check postman-test postman-check docs-build
 
 clean:
 	rm -rf "$(SITE_DIR)"

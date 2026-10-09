@@ -13,7 +13,10 @@ Checks:
   data-md-component="source", which fetches from api.github.com;
 - every page asks search engines not to index it, and there is no sitemap;
 - every page has a Content Security Policy that blocks connections to other hosts;
-- every page carries Adobe's required disclaimer.
+- every page carries Adobe's required disclaimer;
+- the Postman downloads are identical to the reviewed files in postman/, and the
+  environment template, the only environment file allowed, holds no values
+  other than the Data Ingestion API host.
 
 Usage: python docs-site/scripts/check_site.py [site_dir]
 """
@@ -29,6 +32,16 @@ from urllib.parse import unquote, urlsplit
 
 REPO_ROOT = Path(__file__).resolve().parents[2]
 REFERENCE_DIR = REPO_ROOT / "reference"
+POSTMAN_DIR = REPO_ROOT / "postman"
+
+# Published path -> file in postman/. Published by docs-site/hooks/reference_site.py.
+POSTMAN_DOWNLOADS = {
+    "downloads/marketo-engage.postman_collection.json": "marketo-engage.postman_collection.json",
+    "downloads/marketo-engage.postman_environment.json": "marketo-engage.postman_environment.json",
+}
+POSTMAN_ENVIRONMENT_TEMPLATE = "downloads/marketo-engage.postman_environment.json"
+# The only environment variable the template may give a value: a public https origin.
+TEMPLATE_VALUES = {"ingestionBaseUrl": re.compile(r"^https://[a-z0-9.-]+$")}
 
 FORBIDDEN_FILES = [
     re.compile(r"(^|/)\.env(\..+)?$"),
@@ -138,6 +151,25 @@ def main() -> int:
             if not (site / url / "index.html").is_file():
                 error(f"site index model {section}/{name} points to missing {url}")
 
+    # Postman downloads -----------------------------------------------------------
+    for published, source in POSTMAN_DOWNLOADS.items():
+        target = site / published
+        if not target.is_file():
+            error(f"missing Postman download {published}")
+        elif target.read_bytes() != (POSTMAN_DIR / source).read_bytes():
+            error(f"{published} differs from postman/{source}")
+    template = site / POSTMAN_ENVIRONMENT_TEMPLATE
+    if template.is_file():
+        try:
+            for variable in json.loads(template.read_text(encoding="utf-8"))["values"]:
+                allowed = TEMPLATE_VALUES.get(variable.get("key"))
+                value = variable.get("value", "")
+                if value and not (allowed and allowed.match(value)):
+                    # Report the key, never the value: CI logs are public.
+                    error(f"{POSTMAN_ENVIRONMENT_TEMPLATE}: {variable.get('key')} must be empty in the template")
+        except (json.JSONDecodeError, KeyError, TypeError) as problem:
+            error(f"{POSTMAN_ENVIRONMENT_TEMPLATE} is not a valid environment template: {problem}")
+
     # Links and assets ----------------------------------------------------------
     pages = sorted(site.rglob("*.html"))
     for page in pages:
@@ -169,7 +201,7 @@ def main() -> int:
         if not path.is_file():
             continue
         relative = path.relative_to(site).as_posix()
-        if any(pattern.search(relative) for pattern in FORBIDDEN_FILES):
+        if relative != POSTMAN_ENVIRONMENT_TEMPLATE and any(pattern.search(relative) for pattern in FORBIDDEN_FILES):
             error(f"forbidden file published: {relative}")
         if path.suffix not in TEXT_SUFFIXES:
             continue

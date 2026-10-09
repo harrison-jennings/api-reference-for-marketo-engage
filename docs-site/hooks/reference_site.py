@@ -6,6 +6,8 @@ hook does not copy or rewrite files on disk; it:
 
 - mounts reference/ (Markdown, *.operation.json, manifest.json) into the
   build as virtual files;
+- publishes the reviewed Postman collection and environment template from
+  postman/ as downloads;
 - generates navigation, summary content and a small site index for the
   Request Builder from reference/manifest.json and the model indexes;
 - applies presentation-only Markdown transforms in memory (method badges,
@@ -33,6 +35,8 @@ REPO_ROOT = Path(__file__).resolve().parents[2]
 REFERENCE_DIR = REPO_ROOT / "reference"
 MANIFEST_PATH = REFERENCE_DIR / "manifest.json"
 SITE_INDEX_URI = "assets/data/site-index.json"
+POSTMAN_DIR = REPO_ROOT / "postman"
+POSTMAN_DOWNLOADS = ("marketo-engage.postman_collection.json", "marketo-engage.postman_environment.json")
 MODELS_OVERVIEW_URI = "models/index.md"
 
 # The generator also writes validation-report.md. It is a local build log (the
@@ -318,6 +322,13 @@ def on_files(files: Files, config, **kwargs):
             is_model = path.parent.name == "models" and path.name != "README.md"
             inclusion = InclusionLevel.NOT_IN_NAV if is_model else InclusionLevel.UNDEFINED
             files.append(File.generated(config, src_uri, abs_src_path=str(path), inclusion=inclusion))
+
+    # Published byte for byte; docs-site/scripts/check_site.py verifies the copies.
+    for name in POSTMAN_DOWNLOADS:
+        path = POSTMAN_DIR / name
+        if not path.is_file():
+            raise PluginError(f"Missing postman/{name}. Run make postman.")
+        files.append(File.generated(config, f"downloads/{name}", abs_src_path=str(path)))
 
     files.append(File.generated(config, MODELS_OVERVIEW_URI, content=models_overview(STATE)))
     index = json.dumps(site_index(STATE, files), indent=None, separators=(",", ":"), ensure_ascii=False)
