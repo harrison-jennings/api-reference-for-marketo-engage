@@ -39,6 +39,7 @@ validation:
 
 watch:
   - reference
+  - postman
   - docs-site/hooks
   - docs-site/overrides
 
@@ -124,6 +125,7 @@ nav:
   - API Reference: GENERATED
   - Models: GENERATED
   - Request Playground: playground.md
+  - Postman: postman.md
   - Search: search.md
   - About: about.md
   - Notices: notices.md

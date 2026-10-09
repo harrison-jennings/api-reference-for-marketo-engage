@@ -24,6 +24,8 @@ and OpenAPI specifications.
   [`reference/manifest.json`](reference/manifest.json).
 - **Documentation site:** full-text search, and a Request Builder that turns any operation into a
   request, code samples and a mock response in the browser.
+- **Postman collection:** one request for every operation, with a credential-free environment
+  template, in [`postman/`](postman/).
 - **Source specifications:** the Adobe specifications the reference is generated from, in
   [`specs/`](specs/).
 - **Generator:** a Python script, using only the standard library, that rebuilds the reference from
@@ -76,6 +78,25 @@ The site is built with [MkDocs](https://www.mkdocs.org/) and
 [Material for MkDocs](https://squidfunk.github.io/mkdocs-material/), and deployed to GitHub Pages
 from `main`.
 
+## Postman collection
+
+An unofficial [Postman](https://www.postman.com/) collection has one request for every operation, with
+documented parameters, native authentication and minimal starter bodies, and a credential-free
+environment template: your instance's settings and credentials are blank, and only Adobe's public
+Data Ingestion API host is preconfigured.
+
+- [`postman/marketo-engage.postman_collection.json`](postman/marketo-engage.postman_collection.json)
+- [`postman/marketo-engage.postman_environment.json`](postman/marketo-engage.postman_environment.json)
+
+Both are also on the [documentation site](https://mkto-ref.harrisonjennings.au/postman/). Import both
+files, fill in the environment, and send the Identity request to get an access token; see
+[`postman/README.md`](postman/README.md) for setup, credential storage and limitations. Requests run
+only when you send them: the only script saves the token from the Identity requests, and the
+collection never refreshes tokens, retries, chains requests or pages automatically.
+
+The collection includes operations that change and delete data. Don't run it with the Collection
+Runner.
+
 ## Development
 
 ### Prerequisites
@@ -84,7 +105,7 @@ from `main`.
 |---|---|---|---|
 | Git | Any | Cloning the repository | macOS: `xcode-select --install`; Debian/Ubuntu: `sudo apt install git` |
 | Python | 3.10 or later, with `venv` | The generator and the site build | [python.org](https://www.python.org/downloads/) or `brew install python`; Debian/Ubuntu: `sudo apt install python3 python3-venv` |
-| Node.js | 20 or later | Request Builder tests only; there is nothing to `npm install` | [nodejs.org](https://nodejs.org/) or `brew install node` |
+| Node.js | 20 or later, with npm | Request Builder tests and the Postman collection generator, which need no packages. Only `make postman-runtime-test` installs packages: pinned, test-only copies of Postman's runtime | [nodejs.org](https://nodejs.org/) or `brew install node` |
 | Make | Any | Running the tasks below | macOS: `xcode-select --install`; Debian/Ubuntu: `sudo apt install make` |
 
 On Windows, use [WSL](https://learn.microsoft.com/windows/wsl/install) and follow the Debian/Ubuntu
@@ -103,7 +124,10 @@ pinned site dependencies from `requirements-docs.txt`. The `make` targets use `.
 automatically, so there's no need to activate it.
 
 Then run the same checks as CI: the Request Builder tests, the Python script tests, a check that
-`reference/` matches `specs/`, a strict site build and validation of the built site.
+`reference/` matches `specs/`, the Postman collection tests and a check that `postman/` matches
+`reference/`, a strict site build and validation of the built site. CI also runs
+`make postman-runtime-test`, which sends the collection's requests with Postman's own runtime to a
+local server; it installs pinned, test-only npm packages first.
 
 ```bash
 make docs-ci
@@ -127,23 +151,26 @@ generator, then regenerate.
 |---|---|
 | `make reference` | Rebuilds `reference/` from the specifications in `specs/`, without network access. Use it after changing the generator or a specification. |
 | `make specs-update` | Downloads Adobe's latest specifications from [AdobeDocs/marketo-apis](https://github.com/AdobeDocs/marketo-apis) into `specs/`, then rebuilds `reference/`. If any download fails, no specification is changed. |
+| `make postman` | Rebuilds the Postman collection and environment template in `postman/` from `reference/`, without network access. Run it after regenerating `reference/` or changing the exporter. |
 
 After regenerating:
 
 1. Review the changes with `make specs-summary`. It lists changed counts, added, removed and
    changed operations, and new dates in descriptions, which are often deprecation deadlines.
+   `make postman-summary` does the same for the Postman collection.
 2. Run `make docs-ci`. The Request Builder tests use real operation files, so update them if Adobe
    renames or removes an operation they use.
 3. If the counts changed, update [What's included](#whats-included) and
    [API coverage](#api-coverage) to match `reference/README.md`.
-4. Commit `specs/` and `reference/` together. CI fails if they don't match.
+4. Commit `specs/`, `reference/` and `postman/` together. CI fails if they don't match.
 
 Run `make help` to list every task.
 
 ### Keeping up with Adobe
 
 A scheduled workflow checks Adobe's specifications every week. When they change, it opens a draft
-pull request with the regenerated reference and a summary of the changes, for review before merging.
+pull request with the regenerated reference and Postman collection and a summary of the changes, for
+review before merging.
 
 ## Repository structure
 
@@ -156,8 +183,9 @@ pull request with the regenerated reference and a summary of the changes, for re
 │   ├── overrides/       # Theme template overrides
 │   ├── scripts/         # Validation of the built site
 │   └── tests/           # Request Builder tests
+├── postman/             # Generated Postman collection and environment template
 ├── reference/           # Generated reference: Markdown, operation JSON and manifest.json
-├── scripts/             # Reference generator, specification change summary and their tests
+├── scripts/             # Reference and Postman generators, change summaries and their tests
 ├── specs/               # Adobe's specifications
 ├── CONTRIBUTING.md
 ├── LICENSE

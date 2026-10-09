@@ -9,8 +9,8 @@ single maintainer, and it doesn't accept pull requests.
   Adobe's specifications. Report them to Adobe in
   [AdobeDocs/marketo-apis](https://github.com/AdobeDocs/marketo-apis/issues). Corrections appear here
   after the next weekly update.
-- **Problems with this project**, such as the documentation site, the Request Builder, mock responses
-  or the generator, can be reported by
+- **Problems with this project**, such as the documentation site, the Request Builder, mock responses,
+  the Postman collection or the generators, can be reported by
   [opening an issue](https://github.com/harrison-jennings/api-reference-for-marketo-engage/issues/new).
   Include the page URL, what you expected and what happened.
 - **Security vulnerabilities** must not be reported in a public issue. See [SECURITY.md](SECURITY.md).

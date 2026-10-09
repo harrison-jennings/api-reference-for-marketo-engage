@@ -14,6 +14,8 @@ is a personal project, so there is no guaranteed response time, but every report
 In scope:
 
 - the documentation site at <https://mkto-ref.harrisonjennings.au/>, including the Request Builder
+- the Postman collection and environment template in `postman/`, including the script on the
+  collection's Identity requests
 - the reference generator and other scripts in this repository
 - this repository's GitHub Actions workflows
 
