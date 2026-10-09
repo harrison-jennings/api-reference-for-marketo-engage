@@ -12,5 +12,9 @@
   "devDependencies": {
     "postman-collection": "5.3.1",
     "postman-runtime": "7.56.1"
+  },
+  "overrides": {
+    "handlebars": "4.7.10",
+    "qs": "6.16.0"
   }
 }
