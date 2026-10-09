@@ -128,7 +128,7 @@ function pageUrl(siteUrl, markdownPath) {
 }
 
 function link(text, url) {
-  return `[${text.replace(/[[\]]/g, "\\$&")}](${url})`;
+  return `[${text.replace(/[\\[\]]/g, "\\$&")}](${url})`;
 }
 
 // ---------------------------------------------------------------------------

@@ -27,8 +27,12 @@ function absoluteHref(href) {
   return value.startsWith("/") && !value.startsWith("//") ? `${UPSTREAM_DOCS_ORIGIN}${value}` : value;
 }
 
+/**
+ * Code content is kept literally: inside a Markdown code span or block nothing
+ * is interpreted as HTML, so no tags are stripped. Only <br> becomes a newline.
+ */
 function codeMarkdown(raw) {
-  const code = decodeEntities(raw.replace(/<br\s*\/?>/gi, "\n").replace(/<[^>]+>/g, ""));
+  const code = decodeEntities(raw.replace(/<br\s*\/?>/gi, "\n"));
   if (code.includes("\n")) return `\n\n\`\`\`\n${code.trim()}\n\`\`\`\n\n`;
   const fence = code.includes("`") ? "``" : "`";
   return `${fence}${code}${fence}`;
