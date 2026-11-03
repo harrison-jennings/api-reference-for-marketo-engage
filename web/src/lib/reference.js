@@ -118,7 +118,7 @@ export function richText(html) {
 
 const PERMISSIONS = /Required Permissions?:\s*([^<\n]+)/i;
 export function permissionsOf(description) {
-  const match = String(description ?? "").match(PERMISSIONS);
+  const match = String(description ?? "").replace(/`/g, "").match(PERMISSIONS);
   return match ? match[1].split(/,| and /).map((item) => item.trim().replace(/\.$/, "")).filter(Boolean) : [];
 }
 

@@ -12,34 +12,13 @@ import { GENERATORS } from "./codegen.js";
 import { defaultResponseCode, generateMock } from "./mock.js";
 import { generateRealisticResponse } from "./behaviour.js";
 import { highlightJson } from "./highlight.js";
+import { createBodyEditor, supportsFields } from "./body-editor.js";
+import { el, plainText } from "./dom.js";
 
 const LANGUAGE_STORAGE_KEY = "api-reference-for-marketo-engage.request-builder.language";
 let instanceCounter = 0;
 
-// --- small DOM helpers ------------------------------------------------------
-
-function el(tag, attributes = {}, ...children) {
-  const node = document.createElement(tag);
-  for (const [name, value] of Object.entries(attributes)) {
-    if (value === undefined || value === null || value === false) continue;
-    if (name === "className") node.className = value;
-    else if (name === "text") node.textContent = value;
-    else if (name.startsWith("on")) node.addEventListener(name.slice(2).toLowerCase(), value);
-    else node.setAttribute(name, value === true ? "" : String(value));
-  }
-  for (const child of children.flat()) {
-    if (child === null || child === undefined || child === false) continue;
-    node.append(child instanceof Node ? child : document.createTextNode(String(child)));
-  }
-  return node;
-}
-
-/** Specification descriptions may contain HTML; render them as plain text. */
-function plainText(html) {
-  if (!html) return "";
-  const parsed = new DOMParser().parseFromString(String(html).replace(/<br\s*\/?>/gi, " "), "text/html");
-  return (parsed.body.textContent || "").replace(/\s+/g, " ").trim();
-}
+// --- small helpers ----------------------------------------------------------
 
 function readStoredLanguage() {
   try {
@@ -198,8 +177,41 @@ export function mountRequestBuilder(container, operationDocument, options = {}) 
 
     const description = plainText(field.description);
     const hint = fieldHint(field, control);
-    const input = createControl(field, id, `${helpId} ${errorId}`, initial, onFieldInput(field.key), operation.resolver);
     const error = el("p", { className: "rb-field__error", id: errorId, hidden: true });
+
+    // A nested form value gets the same Fields view as a JSON body.
+    if (control === "json" && supportsFields(field.schema, operation.resolver)) {
+      const editor = createBodyEditor({
+        id,
+        name: field.name,
+        schema: field.schema,
+        resolver: operation.resolver,
+        text: "",
+        rootLabel: field.name,
+        placeholder: JSON.stringify(generateMock(field.schema, operation.resolver, { name: field.name })),
+        onChange: (text) => {
+          state.values[field.key] = text;
+          touched.add(field.key);
+          update();
+        },
+      });
+      errorNodes.set(field.key, { node: error, control: editor.control, editor });
+      return el(
+        "div",
+        { className: `rb-field ${field.required ? "rb-field--required" : "rb-field--optional"}` },
+        el("div", { className: "rb-field__label rb-field__label--split" },
+          el("span", { className: "rb-field__label" },
+            el("code", { className: "rb-field__name", text: field.name }),
+            el("span", { className: "rb-field__type", text: describeType(field.schema, operation.resolver) }),
+            el("span", { className: `rb-badge ${field.required ? "rb-badge--required" : "rb-badge--optional"}`, text: field.required ? "required" : "optional" })),
+          editor.toggle),
+        description ? el("p", { className: "rb-field__help", id: helpId, text: description }) : el("span", { id: helpId, hidden: true }),
+        editor.element,
+        error,
+      );
+    }
+
+    const input = createControl(field, id, `${helpId} ${errorId}`, initial, onFieldInput(field.key), operation.resolver);
     errorNodes.set(field.key, { node: error, control: input });
 
     return el(
@@ -324,42 +336,65 @@ export function mountRequestBuilder(container, operationDocument, options = {}) 
       const initial = initialBodyValue(operation, generateMock);
       starterBody = initial === undefined ? "" : JSON.stringify(initial, null, 2);
       state.bodyText = starterBody;
-      bodyTextarea = el("textarea", {
-        id,
-        className: "rb-input rb-input--code rb-input--body",
-        rows: Math.min(18, Math.max(6, starterBody.split("\n").length)),
-        spellcheck: "false",
-        autocomplete: "off",
-        "aria-describedby": `${id}-help ${id}-error`,
-      });
-      bodyTextarea.value = starterBody;
-      bodyTextarea.addEventListener("input", (event) => {
-        state.bodyText = event.target.value;
+      const help = el("p", { className: "rb-field__help", id: `${id}-help` },
+        body.example !== undefined ? "Starter content is the documented example." : "Starter content is generated from the schema.");
+      const bodyError = el("p", { className: "rb-field__error", id: `${id}-error`, hidden: true });
+      const reset = el("button", { type: "button", className: "rb-button rb-button--small", text: "Reset body" });
+      const setBody = (text) => {
+        state.bodyText = text;
         touched.add("body");
         update();
-      });
-      const bodyError = el("p", { className: "rb-field__error", id: `${id}-error`, hidden: true });
-      errorNodes.set("body", { node: bodyError, control: bodyTextarea });
-      const reset = el("button", { type: "button", className: "rb-button rb-button--small", text: "Reset body" });
-      reset.addEventListener("click", () => {
+      };
+      const fieldClass = `rb-field ${body.required ? "rb-field--required" : "rb-field--optional"}`;
+      const requiredBadge = el("span", { className: `rb-badge ${body.required ? "rb-badge--required" : "rb-badge--optional"}`, text: body.required ? "required" : "optional" });
+      if (body.kind === "json" && supportsFields(body.schema, operation.resolver)) {
+        const editor = createBodyEditor({
+          id,
+          schema: body.schema,
+          resolver: operation.resolver,
+          text: starterBody,
+          required: body.required,
+          rootLabel: "body",
+          onChange: setBody,
+        });
+        errorNodes.set("body", { node: bodyError, control: editor.control, editor });
+        reset.addEventListener("click", () => editor.reset(starterBody));
+        bodyGroup = group("Request body", [
+          el("div", { className: fieldClass },
+            el("div", { className: "rb-field__label rb-field__label--split" },
+              el("span", { className: "rb-field__label" }, "Body", requiredBadge),
+              el("span", { className: "rb-editor__tools" }, editor.toggle, reset)),
+            editor.element,
+            help,
+            bodyError),
+        ], meta);
+      } else {
+        bodyTextarea = el("textarea", {
+          id,
+          className: "rb-input rb-input--code rb-input--body",
+          rows: Math.min(18, Math.max(6, starterBody.split("\n").length)),
+          spellcheck: "false",
+          autocomplete: "off",
+          "aria-describedby": `${id}-help ${id}-error`,
+        });
         bodyTextarea.value = starterBody;
-        state.bodyText = starterBody;
-        update();
-      });
-      bodyGroup = group("Request body", [
-        el(
-          "div",
-          { className: `rb-field ${body.required ? "rb-field--required" : "rb-field--optional"}` },
-          el("div", { className: "rb-field__label rb-field__label--split" },
-            el("label", { for: id }, body.kind === "json" ? "JSON body" : "Body",
-              el("span", { className: `rb-badge ${body.required ? "rb-badge--required" : "rb-badge--optional"}`, text: body.required ? "required" : "optional" })),
-            reset),
-          bodyTextarea,
-          el("p", { className: "rb-field__help", id: `${id}-help` },
-            body.example !== undefined ? "Starter content is the documented example." : "Starter content is generated from the schema."),
-          bodyError,
-        ),
-      ], meta);
+        bodyTextarea.addEventListener("input", (event) => setBody(event.target.value));
+        errorNodes.set("body", { node: bodyError, control: bodyTextarea });
+        reset.addEventListener("click", () => {
+          bodyTextarea.value = starterBody;
+          state.bodyText = starterBody;
+          update();
+        });
+        bodyGroup = group("Request body", [
+          el("div", { className: fieldClass },
+            el("div", { className: "rb-field__label rb-field__label--split" },
+              el("label", { for: id }, body.kind === "json" ? "JSON body" : "Body", requiredBadge),
+              reset),
+            bodyTextarea,
+            help,
+            bodyError),
+        ], meta);
+      }
     } else {
       bodyGroup = group(body.kind === "multipart" ? "Multipart form fields" : "Form fields", (body.fields || []).map(fieldRow), meta);
     }
@@ -379,7 +414,7 @@ export function mountRequestBuilder(container, operationDocument, options = {}) 
     const request = update();
     if (!request.valid) {
       const first = request.errors.map((error) => errorNodes.get(error.key)).find(Boolean);
-      first?.control.focus();
+      if (!first?.editor?.focusInvalid()) first?.control.focus();
     } else {
       urlCode.closest(".rb-output")?.scrollIntoView({ block: "nearest", behavior: "smooth" });
     }
@@ -575,9 +610,15 @@ export function mountRequestBuilder(container, operationDocument, options = {}) 
       if (!byKey.has(error.key)) byKey.set(error.key, []);
       byKey.get(error.key).push(error.message);
     }
-    for (const [key, { node, control }] of errorNodes) {
+    for (const [key, { node, control, editor }] of errorNodes) {
       const messages = byKey.get(key) || [];
       const visible = messages.length > 0 && (showAllErrors || touched.has(key));
+      if (editor) {
+        const left = editor.showErrors(visible ? messages : [], showAllErrors);
+        node.hidden = !left.length;
+        node.textContent = left.join(" ");
+        continue;
+      }
       node.hidden = !visible;
       node.textContent = visible ? messages.join(" ") : "";
       control.setAttribute("aria-invalid", visible ? "true" : "false");
