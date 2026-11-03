@@ -34,15 +34,18 @@ function updateUrl() {
   history.replaceState(null, "", url);
 }
 
-/** Pagefind excerpts contain only <mark>; everything else is rebuilt as text. */
+/** Pagefind excerpts contain only <mark>. Parsed in an inert document and rebuilt as text. */
 function excerptNodes(excerpt) {
   const fragment = document.createDocumentFragment();
-  const decode = document.createElement("textarea");
-  excerpt.split(/(<mark>.*?<\/mark>)/).forEach((part) => {
-    const match = part.match(/^<mark>(.*)<\/mark>$/);
-    decode.innerHTML = (match ? match[1] : part).replace(/<[^>]+>/g, "");
-    if (match) { const mark = document.createElement("mark"); mark.textContent = decode.value; fragment.append(mark); } else fragment.append(decode.value);
-  });
+  for (const node of new DOMParser().parseFromString(excerpt, "text/html").body.childNodes) {
+    if (node.nodeName !== "MARK") {
+      fragment.append(node.textContent);
+      continue;
+    }
+    const mark = document.createElement("mark");
+    mark.textContent = node.textContent;
+    fragment.append(mark);
+  }
   return fragment;
 }
 

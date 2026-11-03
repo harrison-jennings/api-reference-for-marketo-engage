@@ -32,7 +32,6 @@ const CSS = `
   .band, .side { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px 20px; }
   .band { flex: 1 1 0; display: flex; flex-direction: column; }
   .band .row { flex: 1; }
-  .band .card { justify-content: center; }
   .lbl { font: 500 13px/1 var(--mono); letter-spacing: .02em; color: var(--accent); margin-bottom: 14px; }
   .row { display: flex; align-items: stretch; gap: 26px; }
   .card { flex: 1 1 0; min-width: 0; position: relative; display: flex; flex-direction: column; gap: 6px; padding: 14px; background: var(--raised); border: 1px solid var(--line); border-radius: 12px; }

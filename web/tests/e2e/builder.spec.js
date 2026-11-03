@@ -20,6 +20,20 @@ test("nothing is sent anywhere but this site", async ({ page, baseURL }) => {
   expect(elsewhere).toEqual([]);
 });
 
+test("a mock response reads as ordinary JSON", async ({ page }) => {
+  await page.goto("/reference/core/leads/get-lead-by-id/");
+  await page.locator('[name="path:leadId"]').fill("54321");
+  await page.getByRole("tab", { name: "Mock response" }).click();
+  const body = page.locator(".rb-mock__body");
+  await expect(body).toContainText('"success"');
+  const blocks = await body.locator("span").evaluateAll((spans) => spans.filter((span) => getComputedStyle(span).display !== "inline").length);
+  expect(blocks).toBe(0);
+  const lines = await body.evaluate((node) => node.textContent.split("\n").length);
+  const lineHeight = await body.evaluate((node) => parseFloat(getComputedStyle(node).lineHeight));
+  const height = await body.locator("code").evaluate((node) => node.getBoundingClientRect().height);
+  expect(height).toBeLessThanOrEqual(lines * lineHeight + 2);
+});
+
 test("it never asks for credentials", async ({ page }) => {
   await page.goto(LEADS);
   await expect(page.locator(".rb__mode")).toHaveText("Mock mode");

@@ -167,10 +167,10 @@ describe("highlightJson", () => {
   it("escapes HTML and tags tokens", () => {
     const html = highlightJson(JSON.stringify({ "<k>": "<script>", n: 1, ok: true, none: null }));
     assert.ok(!html.includes("<script>"));
-    assert.ok(html.includes('<span class="nt">&quot;&lt;k&gt;&quot;</span>'));
-    assert.ok(html.includes('<span class="s2">&quot;&lt;script&gt;&quot;</span>'));
-    assert.ok(html.includes('<span class="mi">1</span>'));
-    assert.ok(html.includes('<span class="kc">true</span>'));
-    assert.ok(html.includes('<span class="kc">null</span>'));
+    assert.ok(html.includes('<span class="rb-t-key">&quot;&lt;k&gt;&quot;</span>'));
+    assert.ok(html.includes('<span class="rb-t-string">&quot;&lt;script&gt;&quot;</span>'));
+    assert.ok(html.includes('<span class="rb-t-literal">1</span>'));
+    assert.ok(html.includes('<span class="rb-t-literal">true</span>'));
+    assert.ok(html.includes('<span class="rb-t-literal">null</span>'));
   });
 });

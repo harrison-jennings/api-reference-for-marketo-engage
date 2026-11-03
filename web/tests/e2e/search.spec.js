@@ -13,6 +13,8 @@ test("the jump bar finds an operation by path", async ({ page }) => {
 test("full-text search returns results", async ({ page }) => {
   await page.goto("/search/?q=filterValues");
   await expect(page.locator("main")).toContainText(/filterValues/i);
+  await expect(page.locator(".res-x mark").first()).toBeVisible();
+  await expect(page.locator(".res-x script")).toHaveCount(0);
 });
 
 test("the operation finder narrows the list", async ({ page }) => {

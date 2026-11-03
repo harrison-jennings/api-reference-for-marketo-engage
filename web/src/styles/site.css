@@ -357,7 +357,7 @@ select.in, select.rb-input { appearance: none; padding-right: 36px; background-r
 .rb-mock__label, .rb-mock__meta { font-size: 12px; color: var(--muted); }
 .rb-status { font: 500 12px var(--mono); }
 .rb-status--2 { color: var(--accent); } .rb-status--4, .rb-status--5 { color: var(--amber); }
-.nt { color: var(--amber); } .s2 { color: var(--amber); } .kc, .mi { color: var(--accent); }
+.rb-t-key, .rb-t-string { color: var(--amber); } .rb-t-literal { color: var(--accent); }
 .rb-visually-hidden { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); }
 .example .b-head { padding: 10px 16px; border-bottom: 1px solid var(--line); }
 .example .b-head h2 { font-size: 14px; }
