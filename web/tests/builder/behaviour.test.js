@@ -1,15 +1,15 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { normaliseOperation } from "../docs/assets/request-builder/operation.js";
-import { buildRequest } from "../docs/assets/request-builder/request.js";
-import { MOCK_DATE_TIME, generateResponseMock } from "../docs/assets/request-builder/mock.js";
+import { normaliseOperation } from "../../builder/operation.js";
+import { buildRequest } from "../../builder/request.js";
+import { MOCK_DATE_TIME, generateResponseMock } from "../../builder/mock.js";
 import {
   documentedDefaultFields,
   generateRealisticResponse,
   queryList,
   requestedFields,
-} from "../docs/assets/request-builder/behaviour.js";
+} from "../../builder/behaviour.js";
 import { loadOperation } from "./helpers.js";
 
 /** Build the request for an operation and return its realistic 200 mock. */
@@ -243,8 +243,8 @@ describe("request validation for Marketo record models", () => {
   });
 
   it("omits response-only properties from generated starter bodies", async () => {
-    const { initialBodyValue } = await import("../docs/assets/request-builder/request.js");
-    const { generateMock } = await import("../docs/assets/request-builder/mock.js");
+    const { initialBodyValue } = await import("../../builder/request.js");
+    const { generateMock } = await import("../../builder/mock.js");
     const op = normaliseOperation(loadOperation("core/custom-objects/sync-custom-objects"));
     const [record] = initialBodyValue(op, generateMock).input;
     assert.deepEqual(Object.keys(record), ["marketoGUID"]);

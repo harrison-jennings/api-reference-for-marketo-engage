@@ -8,12 +8,12 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { PLACEHOLDERS, normaliseOperation } from "../docs/assets/request-builder/operation.js";
-import { buildRequest } from "../docs/assets/request-builder/request.js";
-import { controlFor } from "../docs/assets/request-builder/validate.js";
-import { GENERATORS } from "../docs/assets/request-builder/codegen.js";
-import { generateMock, generateResponseMock } from "../docs/assets/request-builder/mock.js";
-import { generateRealisticResponse } from "../docs/assets/request-builder/behaviour.js";
+import { PLACEHOLDERS, normaliseOperation } from "../../builder/operation.js";
+import { buildRequest } from "../../builder/request.js";
+import { controlFor } from "../../builder/validate.js";
+import { GENERATORS } from "../../builder/codegen.js";
+import { generateMock, generateResponseMock } from "../../builder/mock.js";
+import { generateRealisticResponse } from "../../builder/behaviour.js";
 import { allOperationFiles, readJson } from "./helpers.js";
 
 const files = allOperationFiles();

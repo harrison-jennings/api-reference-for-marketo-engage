@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { createResolver, describeType, refName } from "../docs/assets/request-builder/schema.js";
-import { PLACEHOLDERS, normaliseOperation } from "../docs/assets/request-builder/operation.js";
+import { createResolver, describeType, refName } from "../../builder/schema.js";
+import { PLACEHOLDERS, normaliseOperation } from "../../builder/operation.js";
 import { loadOpenApi3Operation, loadOperation } from "./helpers.js";
 
 describe("schema resolver", () => {

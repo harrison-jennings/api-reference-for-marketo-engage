@@ -6,7 +6,7 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { normaliseOperation } from "../../docs-site/docs/assets/request-builder/operation.js";
+import { normaliseOperation } from "../../web/builder/operation.js";
 import { stableId } from "../postman/collection.mjs";
 import { EXPIRY_VARIABLE, TOKEN_VARIABLE, identityTokenEvent, identityTokenScriptLines } from "../postman/identity-script.mjs";
 import { collection, folders, itemsByOperation, manifest, readJson, requestItems } from "./postman-helpers.mjs";

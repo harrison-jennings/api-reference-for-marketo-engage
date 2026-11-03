@@ -11,7 +11,7 @@ const plural = (count, noun) => `${count} ${noun}${count === 1 ? "" : "s"}`;
       <h1 id="top">API Reference for Marketo Engage</h1>
       <p>An independent reference for the Adobe Marketo Engage APIs, generated from Adobe's published Swagger and OpenAPI specifications.</p>
       <p class="stats"><span><b>{manifest.summary.operations}</b> operations</span><span><b>{manifest.summary.models}</b> models</span><span><b>{manifest.summary.specifications}</b> API specifications</span></p>
-      <button type="button" class="jump bigjump" data-jump-open aria-haspopup="dialog" aria-label="Jump to an operation, path, model or parameter"><SearchIcon /><span class="jt">Jump to an operation, path, model or parameter</span><kbd data-jump-key>⌘K</kbd></button>
+      <button type="button" class="jump bigjump" data-jump-open aria-haspopup="dialog"><SearchIcon /><span class="jt">Jump to an operation, path, model or parameter</span><kbd data-jump-key aria-hidden="true">⌘K</kbd></button>
       <div class="cta"><a class="btn pri" href="/reference/">Browse the API reference</a><a class="btn" href="/playground/">Open the Request Playground</a><a class="btn" href="/search/">Search every page</a></div>
     </div>
     <section class="homesec">

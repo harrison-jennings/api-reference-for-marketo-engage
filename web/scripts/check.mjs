@@ -1,15 +1,23 @@
 /**
- * Validates a built site, like docs-site/scripts/check_site.py does for MkDocs:
- * every current reference URL exists, internal links resolve, and every page
- * carries the disclaimer and a CSP. Also checks what search engines rely on:
- * unique titles and descriptions, canonical links, one h1, valid structured
- * data, and a sitemap and robots.txt that match the indexable pages.
+ * Validates a built site before it's published:
+ * - every current reference URL exists, every operation has a Request Builder
+ *   and a parseable operation file, and internal links resolve;
+ * - every page carries Adobe's required disclaimer and a CSP that blocks
+ *   connections to other hosts;
+ * - no private files or secret-looking values are published, and the Postman
+ *   downloads match the reviewed files, with a template holding no values but
+ *   the public Data Ingestion API host;
+ * - what search engines rely on: unique titles and descriptions, canonical
+ *   links, one h1, valid structured data, and a sitemap and robots.txt that
+ *   match the indexable pages.
  */
 import fs from "node:fs";
 import path from "node:path";
+import config from "../site.json" with { type: "json" };
 
 const root = path.resolve(process.argv[2] || "dist");
-const REFERENCE = path.resolve("..", "reference");
+const REPO = path.resolve(import.meta.dirname, "..", "..");
+const REFERENCE = path.join(REPO, "reference");
 const DISCLAIMER = "THIS SITE IS NOT AUTHORIZED, ENDORSED OR SPONSORED BY ADOBE, PUBLISHER OF ADOBE MARKETO ENGAGE.";
 
 const errors = [];
@@ -22,7 +30,7 @@ for (const file of walk(REFERENCE).filter((item) => item.endsWith(".md") && !ite
   if (!fs.existsSync(path.join(root, "reference", route, "index.html"))) errors.push(`missing page: /reference/${route}`);
 }
 
-const site = (process.env.SITE_URL || "https://mkto-ref.harrisonjennings.au/").replace(/\/$/, "");
+const site = (process.env.SITE_URL || config.url).replace(/\/$/, "");
 const titles = new Map();
 const descriptions = new Map();
 const indexable = new Set();
@@ -33,7 +41,9 @@ for (const page of pages) {
   const head = html.slice(0, html.indexOf("</head>"));
   const noindex = /<meta name="robots" content="noindex/.test(head);
   if (!html.includes(DISCLAIMER)) errors.push(`${page}: no disclaimer`);
-  if (!/http-equiv="content-security-policy"/i.test(html)) errors.push(`${page}: no CSP`);
+  const csp = html.match(/http-equiv="content-security-policy"[^>]*content="([^"]*)"/i)?.[1];
+  if (!csp) errors.push(`${page}: no CSP`);
+  else if (!/connect-src 'self'/.test(csp)) errors.push(`${page}: CSP allows connections to other hosts`);
   if (/fonts\.(googleapis|gstatic)\.com/.test(html)) errors.push(`${page}: requests Google Fonts`);
   if (!/<html lang="en-AU"/.test(html)) errors.push(`${page}: no language`);
 
@@ -75,6 +85,50 @@ for (const route of listed) if (!indexable.has(route)) errors.push(`in sitemap b
 const robots = fs.existsSync(path.join(root, "robots.txt")) ? fs.readFileSync(path.join(root, "robots.txt"), "utf8") : "";
 if (!robots.includes(`Sitemap: ${site}/sitemap.xml`)) errors.push("robots.txt does not name the sitemap");
 if (/^Disallow: \/$/m.test(robots)) errors.push("robots.txt blocks the whole site");
+
+// Every operation has a builder, and a file for it to read.
+const manifest = JSON.parse(fs.readFileSync(path.join(REFERENCE, "manifest.json"), "utf8"));
+for (const operation of manifest.operations) {
+  const route = operation.markdown.replace(/\.md$/, "/");
+  const pageFile = path.join(root, "reference", route, "index.html");
+  if (fs.existsSync(pageFile) && !fs.readFileSync(pageFile, "utf8").includes("data-request-builder")) errors.push(`${route}: no Request Builder`);
+  const data = path.join(root, "reference", operation.json);
+  try { JSON.parse(fs.readFileSync(data, "utf8")); } catch { errors.push(`${operation.json}: missing or not valid JSON`); }
+}
+
+// Nothing private is published.
+const FORBIDDEN_FILES = [/(^|\/)\.env(\..+)?$/, /(^|\/)\.git(\/|$)/, /\.(pem|key|p12|pfx)$/];
+const SECRETS = {
+  "private key": /-----BEGIN [A-Z ]*PRIVATE KEY-----/,
+  "GitHub token": /\b(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{36}\b|\bgithub_pat_[A-Za-z0-9_]{40,}\b/,
+  "AWS access key": /\bAKIA[0-9A-Z]{16}\b/,
+  "bearer token": /Bearer\s+(?!<ACCESS_TOKEN>|\{\{)[A-Za-z0-9\-_.~+/]{20,}=*/,
+  "credential value": /(client_secret|client_id|access_token)(=|"\s*:\s*")(?!<|\{\{|\$\{|example)[A-Za-z0-9\-_.]{16,}/i,
+  "local path": /(\/Users\/[A-Za-z0-9._-]+\/|\/home\/runner\/|C:\\\\Users\\\\)/,
+  "Marketo instance": /\b(?!123-ABC-456\.)\d{3}-[A-Za-z]{3}-\d{3}\.mktorest\.com\b/i,
+};
+const ENVIRONMENT = "downloads/marketo-engage.postman_environment.json";
+const TEXT = /\.(html|js|json|css|xml|txt|map)$/;
+for (const file of walk(root)) {
+  const relative = path.relative(root, file);
+  const postmanEnvironment = /\.postman_environment\.json$/.test(relative) && relative !== ENVIRONMENT;
+  if (postmanEnvironment || FORBIDDEN_FILES.some((pattern) => pattern.test(relative))) errors.push(`private file published: ${relative}`);
+  if (!TEXT.test(relative) || relative.startsWith("pagefind/")) continue;
+  const text = fs.readFileSync(file, "utf8");
+  for (const [name, pattern] of Object.entries(SECRETS)) if (pattern.test(text)) errors.push(`${relative}: looks like a ${name}`);
+}
+
+// The Postman downloads are the reviewed files, and the template holds no values but a public host.
+for (const name of ["marketo-engage.postman_collection.json", "marketo-engage.postman_environment.json"]) {
+  const published = path.join(root, "downloads", name);
+  if (!fs.existsSync(published) || !fs.readFileSync(published).equals(fs.readFileSync(path.join(REPO, "postman", name)))) errors.push(`downloads/${name} differs from postman/`);
+}
+if (fs.existsSync(path.join(root, ENVIRONMENT))) {
+  for (const { key, value } of JSON.parse(fs.readFileSync(path.join(root, ENVIRONMENT), "utf8")).values) {
+    if (!value) continue;
+    if (key !== "ingestionBaseUrl" || !/^https:\/\/[a-z0-9.-]+$/.test(value)) errors.push(`${ENVIRONMENT}: ${key} holds a value`);
+  }
+}
 
 if (errors.length) {
   console.error(`${errors.length} problems:\n${[...new Set(errors)].slice(0, 40).join("\n")}`);

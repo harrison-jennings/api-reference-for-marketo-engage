@@ -8,8 +8,8 @@ import assert from "node:assert/strict";
 import { createHash } from "node:crypto";
 import { describe, it } from "node:test";
 
-import { createResolver, isPlainObject, isResponseModel } from "../../docs-site/docs/assets/request-builder/schema.js";
-import { normaliseOperation } from "../../docs-site/docs/assets/request-builder/operation.js";
+import { createResolver, isPlainObject, isResponseModel } from "../../web/builder/schema.js";
+import { normaliseOperation } from "../../web/builder/operation.js";
 import { COLLECTION_NAME, COLLECTION_SCHEMA, FAMILIES, NOT_DOCUMENTED, OFFSET_PAGING, plainText, sentence, stableId } from "../postman/collection.mjs";
 import { code, htmlToMarkdown, inlineMarkdown, visibleWords } from "../postman/markdown.mjs";
 import { createValidator } from "../postman/schema-validator.mjs";

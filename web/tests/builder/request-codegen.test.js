@@ -1,10 +1,10 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { normaliseOperation } from "../docs/assets/request-builder/operation.js";
-import { buildRequest, encodeQueryComponent, substitutePath } from "../docs/assets/request-builder/request.js";
-import { constraintErrors, parseBaseUrl, parseField, validateValue } from "../docs/assets/request-builder/validate.js";
-import { generateCurl, generateJavaScript, generatePython } from "../docs/assets/request-builder/codegen.js";
+import { normaliseOperation } from "../../builder/operation.js";
+import { buildRequest, encodeQueryComponent, substitutePath } from "../../builder/request.js";
+import { constraintErrors, parseBaseUrl, parseField, validateValue } from "../../builder/validate.js";
+import { generateCurl, generateJavaScript, generatePython } from "../../builder/codegen.js";
 import { loadOpenApi3Operation, loadOperation } from "./helpers.js";
 
 const getEmail = () => normaliseOperation(loadOperation("asset/emails/get-email-by-id"));

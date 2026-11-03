@@ -92,16 +92,14 @@ jobs:
         uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97 # v7.0.0
         with:
           python-version: "3.12"
-          cache: pip
-          cache-dependency-path: requirements-docs.txt
 
       - name: Set up Node.js
         uses: actions/setup-node@820762786026740c76f36085b0efc47a31fe5020 # v7.0.0
         with:
-          node-version: "22"
+          node-version-file: .nvmrc
 
-      - name: Install documentation dependencies
-        run: python -m pip install -r requirements-docs.txt
+      - name: Install site dependencies
+        run: make web-install
 
       - name: Download specifications and regenerate reference
         run: make specs-update PYTHON=python
@@ -224,7 +222,7 @@ jobs:
             --description "Automated Adobe specification update" > /dev/null
           today="$(date -u +%F)"
           if [ "$CI_OUTCOME" = "success" ]; then
-            ci="✅ \`make docs-ci\` passed in the weekly check: tests, reference and Postman checks, strict build and site validation."
+            ci="✅ \`make docs-ci\` passed in the weekly check: tests, reference and Postman checks, build and site validation."
           else
             ci="❌ \`make docs-ci\` **failed** in the weekly check. See the [run log]($RUN_URL). Tests may need updating if Adobe removed or renamed an operation they use."
           fi

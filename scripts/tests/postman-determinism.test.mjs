@@ -13,7 +13,7 @@ import { collection, collectionText, environment, environmentText, freshBuild, m
 
 const UUID = /^[0-9a-f]{8}-[0-9a-f]{4}-5[0-9a-f]{3}-[89ab][0-9a-f]{3}-[0-9a-f]{12}$/;
 
-/** The same patterns the site validator uses for credentials and machine paths (docs-site/scripts/check_site.py). */
+/** The same patterns the site validator uses for credentials and machine paths (web/scripts/check.mjs). */
 const SECRET_PATTERNS = {
   "private key": /-----BEGIN [A-Z ]*PRIVATE KEY-----/,
   "GitHub token": /\b(ghp|gho|ghu|ghs|ghr)_[A-Za-z0-9]{36}\b|\bgithub_pat_[A-Za-z0-9_]{40,}\b/,

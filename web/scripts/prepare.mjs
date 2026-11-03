@@ -1,6 +1,6 @@
 /**
  * Copies what the site serves as static files, and generates its data files.
- * Run before every build. reference/, postman/ and docs-site/ are only read.
+ * Run before every build. reference/, postman/ and builder/ are only read.
  */
 import fs from "node:fs";
 import path from "node:path";
@@ -18,7 +18,7 @@ const plural = (count, noun) => `${count} ${noun}${count === 1 ? "" : "s"}`;
 for (const folder of ["reference", "downloads", "assets/data", "assets/request-builder"]) fs.rmSync(path.join(PUBLIC, folder), { recursive: true, force: true });
 
 // Request Builder: it resolves its data relative to assets/request-builder/index.js.
-fs.cpSync(path.join(REPO, "docs-site/docs/assets/request-builder"), path.join(PUBLIC, "assets/request-builder"), { recursive: true });
+fs.cpSync(path.join(WEB, "builder"), path.join(PUBLIC, "assets/request-builder"), { recursive: true });
 
 // Postman downloads.
 fs.mkdirSync(path.join(PUBLIC, "downloads"), { recursive: true });
@@ -54,7 +54,7 @@ for (const section of sections) {
 
 fs.mkdirSync(path.join(PUBLIC, "assets/data"), { recursive: true });
 
-// The Request Builder's index: the same shape the MkDocs hook writes.
+// The Request Builder's index.
 fs.writeFileSync(path.join(PUBLIC, "assets/data/site-index.json"), JSON.stringify({
   summary: manifest.summary,
   sections: sections.map((id) => ({ id, title: SECTIONS[id], page: `reference/${id}/`, operations: operations.filter((operation) => operation.section === id).length, models: Object.keys(models[id]).length })),

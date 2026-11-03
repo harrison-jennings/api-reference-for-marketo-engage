@@ -3,7 +3,7 @@
  * Generate the Postman collection and environment template from reference/.
  *
  * Offline and deterministic: reads reference/manifest.json, the operation
- * files it lists, the model indexes and the site URL in mkdocs.yml, and writes
+ * files it lists, the model indexes and the site URL in web/site.json, and writes
  * the same bytes for the same inputs. Needs only Node.js 20 or later.
  *
  * Usage:
@@ -18,7 +18,7 @@ import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
 import { parseArgs } from "node:util";
 
-import { normaliseOperation } from "../docs-site/docs/assets/request-builder/operation.js";
+import { normaliseOperation } from "../web/builder/operation.js";
 import { buildCollection, ingestionBaseUrl } from "./postman/collection.mjs";
 import { buildEnvironment } from "./postman/environment.mjs";
 
@@ -28,11 +28,11 @@ export const ENVIRONMENT_FILE = "marketo-engage.postman_environment.json";
 
 const MODEL_ROW = /^\|\s*\[([^\]]+)\]\(([^)]+\.md)\)\s*\|/gm;
 
-/** The published site URL: the default in mkdocs.yml, so output never depends on the environment. */
-export function siteUrlFromMkdocs(text) {
-  const match = /^site_url:\s*!ENV\s*\[\s*SITE_URL\s*,\s*"([^"]+)"\s*\]\s*$/m.exec(text) || /^site_url:\s*"?([^"\s]+)"?\s*$/m.exec(text);
-  if (!match) throw new Error("Could not find site_url in mkdocs.yml");
-  return match[1].endsWith("/") ? match[1] : `${match[1]}/`;
+/** The published site URL, from a committed file, so output never depends on the environment. */
+export function readSiteUrl(path) {
+  const { url } = JSON.parse(readFileSync(path, "utf8"));
+  if (!url) throw new Error(`Could not find url in ${path}`);
+  return url.endsWith("/") ? url : `${url}/`;
 }
 
 /** Model name → file name, from each section's models/README.md (as the site hook reads them). */
@@ -56,10 +56,10 @@ export function serialise(value) {
 }
 
 /** Build both artifacts from a reference directory. */
-export function generate({ referenceDir = join(REPO_ROOT, "reference"), mkdocsPath = join(REPO_ROOT, "mkdocs.yml") } = {}) {
+export function generate({ referenceDir = join(REPO_ROOT, "reference"), sitePath = join(REPO_ROOT, "web", "site.json") } = {}) {
   const manifest = JSON.parse(readFileSync(join(referenceDir, "manifest.json"), "utf8"));
   const sections = [...new Set(manifest.operations.map((entry) => entry.section))].sort((a, b) => a.localeCompare(b));
-  const siteUrl = siteUrlFromMkdocs(readFileSync(mkdocsPath, "utf8"));
+  const siteUrl = readSiteUrl(sitePath);
   const loadOperation = (path) => JSON.parse(readFileSync(join(referenceDir, path), "utf8"));
   const collection = buildCollection(manifest, loadOperation, { siteUrl, models: readModels(referenceDir, sections) });
   const operations = manifest.operations.map((entry) => normaliseOperation(loadOperation(entry.json)));

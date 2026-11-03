@@ -7,11 +7,11 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { addItem, buildNode, nodeForMessage, readNode, removeItem, setNodeText, supportsFields } from "../docs/assets/request-builder/body-fields.js";
-import { generateMock } from "../docs/assets/request-builder/mock.js";
-import { normaliseOperation } from "../docs/assets/request-builder/operation.js";
-import { buildRequest, initialBodyValue } from "../docs/assets/request-builder/request.js";
-import { controlFor } from "../docs/assets/request-builder/validate.js";
+import { addItem, buildNode, nodeForMessage, readNode, removeItem, setNodeText, supportsFields } from "../../builder/body-fields.js";
+import { generateMock } from "../../builder/mock.js";
+import { normaliseOperation } from "../../builder/operation.js";
+import { buildRequest, initialBodyValue } from "../../builder/request.js";
+import { controlFor } from "../../builder/validate.js";
 import { allOperationFiles, loadOperation, readJson } from "./helpers.js";
 
 const operations = allOperationFiles().map((file) => normaliseOperation(readJson("reference", file)));

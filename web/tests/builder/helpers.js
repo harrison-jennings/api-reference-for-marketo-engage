@@ -2,7 +2,7 @@ import { readFileSync, readdirSync } from "node:fs";
 import { dirname, join, relative } from "node:path";
 import { fileURLToPath } from "node:url";
 
-export const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..");
+export const REPO_ROOT = join(dirname(fileURLToPath(import.meta.url)), "..", "..", "..");
 export const REFERENCE_DIR = join(REPO_ROOT, "reference");
 
 export function readJson(...segments) {

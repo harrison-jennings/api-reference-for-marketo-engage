@@ -1,9 +1,9 @@
 import { defineConfig } from "astro/config";
+import config from "./site.json" with { type: "json" };
 
-// The site is not meant to be indexed yet, so there is no sitemap. CI can set
-// SITE_URL from the repository's Pages configuration, as it does for MkDocs.
+// CI can set SITE_URL from the repository's Pages configuration.
 export default defineConfig({
-  site: process.env.SITE_URL || "https://mkto-ref.harrisonjennings.au/",
+  site: process.env.SITE_URL || config.url,
   trailingSlash: "always",
   build: { format: "directory", inlineStylesheets: "never" },
   devToolbar: { enabled: false },

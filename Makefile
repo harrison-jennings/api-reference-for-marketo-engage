@@ -1,16 +1,15 @@
-# Documentation site tasks. CI runs these same targets.
+# Project tasks. CI runs these same targets.
 
-PYTHON ?= $(if $(wildcard .venv/bin/python),.venv/bin/python,python3)
+PYTHON ?= python3
 NODE ?= node
-SITE_DIR ?= site
+NPM ?= npm
 
-.PHONY: help check-prereqs setup docs-install reference specs-update specs-summary postman postman-check postman-test postman-runtime-test postman-summary docs-serve docs-test scripts-test reference-check docs-build docs-ci clean
+.PHONY: help check-prereqs setup web-install reference specs-update specs-summary postman postman-check postman-test postman-runtime-test postman-summary web-dev docs-test scripts-test reference-check docs-build docs-e2e docs-ci clean
 
 help:
 	@echo "Setup"
-	@echo "  check-prereqs    Check Python 3.10+ (with venv) and Node.js 20+ are installed"
-	@echo "  setup            check-prereqs, then create .venv and install documentation dependencies"
-	@echo "  docs-install     Create .venv and install documentation dependencies"
+	@echo "  check-prereqs    Check Python 3.10+ and Node.js 22.23+ are installed"
+	@echo "  setup            check-prereqs, then install the site's dependencies"
 	@echo "Generate the API reference"
 	@echo "  reference        Rebuild reference/ from the committed specifications in specs/"
 	@echo "  specs-update     Download Adobe's latest specifications into specs/ and rebuild reference/"
@@ -23,31 +22,28 @@ help:
 	@echo "                   (installs pinned, test-only npm packages in scripts/postman-runtime/)"
 	@echo "  postman-summary  Summarise how postman/ differs from the last commit (BASE=<ref> to compare elsewhere)"
 	@echo "Site"
-	@echo "  docs-serve       Preview the site at http://127.0.0.1:8000/ with live reload"
-	@echo "  docs-test        Run Request Builder unit tests (Node.js 20+, no npm install needed)"
+	@echo "  web-dev          Run the site at http://127.0.0.1:4321/ with live reload"
+	@echo "  docs-test        Run Request Builder unit tests (no npm install needed)"
 	@echo "  scripts-test     Run Python unit tests for the repository scripts"
 	@echo "  reference-check  Verify reference/ matches the generator output for specs/"
-	@echo "  docs-build       Build the site with strict checks and validate the output"
-	@echo "  docs-ci          Everything CI runs: tests, reference and Postman checks, build and validation"
+	@echo "  docs-build       Build the site and validate the output"
+	@echo "  docs-e2e         Run the browser tests against the built site (needs Playwright's browsers)"
+	@echo "  docs-ci          Tests, reference and Postman checks, build and validation"
 	@echo "  clean            Remove the built site"
 
 check-prereqs:
 	@command -v python3 > /dev/null || { echo "python3 not found: install Python 3.10 or later." >&2; exit 1; }
 	@python3 -c 'import sys; sys.exit(sys.version_info < (3, 10))' \
 		|| { echo "Python 3.10 or later is required; found $$(python3 --version)." >&2; exit 1; }
-	@python3 -c 'import venv, ensurepip' 2> /dev/null \
-		|| { echo "Python venv support is missing (Debian/Ubuntu: sudo apt install python3-venv)." >&2; exit 1; }
-	@command -v $(NODE) > /dev/null || { echo "Node.js not found: install Node.js 20 or later." >&2; exit 1; }
-	@$(NODE) -e 'process.exit(Number(process.versions.node.split(".")[0]) >= 20 ? 0 : 1)' \
-		|| { echo "Node.js 20 or later is required; found $$($(NODE) --version)." >&2; exit 1; }
+	@command -v $(NODE) > /dev/null || { echo "Node.js not found: install Node.js 22.23 or later." >&2; exit 1; }
+	@$(NODE) -e 'const [major, minor] = process.versions.node.split(".").map(Number); process.exit(major > 22 || (major === 22 && minor >= 23) ? 0 : 1)' \
+		|| { echo "Node.js 22.23 or later is required; found $$($(NODE) --version)." >&2; exit 1; }
 	@echo "Prerequisites OK: $$(python3 --version), Node.js $$($(NODE) --version)."
 
-setup: check-prereqs docs-install
+setup: check-prereqs web-install
 
-docs-install:
-	python3 -m venv .venv
-	.venv/bin/python -m pip install --upgrade pip
-	.venv/bin/python -m pip install -r requirements-docs.txt
+web-install:
+	cd web && $(NPM) ci --no-audit --no-fund
 
 # The generator needs only the Python standard library. --clean rebuilds the
 # whole of reference/; --json-fragments writes the *.operation.json files the
@@ -98,14 +94,14 @@ postman-runtime-test:
 postman-summary:
 	@$(NODE) scripts/summarise_postman_changes.mjs --base $(BASE)
 
-docs-serve:
-	$(PYTHON) -m mkdocs serve
+web-dev:
+	cd web && $(NPM) run dev -- --host 127.0.0.1
 
 scripts-test:
 	$(PYTHON) -m unittest discover --start-directory scripts/tests
 
 docs-test:
-	cd docs-site && $(NODE) --test "tests/**/*.test.js"
+	cd web && $(NODE) --test "tests/builder/**/*.test.js"
 
 # validation-report.md is written by the generator but not committed.
 reference-check:
@@ -117,10 +113,13 @@ reference-check:
 	echo "reference/ is up to date with specs/."
 
 docs-build:
-	$(PYTHON) -m mkdocs build --strict --site-dir "$(SITE_DIR)"
-	$(PYTHON) docs-site/scripts/check_site.py "$(SITE_DIR)"
+	cd web && $(NPM) run build
+	cd web && $(NPM) run check
+
+docs-e2e:
+	cd web && $(NPM) run test:e2e
 
 docs-ci: docs-test scripts-test reference-check postman-test postman-check docs-build
 
 clean:
-	rm -rf "$(SITE_DIR)"
+	rm -rf web/dist

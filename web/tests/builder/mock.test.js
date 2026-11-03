@@ -1,8 +1,8 @@
 import assert from "node:assert/strict";
 import { describe, it } from "node:test";
 
-import { createResolver } from "../docs/assets/request-builder/schema.js";
-import { normaliseOperation } from "../docs/assets/request-builder/operation.js";
+import { createResolver } from "../../builder/schema.js";
+import { normaliseOperation } from "../../builder/operation.js";
 import {
   MOCK_DATE,
   MOCK_DATE_TIME,
@@ -10,8 +10,8 @@ import {
   generateMock,
   generateResponseMock,
   humanize,
-} from "../docs/assets/request-builder/mock.js";
-import { highlightJson } from "../docs/assets/request-builder/highlight.js";
+} from "../../builder/mock.js";
+import { highlightJson } from "../../builder/highlight.js";
 import { loadOpenApi3Operation, loadOperation } from "./helpers.js";
 
 describe("generateMock", () => {

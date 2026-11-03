@@ -3,7 +3,7 @@
  * *.operation.json files it lists.
  *
  * Operations are normalised with the Request Builder's own normaliser
- * (docs-site/docs/assets/request-builder/operation.js), so the collection and
+ * (web/builder/operation.js), so the collection and
  * the documentation site interpret the specifications the same way. The
  * output is plain data with a fixed key order and no timestamps or random
  * identifiers: the same reference always produces the same collection.
@@ -11,8 +11,8 @@
 
 import { createHash } from "node:crypto";
 
-import { normaliseOperation } from "../../docs-site/docs/assets/request-builder/operation.js";
-import { describeType, isPlainObject, isResponseModel, isResponseOnly } from "../../docs-site/docs/assets/request-builder/schema.js";
+import { normaliseOperation } from "../../web/builder/operation.js";
+import { describeType, isPlainObject, isResponseModel, isResponseOnly } from "../../web/builder/schema.js";
 import { identityTokenEvent, TOKEN_VARIABLE } from "./identity-script.mjs";
 import { code, htmlToMarkdown, inlineMarkdown } from "./markdown.mjs";
 
