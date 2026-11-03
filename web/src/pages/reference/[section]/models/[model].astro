@@ -5,7 +5,7 @@ import Caret from "../../../../components/Caret.astro";
 import PageBar from "../../../../components/PageBar.astro";
 import Tree from "../../../../components/Tree.astro";
 import Base from "../../../../layouts/Base.astro";
-import { SECTIONS, SECTION_ORDER, modelDescription, modelTitle, breakable, countProperties, modelMarkdown, modelsIn } from "../../../../lib/reference.js";
+import { SECTIONS, SECTION_ORDER, modelDescription, modelIndexable, modelTitle, breakable, countProperties, modelMarkdown, modelsIn } from "../../../../lib/reference.js";
 export const getStaticPaths = () => SECTION_ORDER.flatMap((section) => modelsIn(section).models.map((model) => ({ params: { section, model: model.slug }, props: { model } })));
 const { model } = Astro.props;
 const { section } = model;
@@ -24,7 +24,7 @@ for (const operation of [...model.users].sort((a, b) => a.tag.toLowerCase().loca
 const many = model.users.length > 12;
 const items = [{ id: "properties", label: "Properties" }, { id: "referenced", label: "Referenced models", count: referenced.length }, { id: "used", label: "Used by", count: model.users.length }];
 ---
-<Base title={`${model.name} model`} seoTitle={modelTitle(model)} description={modelDescription(model)} section={section} where="models" navLabel="Models" article noindex={model.kind === "Response wrapper"} breadcrumbs={[{ name: "Models", url: "/models/" }, { name: `${SECTIONS[section].short} models`, url: `/reference/${section}/models/` }, { name: model.name }]}>
+<Base title={`${model.name} model`} seoTitle={modelTitle(model)} description={modelDescription(model)} section={section} where="models" navLabel="Models" article noindex={!modelIndexable(model)} breadcrumbs={[{ name: "Models", url: "/models/" }, { name: `${SECTIONS[section].short} models`, url: `/reference/${section}/models/` }, { name: model.name }]}>
   <div class="scrim" data-nav-toggle aria-hidden="true"></div>
   <div class="panes model">
     <div class="navwrap" id="nav-panel" tabindex="-1"><ModelsNav section={section} current={model.name} /></div>

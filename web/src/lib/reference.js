@@ -221,6 +221,8 @@ export function operationDescription(operation, node) {
   const full = `${sentence} ${call} ${where}`;
   return full.length <= 158 ? full : `${clip(sentence, Math.max(70, 157 - call.length))} ${call}.`;
 }
+/** Wrappers mostly repeat the model they wrap, and unused models are no operation's answer. */
+export const modelIndexable = (model) => model.kind !== "Response wrapper" && model.users.length > 0;
 export function modelDescription(model) {
   const used = model.users.length ? `Used by ${model.users.length} ${model.users.length === 1 ? "operation" : "operations"}.` : "";
   return `The ${model.name} schema in the Marketo Engage ${SECTIONS[model.section].short} API: ${model.properties} ${model.properties === 1 ? "property" : "properties"}, with types and a generated example. ${used}`.trim();

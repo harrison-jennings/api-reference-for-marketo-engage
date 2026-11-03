@@ -40,7 +40,7 @@ word boundaries in the way a browser displays them:
 ## Search engines
 
 Pages are indexable unless they pass `noindex` to `Base.astro`. The search page, the 404 page and the
-`ResponseOf…` wrapper models are excluded, and the sitemap leaves them out too. `npm run check` fails on
+`ResponseOf…` wrapper models and models no operation uses are excluded, and the sitemap leaves them out too. `npm run check` fails on
 a duplicate title or description, a wrong canonical link, more than one `h1`, invalid structured data,
 or a sitemap that doesn't match the indexable pages.
 
