@@ -115,7 +115,13 @@ if (toc) {
     links.forEach((link) => {
       const current = link.getAttribute("href") === `#${id}`;
       link.classList.toggle("on", current);
-      if (current) { link.setAttribute("aria-current", "location"); link.scrollIntoView?.({ block: "nearest", inline: "nearest" }); } else link.removeAttribute("aria-current");
+      if (current) {
+        link.setAttribute("aria-current", "location");
+        // Keep the link visible in the bar on phones. This moves the bar only:
+        // scrollIntoView would also move the page and fight the person scrolling.
+        const bar = link.parentElement;
+        if (bar.scrollWidth > bar.clientWidth) bar.scrollLeft = link.offsetLeft - bar.offsetLeft - (bar.clientWidth - link.offsetWidth) / 2;
+      } else link.removeAttribute("aria-current");
     });
     if (track && location.hash !== `#${id}`) history.replaceState(null, "", `#${id}`);
   };
