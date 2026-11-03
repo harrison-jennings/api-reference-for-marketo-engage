@@ -11,7 +11,7 @@ const { title, seoTitle, description = DEFAULT_DESCRIPTION, section, where, pane
 const fullTitle = seoTitle || (title === SITE ? SITE : `${title} | ${SITE}`);
 const canonical = new URL(Astro.url.pathname, ORIGIN).href;
 const image = new URL("/assets/images/social.png", ORIGIN).href;
-const author = { "@type": "Person", name: "Harrison Jennings", url: "https://harrisonjennings.au/" };
+const author = { "@type": "Person", name: "Harrison Jennings", url: "https://www.harrisonjennings.au/" };
 const structured = [];
 if (Astro.url.pathname === "/") structured.push({ "@context": "https://schema.org", "@type": "WebSite", name: SITE, url: canonical, description, inLanguage: "en-AU", publisher: author });
 if (breadcrumbs.length) structured.push({ "@context": "https://schema.org", "@type": "BreadcrumbList", itemListElement: breadcrumbs.map((crumb, index) => ({ "@type": "ListItem", position: index + 1, name: crumb.name, ...(crumb.url ? { item: new URL(crumb.url, ORIGIN).href } : {}) })) });
@@ -28,7 +28,7 @@ const jsonLd = (data) => JSON.stringify(data).replace(/</g, "\\u003c");
     <meta name="description" content={description} />
     {noindex && <meta name="robots" content="noindex, follow" />}
     {!noindex && <link rel="canonical" href={canonical} />}
-    <link rel="author" href="https://harrisonjennings.au/" />
+    <link rel="author" href="https://www.harrisonjennings.au/" />
     <meta name="author" content="Harrison Jennings" />
     <meta name="theme-color" content="#0B0D10" />
     <meta property="og:type" content={article ? "article" : "website"} />

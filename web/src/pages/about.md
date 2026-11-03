@@ -24,7 +24,7 @@ see [Notices](/notices/). Use of the APIs is subject to Adobe's
 
 ## Who made this
 
-Built and maintained by [Harrison Jennings](https://harrisonjennings.au/) as an independent
+Built and maintained by [Harrison Jennings](https://www.harrisonjennings.au/) as an independent
 project.
 
 ## Source code
