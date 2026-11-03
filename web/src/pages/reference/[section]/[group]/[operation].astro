@@ -54,7 +54,7 @@ const route = (model) => models.byName.get(model)?.route;
   <div class="scrim" data-nav-toggle aria-hidden="true"></div>
   <div class="panes">
     <div class="navwrap" id="nav-panel" tabindex="-1"><OperationsNav section={section} current={operation.route} /></div>
-    <main class="docs" id="main" data-pagefind-body data-pagefind-meta={`where:${SECTIONS[section].short} › ${operation.tag} › ${operation.method} ${operation.path}`}>
+    <main class="docs" id="main" data-pagefind-body data-pagefind-filter="kind[data-kind], api[data-api], method[data-method]" data-kind="Operation" data-api={SECTIONS[section].short} data-method={operation.method} data-pagefind-meta={`where:${SECTIONS[section].short} › ${operation.tag} › ${operation.method} ${operation.path}`}>
       <div class="slide two view-seg" data-view-switch data-v="docs" role="group" aria-label="View" data-pagefind-ignore>
         <span class="pill" aria-hidden="true"></span>
         <button type="button" data-view="docs" aria-pressed="true">Docs</button>

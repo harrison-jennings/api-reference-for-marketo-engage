@@ -6,7 +6,7 @@ const models = allModels();
 const wrappers = models.filter((model) => model.kind === "Response wrapper").length;
 ---
 <Base title="Models" description="Request and response schemas used by the Marketo Engage APIs, grouped by API." where="models">
-  <main class="page wide" id="main" data-pagefind-body>
+  <main class="page wide" id="main" data-pagefind-body data-pagefind-filter="kind:Overview" data-pagefind-meta="where:Models">
     <h1 id="top">Models</h1>
     <p class="desc">Request and response schemas used by the Marketo Engage APIs. Each API specification defines its own models, so a name such as <code class="ic">Error</code> can appear in more than one API.</p>
     <p class="stats"><span><b>{models.length}</b> models</span><span><b>{manifest.summary.specifications}</b> APIs</span><span><b>{wrappers}</b> are ResponseOf wrappers</span></p>

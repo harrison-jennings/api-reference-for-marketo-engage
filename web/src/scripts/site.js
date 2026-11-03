@@ -19,20 +19,21 @@ for (const node of document.querySelectorAll(".pt, .nm, .mlink, .mname, .ty, cod
   }
 }
 
-// Theme: auto, light or dark.
-const ORDER = ["auto", "light", "dark"];
-const label = (pref) => pref.charAt(0).toUpperCase() + pref.slice(1);
+// Long code blocks on hand-written pages scroll, so they must be reachable by keyboard.
+document.querySelectorAll(".prose pre").forEach((node) => node.setAttribute("tabindex", "0"));
+
+// Theme: follows the device until someone chooses, then stays as chosen.
 const prefersLight = matchMedia("(prefers-color-scheme: light)");
-function applyTheme(pref) {
-  root.setAttribute("data-theme-pref", pref);
-  root.setAttribute("data-theme", pref === "auto" ? (prefersLight.matches ? "light" : "dark") : pref);
-  document.querySelectorAll("[data-theme-label]").forEach((node) => { node.textContent = label(pref); });
-  document.querySelectorAll("[data-theme-toggle]").forEach((node) => node.setAttribute("aria-label", `Theme: ${label(pref)}. Select to change.`));
+const label = (theme) => theme.charAt(0).toUpperCase() + theme.slice(1);
+function applyTheme(theme) {
+  root.setAttribute("data-theme", theme);
+  document.querySelectorAll("[data-theme-label]").forEach((node) => { node.textContent = label(theme); });
+  document.querySelectorAll("[data-theme-toggle]").forEach((node) => node.setAttribute("aria-label", `Theme: ${label(theme)}. Select to change to ${theme === "dark" ? "Light" : "Dark"}.`));
 }
-applyTheme(root.getAttribute("data-theme-pref") || "auto");
-prefersLight.addEventListener("change", () => { if (root.getAttribute("data-theme-pref") === "auto") applyTheme("auto"); });
+applyTheme(root.getAttribute("data-theme"));
+prefersLight.addEventListener("change", () => { const chosen = read("site-theme"); if (chosen !== "light" && chosen !== "dark") applyTheme(prefersLight.matches ? "light" : "dark"); });
 document.querySelectorAll("[data-theme-toggle]").forEach((button) => button.addEventListener("click", () => {
-  const next = ORDER[(ORDER.indexOf(root.getAttribute("data-theme-pref")) + 1) % ORDER.length];
+  const next = root.getAttribute("data-theme") === "dark" ? "light" : "dark";
   store("site-theme", next);
   applyTheme(next);
 }));
@@ -71,6 +72,7 @@ function setNav(open, opener) {
   if (open) { navOpener = opener; navPanel?.focus(); } else if (navOpener) { navOpener.focus(); navOpener = null; }
 }
 navToggles.forEach((node) => node.addEventListener("click", () => setNav(body.getAttribute("data-nav") !== "true", node)));
+document.addEventListener("site:close-nav", () => { if (body.getAttribute("data-nav") === "true") setNav(false); });
 document.addEventListener("keydown", (event) => { if (event.key === "Escape" && body.getAttribute("data-nav") === "true") setNav(false); });
 
 // Filters over rows and groups: every word must match.

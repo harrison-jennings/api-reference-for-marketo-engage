@@ -28,7 +28,7 @@ const items = [{ id: "properties", label: "Properties" }, { id: "referenced", la
   <div class="scrim" data-nav-toggle aria-hidden="true"></div>
   <div class="panes model">
     <div class="navwrap" id="nav-panel" tabindex="-1"><ModelsNav section={section} current={model.name} /></div>
-    <main class="docs" id="main" data-pagefind-body data-pagefind-meta={`where:${SECTIONS[section].short} models › ${model.kind}`}>
+    <main class="docs" id="main" data-pagefind-body data-pagefind-filter="kind[data-kind], api[data-api]" data-kind="Model" data-api={SECTIONS[section].short} data-pagefind-meta={`where:${SECTIONS[section].short} models › ${model.kind}`}>
       <nav class="crumbs ctxm" aria-label="Breadcrumb" data-pagefind-ignore><a class="ln" href="/models/">Models</a><span aria-hidden="true">›</span><a class="ln" href={`/reference/${section}/models/`}>{SECTIONS[section].short}</a><span aria-hidden="true">›</span><span aria-current="page">{model.kind}</span></nav>
       <div class="ophead">
         <h1 id="top" set:html={breakable(model.name)}></h1>

@@ -7,6 +7,8 @@ export default defineConfig({
   trailingSlash: "always",
   build: { format: "directory", inlineStylesheets: "never" },
   devToolbar: { enabled: false },
+  // Highlighting adds inline styles, which the CSP blocks. Hand-written pages only use plain code blocks.
+  markdown: { syntaxHighlight: false },
   security: {
     csp: {
       directives: [

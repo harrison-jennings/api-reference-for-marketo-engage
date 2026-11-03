@@ -22,6 +22,7 @@ npm run preview   # serves dist/
 - `scripts/prepare.mjs` runs before every build. It copies the Request Builder,
   operation files and Postman downloads into `public/`, and writes
   `assets/data/site-index.json` and `assets/data/jump-index.json`.
+- Hand-written pages are Markdown in `src/pages/`, using the `Prose` layout. Keep code blocks unhighlighted, because highlighting adds inline styles that the CSP blocks.
 - The Request Builder still lives in `docs-site/docs/assets/request-builder/`, with
   its tests in `docs-site/tests/`.
 - Fonts are self-hosted from `public/fonts/`, under the licence in `OFL.txt`.

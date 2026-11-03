@@ -20,7 +20,7 @@ let active = 0;
 const isMac = /Mac|iPhone|iPad/.test(navigator.platform || navigator.userAgent);
 if (!isMac) document.querySelectorAll("[data-jump-key]").forEach((node) => { node.textContent = "Ctrl K"; });
 
-async function load() {
+export async function load() {
   if (entries) return entries;
   const response = await fetch(new URL("/assets/data/jump-index.json", location.href));
   entries = (await response.json()).map((entry) => ({ ...entry, keys: [entry.i, entry.p, entry.t].map((key) => (key || "").toLowerCase()), group: (entry.g || "").toLowerCase() }));

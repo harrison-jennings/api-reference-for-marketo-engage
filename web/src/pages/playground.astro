@@ -1,0 +1,25 @@
+---
+import PlaygroundNav from "../components/PlaygroundNav.astro";
+import Base from "../layouts/Base.astro";
+---
+<Base title="Request Playground" description="Build Marketo Engage API requests and generate mock responses for any operation, entirely in your browser." where="playground" navLabel="Operations" navAlways builder pane="builder">
+  <div class="scrim" data-nav-toggle aria-hidden="true"></div>
+  <div class="twocol">
+    <div class="navwrap" id="nav-panel" tabindex="-1"><PlaygroundNav /></div>
+    <main class="pg-main" id="main" data-pagefind-body data-pagefind-filter="kind:Guide" data-pagefind-meta="where:Request Playground">
+      <div class="pg-head">
+        <div>
+          <h1 id="top">Request Playground</h1>
+          <p class="desc">Choose any operation to build a request, generate cURL, JavaScript and Python samples, and create a schema-based mock response. The same builder appears on every operation page.</p>
+        </div>
+        <a class="ln pg-docs" data-playground-docs href="/reference/core/leads/get-lead-by-id/" data-pagefind-ignore>Read the Get Lead by Id reference</a>
+      </div>
+      <div class="builder pg-builder" aria-label="Request Builder" data-pagefind-ignore>
+        <div class="builder-inner" data-request-playground="core/leads/get-lead-by-id">
+          <p class="rb-loading">Loading operations…</p>
+          <noscript><p class="pad">The Request Playground needs JavaScript. Browse the <a class="ln" href="/reference/">API reference</a> instead.</p></noscript>
+        </div>
+      </div>
+    </main>
+  </div>
+</Base>

@@ -77,7 +77,56 @@ function operationLabel(operation) {
   return `${operation.method} ${operation.path} — ${operation.title}`;
 }
 
+/** Playground with its operations listed in the page, rather than in a drop-down. */
+async function mountPlaygroundWithPicker(container, picker) {
+  const siteIndex = await loadSiteIndex();
+  const docsLink = document.querySelector("[data-playground-docs]");
+  const links = [...picker.querySelectorAll("[data-op]")];
+  let currentId = null;
+
+  async function load(id) {
+    const entry = siteIndex.operations.find((operation) => operation.id === id);
+    if (!entry || id === currentId) return;
+    currentId = id;
+    for (const link of links) {
+      const current = link.dataset.op === id;
+      link.classList.toggle("on", current);
+      if (current) {
+        link.setAttribute("aria-current", "true");
+        const group = link.closest("details");
+        if (group) group.open = true;
+      } else {
+        link.removeAttribute("aria-current");
+      }
+    }
+    if (docsLink) {
+      docsLink.href = siteUrl(entry.page);
+      docsLink.textContent = `Read the ${entry.title} reference`;
+    }
+    if (decodeURIComponent(window.location.hash.slice(1)) !== id) history.replaceState(null, "", `#${id}`);
+    try {
+      await mountOperation(container, id, { title: entry.title });
+    } catch (error) {
+      renderError(container, `The operation could not be loaded: ${error.message}`);
+    }
+  }
+
+  picker.addEventListener("click", (event) => {
+    const link = event.target.closest("[data-op]");
+    if (!link || event.metaKey || event.ctrlKey || event.shiftKey) return;
+    event.preventDefault();
+    load(link.dataset.op);
+    document.dispatchEvent(new CustomEvent("site:close-nav"));
+  });
+  window.addEventListener("hashchange", () => load(decodeURIComponent(window.location.hash.slice(1))));
+
+  const requested = decodeURIComponent(window.location.hash.slice(1));
+  await load(siteIndex.operations.some((operation) => operation.id === requested) ? requested : container.dataset.requestPlayground || siteIndex.operations[0].id);
+}
+
 async function mountPlayground(container) {
+  const picker = document.querySelector("[data-playground-picker]");
+  if (picker) return mountPlaygroundWithPicker(container, picker);
   const siteIndex = await loadSiteIndex();
   const sectionTitles = Object.fromEntries(siteIndex.sections.map((section) => [section.id, section.title]));
 

@@ -6,7 +6,7 @@ const ids = Object.keys(SECTIONS).sort((a, b) => SECTIONS[a].title.localeCompare
 const plural = (count, noun) => `${count} ${noun}${count === 1 ? "" : "s"}`;
 ---
 <Base title="API Reference for Marketo Engage">
-  <main class="page" id="main" data-pagefind-body>
+  <main class="page" id="main" data-pagefind-body data-pagefind-filter="kind:Overview" data-pagefind-meta="where:Home">
     <div class="hero">
       <h1 id="top">API Reference for Marketo Engage</h1>
       <p>An independent reference for the Adobe Marketo Engage APIs, generated from Adobe's published Swagger and OpenAPI specifications.</p>

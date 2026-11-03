@@ -5,7 +5,7 @@ import TopBar from "../components/TopBar.astro";
 import "../styles/site.css";
 const SITE = "API Reference for Marketo Engage";
 const DEFAULT_DESCRIPTION = "An independent, searchable reference for the Adobe Marketo Engage APIs, generated from Adobe's Swagger and OpenAPI specifications, with a client-side request builder and mock response generator.";
-const { title, description = DEFAULT_DESCRIPTION, section, where, panes, navLabel, navAlways, builder = false } = Astro.props;
+const { title, description = DEFAULT_DESCRIPTION, section, where, panes, navLabel, navAlways, builder = false, pane = "split" } = Astro.props;
 const fullTitle = title === SITE ? SITE : `${title} · ${SITE}`;
 ---
 <!doctype html>
@@ -28,14 +28,13 @@ const fullTitle = title === SITE ? SITE : `${title} · ${SITE}`;
       (function () {
         var stored = null;
         try { stored = localStorage.getItem("site-theme"); } catch (e) {}
-        var pref = stored === "light" || stored === "dark" ? stored : "auto";
-        var theme = pref === "auto" ? (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark") : pref;
+        var chosen = stored === "light" || stored === "dark";
+        var theme = chosen ? stored : matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark";
         document.documentElement.setAttribute("data-theme", theme);
-        document.documentElement.setAttribute("data-theme-pref", pref);
       })();
     </script>
   </head>
-  <body data-pane="split" data-view="docs" data-nav="false">
+  <body data-pane={pane} data-view="docs" data-nav="false">
     <TopBar section={section} where={where} panes={panes} navLabel={navLabel} navAlways={navAlways} />
     <slot />
     <Footer />
