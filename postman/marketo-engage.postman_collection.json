@@ -537,7 +537,7 @@
                     {
                       "key": "content",
                       "type": "file",
-                      "description": "Content for the email template. Multipart file. Optional, string. Select a file in the Body tab before sending.",
+                      "description": "Content for the email template. Multipart file. Optional, file. Select a file in the Body tab before sending.",
                       "disabled": true
                     }
                   ]
@@ -728,7 +728,7 @@
                     {
                       "key": "content",
                       "type": "file",
-                      "description": "HTML content for template. Multipart file. Required, string. Select a file in the Body tab before sending."
+                      "description": "HTML content for template. Multipart file. Required, file. Select a file in the Body tab before sending."
                     }
                   ]
                 },
@@ -2660,7 +2660,7 @@
                     {
                       "key": "content",
                       "type": "file",
-                      "description": "Multipart file. File containing HTML document to update with. File cannot include JavaScript or script tags. Required, string. Select a file in the Body tab before sending."
+                      "description": "Multipart file. File containing HTML document to update with. File cannot include JavaScript or script tags. Required, file. Select a file in the Body tab before sending."
                     }
                   ]
                 },
@@ -3246,7 +3246,7 @@
                     {
                       "key": "file",
                       "type": "file",
-                      "description": "Multipart file. Content of the file. Required, string. Select a file in the Body tab before sending."
+                      "description": "Multipart file. Content of the file. Required, file. Select a file in the Body tab before sending."
                     },
                     {
                       "key": "id",
@@ -3405,7 +3405,7 @@
                     {
                       "key": "file",
                       "type": "file",
-                      "description": "Multipart file. Content of the file. Required, string. Select a file in the Body tab before sending."
+                      "description": "Multipart file. Content of the file. Required, file. Select a file in the Body tab before sending."
                     },
                     {
                       "key": "folder",
