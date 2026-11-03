@@ -1,0 +1,30 @@
+---
+import { SECTIONS, SECTION_ORDER, breakable } from "../lib/reference.js";
+const { models, showApi = true } = Astro.props;
+const sorted = [...models].sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()) || a.section.localeCompare(b.section));
+const letters = new Set(sorted.map((model) => model.name.charAt(0).toUpperCase()));
+const total = sorted.length;
+---
+<div data-models data-total={total}>
+  <div class="tools" data-pagefind-ignore>
+    <label class="sr" for="models-q">Filter models by name</label><input class="in" id="models-q" type="search" placeholder={`Filter ${total} models by name`} autocomplete="off" data-mf="q" />
+    {showApi && <Fragment><label class="sr" for="models-api">API</label><select class="in" id="models-api" data-mf="api"><option value="">All APIs</option>{SECTION_ORDER.map((id) => <option value={id}>{SECTIONS[id].short}</option>)}</select></Fragment>}
+    <label class="sr" for="models-kind">Kind</label><select class="in" id="models-kind" data-mf="kind"><option value="">All kinds</option><option>Object</option><option>Request</option><option>Response wrapper</option><option value="!Response wrapper">Hide response wrappers</option></select>
+  </div>
+  <p class="fc" data-count role="status">Showing {total} of {total}</p>
+  <nav class="azj" aria-label="Filter by first letter" data-pagefind-ignore>
+    {"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map((letter) => letters.has(letter) ? <a href={`#m-${letter}`} data-letter={letter}>{letter}</a> : <span class="az-off"><span aria-hidden="true">{letter}</span><span class="sr">{letter}: no models</span></span>)}
+  </nav>
+  <div class="tscroll modelsbox" tabindex="0" role="region" aria-label="Models table">
+    <table class="tbl mstack"><thead><tr><th>Name</th>{showApi && <th>API</th>}<th>Kind</th><th class="num">Properties</th><th class="num">Used by</th></tr></thead><tbody>
+      {sorted.map((model, index) => { const letter = model.name.charAt(0).toUpperCase(); const first = index === 0 || sorted[index - 1].name.charAt(0).toUpperCase() !== letter; return (
+        <tr id={first ? `m-${letter}` : undefined} data-q={model.name.toLowerCase()} data-api={model.section} data-kind={model.kind}>
+          <td><a class="cell lnk mono" href={model.route} set:html={breakable(model.name)}></a></td>
+          {showApi && <td><span class="cell">{SECTIONS[model.section].short}</span></td>}
+          <td><span class="cell">{model.kind}</span></td>
+          <td class="num"><span class="cell cnum"><span class="mlab">Properties</span>{model.properties}</span></td>
+          <td class="num"><span class="cell cnum"><span class="mlab">Used by</span>{model.users.length || "None"}</span></td>
+        </tr>); })}
+    </tbody></table>
+  </div>
+</div>

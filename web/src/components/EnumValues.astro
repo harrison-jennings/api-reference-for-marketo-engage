@@ -1,0 +1,8 @@
+---
+import Caret from "./Caret.astro";
+const { values } = Astro.props;
+const list = values.map(String);
+---
+{list.length <= 6
+  ? <p class="en"><span class="lbl">Values</span>{" "}{list.map((value) => <Fragment><code class="chip">{value}</code>{" "}</Fragment>)}</p>
+  : <details class="enmore"><summary><Caret /><span>Show all {list.length} values</span></summary><p class="en">{list.map((value) => <Fragment><code class="chip">{value}</code>{" "}</Fragment>)}</p></details>}

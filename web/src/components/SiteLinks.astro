@@ -1,0 +1,19 @@
+---
+import { SECTIONS, SECTION_ORDER, operations } from "../lib/reference.js";
+import GitHubIcon from "./GitHubIcon.astro";
+const { section, apis = true } = Astro.props;
+const count = (id) => operations.filter((operation) => operation.section === id).length;
+---
+<div class="nav-bottom">
+  {apis && <p class="lbl nav-lbl">APIs</p>}
+  {apis && SECTION_ORDER.map((id) => <a class:list={["r", { on: id === section }]} href={`/reference/${id}/`} aria-current={id === section ? "true" : undefined}><span class="grow">{SECTIONS[id].short}</span><span class="ct">{count(id)}</span></a>)}
+  <p class="lbl nav-lbl">Site</p>
+  <a class="r" href="/">Home</a>
+  <a class="r" href="/models/">Models</a>
+  <a class="r" href="/playground/">Request Playground</a>
+  <a class="r" href="/postman/">Postman</a>
+  <a class="r" href="/search/">Search</a>
+  <a class="r" href="/about/">About</a>
+  <a class="r" href="/notices/">Notices</a>
+  <a class="r" href="https://github.com/harrison-jennings/api-reference-for-marketo-engage"><GitHubIcon /><span class="grow">GitHub</span></a>
+</div>

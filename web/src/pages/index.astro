@@ -1,0 +1,32 @@
+---
+import SearchIcon from "../components/SearchIcon.astro";
+import Base from "../layouts/Base.astro";
+import { SECTIONS, manifest, specification } from "../lib/reference.js";
+const ids = Object.keys(SECTIONS).sort((a, b) => SECTIONS[a].title.localeCompare(SECTIONS[b].title));
+const plural = (count, noun) => `${count} ${noun}${count === 1 ? "" : "s"}`;
+---
+<Base title="API Reference for Marketo Engage">
+  <main class="page" id="main" data-pagefind-body data-pagefind-filter="kind:Overview" data-pagefind-meta="where:Home">
+    <div class="hero">
+      <h1 id="top">API Reference for Marketo Engage</h1>
+      <p>An independent reference for the Adobe Marketo Engage APIs, generated from Adobe's published Swagger and OpenAPI specifications.</p>
+      <p class="stats"><span><b>{manifest.summary.operations}</b> operations</span><span><b>{manifest.summary.models}</b> models</span><span><b>{manifest.summary.specifications}</b> API specifications</span></p>
+      <button type="button" class="jump bigjump" data-jump-open aria-haspopup="dialog"><SearchIcon /><span class="jt">Jump to an operation, path, model or parameter</span><kbd data-jump-key aria-hidden="true">⌘K</kbd></button>
+      <div class="cta"><a class="btn pri" href="/reference/">Browse the API reference</a><a class="btn" href="/playground/">Open the Request Playground</a><a class="btn" href="/search/">Search every page</a></div>
+    </div>
+    <section class="homesec">
+      <h2>API families</h2>
+      <div>{ids.map((id) => { const spec = specification(id); return <a class="api-row" href={`/reference/${id}/`}><span class="nmx">{SECTIONS[id].title}</span><span class="nd">{SECTIONS[id].summary}</span><span class="cnts">{plural(spec.operations, "operation")} · {plural(spec.groups, "group")} · {plural(spec.models, "model")}</span></a>; })}</div>
+    </section>
+    <section class="homesec">
+      <h2>What this site is</h2>
+      <ol class="steps">
+        <li><strong>A reference.</strong> Every operation page documents its method, path, parameters, request body, responses and the models it uses.</li>
+        <li><strong>A request builder.</strong> Every operation page includes a form that constructs a request from the operation's specification and turns it into cURL, JavaScript and Python.</li>
+        <li><strong>A mock tester.</strong> Generate a synthetic response for any documented status code, built from the response schema.</li>
+      </ol>
+      <p class="nd">It is not an SDK, and it is not an official Adobe product. For authoritative guidance, see <a class="ln" href="https://developer.adobe.com/marketo-apis/">Adobe's Marketo Engage developer documentation</a>.</p>
+    </section>
+    <div class="note"><p class="note-t">Nothing is sent to Marketo</p><p>Requests and mock responses are created in your browser. No request is sent to Marketo or any other service, and the site never asks for a Client ID, Client Secret or access token.</p></div>
+  </main>
+</Base>

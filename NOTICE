@@ -34,3 +34,11 @@ https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license
 THIS PROJECT IS NOT AUTHORIZED, ENDORSED OR SPONSORED BY ADOBE, PUBLISHER OF
 ADOBE MARKETO ENGAGE. Adobe, Marketo and Marketo Engage are either registered
 trademarks or trademarks of Adobe in the United States and/or other countries.
+
+The site uses the Geist and Geist Mono fonts, Copyright (c) 2023 Vercel, in
+collaboration with basement.studio, licensed under the SIL Open Font License,
+Version 1.1. See web/public/fonts/OFL.txt.
+
+The diagram in the README uses logos from Simple Icons (https://simpleicons.org/),
+released under CC0 1.0, in web/scripts/readme/logos/. The logos remain trademarks
+of their owners.

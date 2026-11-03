@@ -1,0 +1,62 @@
+---
+import ModelsNav from "../../../../components/ModelsNav.astro";
+import Method from "../../../../components/Method.astro";
+import Caret from "../../../../components/Caret.astro";
+import PageBar from "../../../../components/PageBar.astro";
+import Tree from "../../../../components/Tree.astro";
+import Base from "../../../../layouts/Base.astro";
+import { SECTIONS, SECTION_ORDER, modelDescription, modelIndexable, modelTitle, breakable, countProperties, modelMarkdown, modelsIn } from "../../../../lib/reference.js";
+export const getStaticPaths = () => SECTION_ORDER.flatMap((section) => modelsIn(section).models.map((model) => ({ params: { section, model: model.slug }, props: { model } })));
+const { model } = Astro.props;
+const { section } = model;
+const { definitions, byName } = modelsIn(section);
+const markdown = modelMarkdown(model);
+const example = markdown.match(/## Generated example\n\n```json\n([\s\S]*?)\n```/)?.[1];
+const referenced = [...markdown.matchAll(/^- \[`([^`]+)`\]/gm)].map((match) => match[1]);
+const source = markdown.match(/Generated from \[`([^`]+)`\]\(([^)]+)\)/);
+const nested = countProperties(model.name, definitions);
+const others = SECTION_ORDER.filter((id) => id !== section && modelsIn(id).byName.has(model.name));
+const groups = new Map();
+for (const operation of [...model.users].sort((a, b) => a.tag.toLowerCase().localeCompare(b.tag.toLowerCase()) || a.title.localeCompare(b.title))) {
+  if (!groups.has(operation.tag)) groups.set(operation.tag, []);
+  groups.get(operation.tag).push(operation);
+}
+const many = model.users.length > 12;
+const items = [{ id: "properties", label: "Properties" }, { id: "referenced", label: "Referenced models", count: referenced.length }, { id: "used", label: "Used by", count: model.users.length }];
+---
+<Base title={`${model.name} model`} seoTitle={modelTitle(model)} description={modelDescription(model)} section={section} where="models" navLabel="Models" article noindex={!modelIndexable(model)} breadcrumbs={[{ name: "Models", url: "/models/" }, { name: `${SECTIONS[section].short} models`, url: `/reference/${section}/models/` }, { name: model.name }]}>
+  <div class="scrim" data-nav-toggle aria-hidden="true"></div>
+  <div class="panes model">
+    <div class="navwrap" id="nav-panel" tabindex="-1"><ModelsNav section={section} current={model.name} /></div>
+    <main class="docs" id="main" data-pagefind-body data-pagefind-filter="kind[data-kind], api[data-api]" data-kind="Model" data-api={SECTIONS[section].short} data-pagefind-meta={`where:${SECTIONS[section].short} models › ${model.kind}`}>
+      <nav class="crumbs ctxm" aria-label="Breadcrumb" data-pagefind-ignore><a class="ln" href="/models/">Models</a><span aria-hidden="true">›</span><a class="ln" href={`/reference/${section}/models/`}>{SECTIONS[section].short}</a><span aria-hidden="true">›</span><span aria-current="page">{model.kind}</span></nav>
+      <div class="ophead">
+        <h1 id="top" set:html={breakable(model.name)}></h1>
+        <p class="stats"><span><b>{model.properties}</b> properties</span><span><b>{nested}</b> including nested</span><span><b>{model.users.length}</b> {model.users.length === 1 ? "operation uses" : "operations use"} this</span></p>
+        {others.length > 0 && <p class="hint">Each API defines its own models. {model.name} also exists in {others.map((id, index) => <Fragment>{index > 0 && ", "}<a class="ln" href={modelsIn(id).byName.get(model.name).route}>{SECTIONS[id].short}</a></Fragment>)}, with its own properties.</p>}
+      </div>
+      <PageBar items={items} />
+      <section id="properties" class="sec">
+        <div class="sech"><h2>Properties</h2>{nested > model.properties && <div class="sect-tools" data-pagefind-ignore><button type="button" class="btn" data-tree-all="open">Expand all</button><button type="button" class="btn" data-tree-all="close">Collapse all</button></div>}</div>
+        <div class="tree"><Tree name={model.name} definitions={definitions} section={section} openDepth={0} /></div>
+      </section>
+      <section id="referenced" class="sec" data-pagefind-ignore>
+        <h2>Referenced models</h2>
+        {referenced.length ? <ul class="mlist">{referenced.map((name) => <li><a class="mlink blk" href={byName.get(name)?.route} set:html={breakable(name)}></a></li>)}</ul> : <p class="hint">This model does not reference other models.</p>}
+      </section>
+      <section id="used" class="sec" data-pagefind-ignore>
+        <h2>Used by</h2>
+        {!model.users.length && <p class="hint">No operation in this reference uses this model.</p>}
+        {many && <p class="hint">{model.users.length} operations in {groups.size} groups, including indirect use through another model.</p>}
+        {[...groups].map(([tag, rows]) => many
+          ? <details class="g"><summary class="gs"><Caret /><span class="grow">{tag}</span><span class="ct">{rows.length}</span></summary>{rows.map((operation) => <a class="r op" href={operation.route}><Method method={operation.method} /><span class="grow">{operation.title}</span></a>)}</details>
+          : <Fragment><h3>{tag}</h3>{rows.map((operation) => <a class="r op" href={operation.route}><Method method={operation.method} /><span class="grow">{operation.title}</span></a>)}</Fragment>)}
+      </section>
+      {source && <p class="hint src">Generated from <a class="ln" href={source[2]}>{source[1]}</a>. Generated examples are inferred from the schema; they are illustrative and may not be valid production payloads.</p>}
+    </main>
+    <aside class="builder example" aria-label="Generated example" data-pagefind-ignore>
+      <div class="b-head"><h2>Generated example</h2><p class="mode">Inferred from the schema. Illustrative only.</p></div>
+      <div class="ex-body">{example ? <pre class="code" tabindex="0">{example}</pre> : <p class="hint pad">No example is available for this model.</p>}</div>
+    </aside>
+  </div>
+</Base>

@@ -1,0 +1,4 @@
+---
+const { method } = Astro.props;
+---
+<span class={`m m-${method.toLowerCase()}`}>{method}</span>

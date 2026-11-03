@@ -20,7 +20,6 @@ Thumbs.db
 # Reference generator log (its summary is printed when generating)
 reference/validation-report.md
 
-# Documentation site build output and local environments
-site/
+# Build output and local environments
 .venv/
 node_modules/

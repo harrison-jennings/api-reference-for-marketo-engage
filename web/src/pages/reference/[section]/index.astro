@@ -1,0 +1,36 @@
+---
+import Method from "../../../components/Method.astro";
+import OperationsNav from "../../../components/OperationsNav.astro";
+import Docs from "../../../layouts/Docs.astro";
+import { sectionTitle, SECTIONS, SECTION_ORDER, groupsOf, pathHtml, specification } from "../../../lib/reference.js";
+export const getStaticPaths = () => SECTION_ORDER.map((section) => ({ params: { section } }));
+const { section } = Astro.params;
+const spec = specification(section);
+const commonPath = (paths) => {
+  let prefix = paths[0];
+  for (const item of paths) while (!item.startsWith(prefix)) prefix = prefix.slice(0, -1);
+  return prefix.slice(0, prefix.lastIndexOf("/") + 1);
+};
+const groups = groupsOf(section).map((group) => {
+  const methods = {};
+  for (const operation of group.operations) methods[operation.method] = (methods[operation.method] || 0) + 1;
+  return { ...group, methods: Object.entries(methods), prefix: commonPath(group.operations.map((operation) => operation.path)) };
+});
+---
+<Docs meta="where:API overview" title={SECTIONS[section].title} seoTitle={sectionTitle(section)} description={`Reference for the Marketo Engage ${SECTIONS[section].title}: ${SECTIONS[section].summary}`} breadcrumbs={[{ name: "API Reference", url: "/reference/" }, { name: SECTIONS[section].title }]} section={section}>
+  <OperationsNav slot="nav" section={section} />
+  <nav class="crumbs ctxm" aria-label="Breadcrumb"><a class="ln" href="/reference/">Reference</a><span aria-hidden="true">›</span><span aria-current="page">{SECTIONS[section].short}</span></nav>
+  <div class="ophead">
+    <h1 id="top">{SECTIONS[section].title}</h1>
+    <p class="desc">{SECTIONS[section].summary}</p>
+    <p class="stats"><span><b>{spec.operations}</b> operations</span><span><b>{spec.groups}</b> endpoint groups</span><span><a class="ln" href={`/reference/${section}/models/`}><b>{spec.models}</b> models</a></span><span>{spec.format}, version {spec.version}</span></p>
+    <p class="hint">Generated from <a class="ln" href={spec.sourceUrl}>{spec.source}</a>.</p>
+  </div>
+  <section class="sec" data-filter-scope data-pagefind-ignore>
+    <h2>Endpoint groups</h2>
+    <div class="tools"><label class="sr" for="group-filter">Filter groups</label><input class="in" id="group-filter" type="search" placeholder={`Filter ${groups.length} groups`} autocomplete="off" data-filter /></div>
+    <div class="tscroll"><table class="tbl"><thead><tr><th>Group</th><th>Operations</th><th>Methods</th><th>Common path</th></tr></thead><tbody>
+      {groups.map((group) => <tr data-q={`${group.tag} ${group.prefix}`.toLowerCase()}><td><a class="cell lnk" href={group.route}>{group.tag}</a></td><td class="opcount"><span class="cell">{group.operations.length}</span></td><td><span class="cell">{group.methods.map(([method, count]) => <span class="mix"><Method method={method} /> {count}</span>)}</span></td><td class="path"><span class="cell mono"><span set:html={pathHtml(group.prefix)}></span></span></td></tr>)}
+    </tbody></table></div>
+  </section>
+</Docs>

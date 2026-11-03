@@ -1,0 +1,12 @@
+---
+import Base from "./Base.astro";
+import { SECTIONS } from "../lib/reference.js";
+const { title, seoTitle, description, section, where, navLabel = "Operations", meta, breadcrumbs } = Astro.props;
+---
+<Base title={title} seoTitle={seoTitle} breadcrumbs={breadcrumbs} description={description} section={section} where={where} navLabel={navLabel} navAlways>
+  <div class="scrim" data-nav-toggle aria-hidden="true"></div>
+  <div class="twocol">
+    <div class="navwrap" id="nav-panel" tabindex="-1"><slot name="nav" /></div>
+    <main class="docs" id="main" data-pagefind-body data-pagefind-filter="kind[data-kind], api[data-api]" data-kind="Overview" data-api={SECTIONS[section].short} data-pagefind-meta={meta}><slot /></main>
+  </div>
+</Base>

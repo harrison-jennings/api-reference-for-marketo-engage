@@ -1,14 +1,36 @@
+<div align="center">
+
+<a href="https://mkto-ref.harrisonjennings.au/">
+  <img src="docs/images/logo.svg" alt="API Reference for Marketo Engage logo: braces around a slash, on a lime tile" width="96" height="96">
+</a>
+
 # API Reference for Marketo Engage
 
-[![Licence](https://img.shields.io/github/license/harrison-jennings/api-reference-for-marketo-engage?label=licence)](LICENSE)
-[![Operations](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fharrison-jennings%2Fapi-reference-for-marketo-engage%2Fmain%2Freference%2Fmanifest.json&query=%24.summary.operations&label=operations)](reference/README.md)
-[![Models](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fharrison-jennings%2Fapi-reference-for-marketo-engage%2Fmain%2Freference%2Fmanifest.json&query=%24.summary.models&label=models)](reference/README.md)
-[![Adobe specs updated](https://img.shields.io/github/last-commit/harrison-jennings/api-reference-for-marketo-engage/main?path=specs&label=Adobe%20specs%20updated)](https://github.com/harrison-jennings/api-reference-for-marketo-engage/commits/main/specs)
+**An independent, searchable reference for the Adobe Marketo Engage APIs**<br>
+Generated from Adobe's published specifications, with a request builder and mock responses that run entirely in your browser.
 
-An independent reference for the Adobe Marketo Engage APIs, generated from Adobe's published Swagger
-and OpenAPI specifications.
+[![Build and deploy](https://github.com/harrison-jennings/api-reference-for-marketo-engage/actions/workflows/pages.yml/badge.svg?branch=main)](https://github.com/harrison-jennings/api-reference-for-marketo-engage/actions/workflows/pages.yml)
+[![Weekly spec check](https://github.com/harrison-jennings/api-reference-for-marketo-engage/actions/workflows/adobe-spec-check.yml/badge.svg)](https://github.com/harrison-jennings/api-reference-for-marketo-engage/actions/workflows/adobe-spec-check.yml)
+[![Live site](https://img.shields.io/badge/site-live-B8F34A?style=flat-square&labelColor=0B0D10)](https://mkto-ref.harrisonjennings.au/)
+[![Operations](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fharrison-jennings%2Fapi-reference-for-marketo-engage%2Fmain%2Freference%2Fmanifest.json&query=%24.summary.operations&label=operations&color=B8F34A&style=flat-square&labelColor=0B0D10)](reference/README.md)
+[![Models](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fharrison-jennings%2Fapi-reference-for-marketo-engage%2Fmain%2Freference%2Fmanifest.json&query=%24.summary.models&label=models&color=B8F34A&style=flat-square&labelColor=0B0D10)](reference/README.md)
+[![Adobe specs updated](https://img.shields.io/github/last-commit/harrison-jennings/api-reference-for-marketo-engage/main?path=specs&label=Adobe%20specs%20updated&color=B8F34A&style=flat-square&labelColor=0B0D10)](https://github.com/harrison-jennings/api-reference-for-marketo-engage/commits/main/specs)
+[![Astro 7](https://img.shields.io/badge/astro-7-98A1AE?logo=astro&logoColor=E6E9EE&style=flat-square&labelColor=0B0D10)](https://astro.build/)
+[![Pagefind](https://img.shields.io/badge/search-pagefind-98A1AE?style=flat-square&labelColor=0B0D10)](https://pagefind.app/)
+[![Node 24](https://img.shields.io/badge/node-24_LTS-98A1AE?logo=nodedotjs&logoColor=E6E9EE&style=flat-square&labelColor=0B0D10)](.nvmrc)
+[![Python 3.10+](https://img.shields.io/badge/python-3.10+-98A1AE?logo=python&logoColor=E6E9EE&style=flat-square&labelColor=0B0D10)](https://www.python.org/)
+[![Licence: Apache 2.0](https://img.shields.io/github/license/harrison-jennings/api-reference-for-marketo-engage?label=licence&color=98A1AE&style=flat-square&labelColor=0B0D10)](LICENSE)
 
-**Documentation site:** <https://mkto-ref.harrisonjennings.au/>
+<br>
+
+<a href="https://mkto-ref.harrisonjennings.au/">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="docs/images/screenshot-dark.png">
+    <img src="docs/images/screenshot-light.png" alt="The Create Email operation on a laptop, with navigation, documentation and the Request Builder side by side, and the Add Leads to List builder on a phone" width="100%">
+  </picture>
+</a>
+
+</div>
 
 > [!NOTE]
 > THIS PROJECT IS NOT AUTHORIZED, ENDORSED OR SPONSORED BY ADOBE, PUBLISHER OF ADOBE MARKETO
@@ -16,20 +38,20 @@ and OpenAPI specifications.
 > in the United States and/or other countries. For authoritative documentation, see
 > [Adobe's Marketo Engage developer documentation](https://developer.adobe.com/marketo-apis/).
 
-## What's included
+---
 
-- **API reference:** Markdown pages for **388 operations** and **459 data models** across five
-  APIs, readable here on GitHub or on the documentation site.
-- **Machine-readable data:** a JSON file for every operation, and an index of all operations in
-  [`reference/manifest.json`](reference/manifest.json).
-- **Documentation site:** full-text search, and a Request Builder that turns any operation into a
-  request, code samples and a mock response in the browser.
-- **Postman collection:** one request for every operation, with a credential-free environment
-  template, in [`postman/`](postman/).
-- **Source specifications:** the Adobe specifications the reference is generated from, in
-  [`specs/`](specs/).
-- **Generator:** a Python script, using only the standard library, that rebuilds the reference from
-  the specifications.
+## What this is
+
+Adobe publishes machine-readable specifications for the Marketo Engage APIs. This project turns them
+into four things, all from the same source:
+
+- **A documentation site** at [mkto-ref.harrisonjennings.au](https://mkto-ref.harrisonjennings.au/):
+  **388 operations** and **459 models**, with full-text search, a jump bar and an operation finder.
+- **A Request Builder** on every operation page: fill in a form drawn from the schema, get cURL,
+  JavaScript and Python samples, and generate a mock response.
+- **A Postman collection** with one request for every operation, in [`postman/`](postman/).
+- **Plain files** you can use directly: Markdown that reads well here on GitHub, a JSON file for every
+  operation, and an index of them all in [`reference/manifest.json`](reference/manifest.json).
 
 This is a reference and tooling project, not an SDK.
 
@@ -44,156 +66,131 @@ This is a reference and tooling project, not an SDK.
 | [User Management API](reference/user-management/README.md) | 12 | 12 | Users, invitations, roles, workspaces and access assignments |
 | **Total** | **388** | **459** | |
 
-## Using the reference
+## The Request Builder
 
-Start at the [reference index](reference/README.md), choose an API, then an endpoint group. Each
-operation page documents:
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/fields-dark.png">
+  <img src="docs/images/fields-light.png" alt="The Request Builder on Create Email in its builder-only layout: nested fields on the left, with a Fields and JSON switch, and the generated cURL sample on the right" width="100%">
+</picture>
 
-- the HTTP method and endpoint path
-- authentication requirements
-- path, query, header and body parameters
-- request and response schemas, with examples
-- links to the data models it uses
+The builder isn't written per endpoint. It reads an operation's JSON and draws the form from it:
 
-Each operation also has a `*.operation.json` file next to its page, containing the operation and the
-schemas it references. [`reference/manifest.json`](reference/manifest.json) indexes every operation
-by specification, API, endpoint group, method, path, title and operation ID, with the paths to its
-Markdown and JSON files, for use in search tools, API explorers and code generators.
+- **Parameters** become controls: dropdowns for allowed values, and checks against the schema as you type.
+- **Request bodies** have two views of the same value. **Fields** shows every property, with nesting and
+  add and remove for arrays. **JSON** is there whenever you'd rather type it.
+- **Samples** update as you go, in cURL, JavaScript (`fetch`) and Python (`requests`).
+- **Mock responses** come from the specification's example or the response schema, and reflect your
+  request where they can. They model the contract, not Marketo's behaviour.
 
-## Documentation site
+**It runs in mock mode only.** It never sends a request to Marketo, and it never asks for a Client ID,
+Client Secret or access token. Samples use placeholders such as `<ACCESS_TOKEN>`, and the site's
+Content Security Policy only lets it connect to its own files. A browser test fails if any request
+leaves the site.
 
-The [documentation site](https://mkto-ref.harrisonjennings.au/) publishes the same reference with
-navigation and full-text search. Every operation page includes a **Request Builder** that:
+## Finding things
 
-- builds form controls for path, query, header and body parameters, validated against the schema
-- generates the request URL and cURL, JavaScript (`fetch`) and Python (`requests`) samples
-- generates a mock response for any documented status code, from the specification's example or
-  the response schema
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/search-dark.png">
+  <img src="docs/images/search-light.png" alt="Search results for program members, with filters for kind, API and method, exact matches first and matching terms highlighted" width="100%">
+</picture>
 
-The Request Builder runs entirely in the browser. It never sends a request to Marketo, never asks
-for a Client ID, Client Secret or access token, and its code samples use placeholders such as
-`<ACCESS_TOKEN>`. The site's Content Security Policy only allows it to load its own files.
+- **Jump bar:** press `/` or ⌘K from anywhere, and type an operation name, path, operation ID or model.
+- **Full-text search:** [Pagefind](https://pagefind.app/) runs in the browser, with filters for kind, API
+  and method. There's no search server.
+- **Operation finder:** a filterable list of all 388 operations, by name, path or method.
+- **Models list:** all 459, filtered by name, API, kind or first letter.
 
-The site is built with [MkDocs](https://www.mkdocs.org/) and
-[Material for MkDocs](https://squidfunk.github.io/mkdocs-material/), and deployed to GitHub Pages
-from `main`.
+## How it's built
 
-## Postman collection
+<picture>
+  <source media="(prefers-color-scheme: dark)" srcset="docs/images/architecture-dark.png">
+  <img src="docs/images/architecture-light.png" alt="How the project is built, in three bands. Generate: Adobe's specifications, a Python generator, reference files and a Postman collection. Build and check: Astro, Pagefind, a site check and browser tests. Serve: GitHub Pages, the reference and search, the Request Builder and mock responses. Beside them, a weekly action fetches Adobe's specifications, compares, regenerates and tests, and opens a draft pull request for a person to merge." width="100%">
+</picture>
 
-An unofficial [Postman](https://www.postman.com/) collection has one request for every operation, with
-documented parameters, native authentication and minimal starter bodies, and a credential-free
-environment template: your instance's settings and credentials are blank, and only Adobe's public
-Data Ingestion API host is preconfigured.
+### Notable engineering decisions
 
-- [`postman/marketo-engage.postman_collection.json`](postman/marketo-engage.postman_collection.json)
-- [`postman/marketo-engage.postman_environment.json`](postman/marketo-engage.postman_environment.json)
+- **One source of truth.** The page that says an endpoint takes an optional parameter and the control
+  that lets you set it come from the same data, so they can't disagree.
+- **Two specification formats, one model.** Adobe uses both Swagger 2.0 and OpenAPI 3. The generator
+  normalises them, so nothing after it needs to care which is which.
+- **Generated files are checked, not trusted.** CI regenerates `reference/` and `postman/` and fails if
+  either differs from what's committed.
+- **A person stays in the loop.** A weekly action opens a draft pull request when Adobe's specifications
+  change. Nothing publishes itself.
+- **Static, with no client framework.** Every page is a file. The only JavaScript is a few small scripts,
+  and the builder only loads on the pages that use it.
+- **Self-contained by policy.** A Content Security Policy on every page blocks connections to other hosts,
+  fonts are self-hosted, and there's no analytics.
+- **Tested the way it's served.** Browser tests run in Chromium, Firefox and WebKit against the built
+  site, served as GitHub Pages serves it, with axe accessibility checks in both themes.
+- **Built to be found.** Unique titles and descriptions, canonical links, structured data and a sitemap,
+  all enforced by the site check.
 
-Both are also on the [documentation site](https://mkto-ref.harrisonjennings.au/postman/). Import both
-files, fill in the environment, and send the Identity request to get an access token; see
-[`postman/README.md`](postman/README.md) for setup, credential storage and limitations. Requests run
-only when you send them: the only script saves the token from the Identity requests, and the
-collection never refreshes tokens, retries, chains requests or pages automatically.
+More in [docs/architecture.md](docs/architecture.md) and [docs/decisions.md](docs/decisions.md).
 
-The collection includes operations that change and delete data. Don't run it with the Collection
-Runner.
+## Quick start
 
-## Development
+You'll need [Node.js](https://nodejs.org/) 22.23 or later (`.nvmrc` says 24), Python 3.10 or later, Make and Git. On Windows, use
+[WSL](https://learn.microsoft.com/windows/wsl/install).
 
-### Prerequisites
-
-| Tool | Version | Used for | Install |
-|---|---|---|---|
-| Git | Any | Cloning the repository | macOS: `xcode-select --install`; Debian/Ubuntu: `sudo apt install git` |
-| Python | 3.10 or later, with `venv` | The generator and the site build | [python.org](https://www.python.org/downloads/) or `brew install python`; Debian/Ubuntu: `sudo apt install python3 python3-venv` |
-| Node.js | 20 or later, with npm | Request Builder tests and the Postman collection generator, which need no packages. Only `make postman-runtime-test` installs packages: pinned, test-only copies of Postman's runtime | [nodejs.org](https://nodejs.org/) or `brew install node` |
-| Make | Any | Running the tasks below | macOS: `xcode-select --install`; Debian/Ubuntu: `sudo apt install make` |
-
-On Windows, use [WSL](https://learn.microsoft.com/windows/wsl/install) and follow the Debian/Ubuntu
-instructions.
-
-### Set up
-
-```bash
+```sh
 git clone https://github.com/harrison-jennings/api-reference-for-marketo-engage.git
 cd api-reference-for-marketo-engage
-make setup
+make setup      # check the prerequisites and install the site's dependencies
+make web-dev    # http://127.0.0.1:4321/
+make docs-ci    # tests, generated file checks, build and site validation
 ```
-
-`make setup` checks the prerequisites, creates a virtual environment in `.venv/` and installs the
-pinned site dependencies from `requirements-docs.txt`. The `make` targets use `.venv/`
-automatically, so there's no need to activate it.
-
-Then run the same checks as CI: the Request Builder tests, the Python script tests, a check that
-`reference/` matches `specs/`, the Postman collection tests and a check that `postman/` matches
-`reference/`, a strict site build and validation of the built site. CI also runs
-`make postman-runtime-test`, which sends the collection's requests with Postman's own runtime to a
-local server; it installs pinned, test-only npm packages first.
-
-```bash
-make docs-ci
-```
-
-### Preview the site
-
-```bash
-make docs-serve
-```
-
-Open <http://127.0.0.1:8000/>. The site reloads when `reference/` or `docs-site/` changes. To build
-the site into `site/` without serving it, run `make docs-build`.
-
-### Regenerate the reference
-
-`reference/` is generated from `specs/`. Don't edit it by hand: change the specifications or the
-generator, then regenerate.
 
 | Command | What it does |
 |---|---|
-| `make reference` | Rebuilds `reference/` from the specifications in `specs/`, without network access. Use it after changing the generator or a specification. |
-| `make specs-update` | Downloads Adobe's latest specifications from [AdobeDocs/marketo-apis](https://github.com/AdobeDocs/marketo-apis) into `specs/`, then rebuilds `reference/`. If any download fails, no specification is changed. |
-| `make postman` | Rebuilds the Postman collection and environment template in `postman/` from `reference/`, without network access. Run it after regenerating `reference/` or changing the exporter. |
+| `make web-dev` | Runs the site with live reload |
+| `make docs-build` | Builds the site into `web/dist/` and validates it |
+| `make docs-test` | Runs the Request Builder unit tests |
+| `make docs-e2e` | Runs the browser tests against the build (first run `npx playwright install` in `web/`) |
+| `make docs-ci` | Runs the tests, the generated file checks, the build and the validation |
+| `make reference` | Rebuilds `reference/` from `specs/`, without network access |
+| `make specs-update` | Downloads Adobe's latest specifications, then rebuilds `reference/` |
+| `make postman` | Rebuilds the Postman collection and environment template from `reference/` |
 
-After regenerating:
+Run `make help` for every task. [docs/development.md](docs/development.md) covers regenerating the
+reference and reviewing Adobe's changes.
 
-1. Review the changes with `make specs-summary`. It lists changed counts, added, removed and
-   changed operations, and new dates in descriptions, which are often deprecation deadlines.
-   `make postman-summary` does the same for the Postman collection.
-2. Run `make docs-ci`. The Request Builder tests use real operation files, so update them if Adobe
-   renames or removes an operation they use.
-3. If the counts changed, update [What's included](#whats-included) and
-   [API coverage](#api-coverage) to match `reference/README.md`.
-4. Commit `specs/`, `reference/` and `postman/` together. CI fails if they don't match.
+## Using the reference
 
-Run `make help` to list every task.
+Start at the [reference index](reference/README.md), choose an API, then an endpoint group. Each
+operation page documents the method and path, authentication, parameters, request and response
+schemas with examples, and links to its models.
 
-### Keeping up with Adobe
+Each operation also has a `*.operation.json` file beside its page, holding the operation and the
+schemas it references. [`reference/manifest.json`](reference/manifest.json) indexes every operation by
+specification, API, endpoint group, method, path, title and operation ID, for use in search tools, API
+explorers and code generators.
 
-A scheduled workflow checks Adobe's specifications every week. When they change, it opens a draft
-pull request with the regenerated reference and Postman collection and a summary of the changes, for
-review before merging.
+## Postman collection
 
-## Repository structure
+An unofficial [Postman](https://www.postman.com/) collection with one request for every operation, and a
+credential-free environment template. Import both files from [`postman/`](postman/) or the
+[documentation site](https://mkto-ref.harrisonjennings.au/postman/), fill in the environment and send the
+Identity request. [`postman/README.md`](postman/README.md) covers setup, credential storage and limitations.
+
+The collection includes operations that change and delete data. Don't run it with the Collection Runner.
+
+## How it's put together
 
 ```text
-.
-├── .github/workflows/   # Site build and deployment, and the weekly specification check
-├── docs-site/
-│   ├── docs/            # Site pages and assets, including the Request Builder
-│   ├── hooks/           # MkDocs hook that publishes reference/ and generates navigation
-│   ├── overrides/       # Theme template overrides
-│   ├── scripts/         # Validation of the built site
-│   └── tests/           # Request Builder tests
-├── postman/             # Generated Postman collection and environment template
-├── reference/           # Generated reference: Markdown, operation JSON and manifest.json
-├── scripts/             # Reference and Postman generators, change summaries and their tests
-├── specs/               # Adobe's specifications
-├── CONTRIBUTING.md
-├── LICENSE
-├── Makefile
-├── NOTICE
-├── SECURITY.md
-├── mkdocs.yml
-└── requirements-docs.txt
+.github/workflows/   build and deploy, and the weekly specification check
+docs/                architecture, decisions, design, development and the README images
+postman/             generated Postman collection and environment template
+reference/           generated reference: Markdown, operation JSON and manifest.json
+scripts/             reference and Postman generators, change summaries and their tests
+specs/               Adobe's specifications, unmodified
+web/
+  builder/           the Request Builder: plain JavaScript modules with no dependencies
+  public/            fonts, images and other static files
+  scripts/           build preparation, the site check and the README image scripts
+  src/               Astro pages, layouts, components, styles and client scripts
+  tests/builder/     unit tests, run against every operation
+  tests/e2e/         browser tests
 ```
 
 ## Contributing
@@ -208,8 +205,11 @@ The reference is generated from Adobe's Marketo Engage API specifications, publi
 unmodified copies, © Adobe and licensed under the Apache License 2.0, and `reference/` is generated
 from them. See [NOTICE](NOTICE) for attribution.
 
-This project is © 2026 Harrison Jennings and licensed under the
-[Apache License, Version 2.0](LICENSE).
-
 Use of the Marketo APIs themselves is subject to Adobe's
 [API License Agreement](https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license).
+
+The site uses the [Geist](https://vercel.com/font) fonts, under the SIL Open Font License, and the README's
+diagram uses logos from [Simple Icons](https://simpleicons.org/), under CC0.
+
+This project is © 2026 [Harrison Jennings](https://www.harrisonjennings.au/) and licensed under the
+[Apache License, Version 2.0](LICENSE).

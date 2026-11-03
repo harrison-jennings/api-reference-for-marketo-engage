@@ -1,0 +1,27 @@
+{
+  "name": "api-reference-for-marketo-engage-web",
+  "private": true,
+  "description": "The documentation site for API Reference for Marketo Engage.",
+  "type": "module",
+  "engines": {
+    "node": ">=22.23.4"
+  },
+  "scripts": {
+    "prepare-assets": "node scripts/prepare.mjs",
+    "dev": "node scripts/prepare.mjs && astro dev",
+    "build": "node scripts/prepare.mjs && astro build && pagefind --site dist --silent",
+    "check": "node scripts/check.mjs dist",
+    "preview": "astro preview",
+    "test": "node --test \"tests/builder/**/*.test.js\"",
+    "test:e2e": "playwright test",
+    "readme:images": "node scripts/readme/images.mjs"
+  },
+  "dependencies": {
+    "astro": "7.4.5",
+    "pagefind": "1.6.0"
+  },
+  "devDependencies": {
+    "@axe-core/playwright": "4.14.0",
+    "@playwright/test": "1.64.1"
+  }
+}

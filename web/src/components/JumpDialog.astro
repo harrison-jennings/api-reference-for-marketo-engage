@@ -1,0 +1,23 @@
+---
+import SearchIcon from "./SearchIcon.astro";
+---
+<dialog class="jpanel" id="jump" aria-label="Jump to">
+  <div class="jinput">
+    <SearchIcon />
+    <input id="jump-input" type="search" role="combobox" aria-expanded="true" aria-controls="jump-list" aria-autocomplete="list" aria-label="Jump to an operation, path, model or parameter" placeholder="Operation name or ID, path, model or parameter" autocomplete="off" spellcheck="false" />
+    <button type="button" class="btn" data-jump-close>Close</button>
+  </div>
+  <div class="jscope" role="group" aria-label="Search in">
+    <button type="button" class="chipb" data-scope="all" aria-pressed="true">All</button>
+    <button type="button" class="chipb" data-scope="op" aria-pressed="false">Operations</button>
+    <button type="button" class="chipb" data-scope="model" aria-pressed="false">Models</button>
+    <button type="button" class="chipb" data-scope="param" aria-pressed="false">Parameters</button>
+  </div>
+  <ul class="jlist" id="jump-list" role="listbox" aria-label="Results" hidden></ul>
+  <div class="jempty" id="jump-empty"></div>
+  <div class="jfoot">
+    <span class="jhint"><kbd>↑</kbd> <kbd>↓</kbd> to move, <kbd>↵</kbd> to open, <kbd>esc</kbd> to close</span>
+    <span id="jump-count" role="status"></span>
+    <a class="tl" id="jump-all" href="/search/">See all results</a>
+  </div>
+</dialog>

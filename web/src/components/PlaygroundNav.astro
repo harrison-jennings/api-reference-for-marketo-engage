@@ -1,0 +1,30 @@
+---
+import { SECTIONS, SECTION_ORDER, groupsOf, operations } from "../lib/reference.js";
+import Caret from "./Caret.astro";
+import Method from "./Method.astro";
+import SiteLinks from "./SiteLinks.astro";
+const total = operations.length;
+const summary = `${total} operations`;
+---
+<nav class="nav" aria-label="Choose an operation" data-filter-scope data-playground-picker>
+  <button type="button" class="btn nav-close" data-nav-toggle>Close</button>
+  <div class="nav-head">
+    <label class="sr" for="nav-filter">Filter operations</label>
+    <input class="in" id="nav-filter" type="search" placeholder="Filter by name, path or operation ID" autocomplete="off" data-filter />
+    <p class="fc" data-filter-count data-total={summary} role="status">{summary}</p>
+  </div>
+  <div class="nav-list">
+    {SECTION_ORDER.map((section) => (
+      <Fragment>
+        <p class="pick-api"><span>{SECTIONS[section].title}</span><span class="ct">{operations.filter((item) => item.section === section).length}</span></p>
+        {groupsOf(section).map((group) => (
+          <details class="g" data-filter-group>
+            <summary class="gs"><Caret /><span class="grow">{group.tag}</span><span class="ct">{group.operations.length}</span></summary>
+            {group.operations.map((operation) => <a class="r op" href={operation.route} data-op={operation.id} data-q={`${operation.title} ${operation.operationId} ${operation.path} ${operation.method} ${group.tag} ${SECTIONS[section].title}`.toLowerCase()}><Method method={operation.method} /><span class="grow">{operation.title}</span></a>)}
+          </details>
+        ))}
+      </Fragment>
+    ))}
+    <SiteLinks />
+  </div>
+</nav>

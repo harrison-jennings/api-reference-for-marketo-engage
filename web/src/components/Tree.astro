@@ -1,0 +1,34 @@
+---
+import { breakable, childRef, modelsIn, plainText, propertiesOf, richText, typeLabel } from "../lib/reference.js";
+import Caret from "./Caret.astro";
+import EnumValues from "./EnumValues.astro";
+const { name, definitions, section, crumbs = [], depth = 0, stack = [], openDepth = 1 } = Astro.props;
+const { properties, required } = propertiesOf(name, definitions);
+const routeOf = (model) => modelsIn(section).byName.get(model)?.route;
+const rows = Object.entries(properties).map(([key, schema]) => {
+  const type = typeLabel(schema);
+  const child = childRef(schema);
+  const recursive = child && [...stack, name].includes(child);
+  const expands = child && !recursive && Object.keys(propertiesOf(child, definitions).properties).length > 0;
+  const description = plainText(schema.description) === key ? "" : richText(schema.description);
+  return { key, schema, type, child, recursive, expands, description, required: required.includes(key) };
+});
+---
+{rows.map((row) => row.expands ? (
+  <details class="n nx" data-tree open={depth < openDepth}>
+    <summary class="nh"><Caret /><code class="nm" set:html={breakable(row.key)}></code>{" "}<span class="ty">{row.type.text}<Fragment set:html={breakable(row.type.ref)} /></span>{" "}{row.required && <span class="rq">required</span>}</summary>
+    {row.description && <p class="nd" set:html={row.description}></p>}
+    {row.schema.enum && <EnumValues values={row.schema.enum} />}
+    {routeOf(row.child) && <p class="modelhdr">Model <a class="mlink" href={routeOf(row.child)} set:html={breakable(row.child)}></a></p>}
+    <div class="kids">
+      {depth >= 2 && <p class="cr">{[...crumbs, row.key].join(" › ")}</p>}
+      <Astro.self name={row.child} definitions={definitions} section={section} crumbs={[...crumbs, row.key]} depth={depth + 1} stack={[...stack, name]} openDepth={openDepth} />
+    </div>
+  </details>
+) : (
+  <div class="n">
+    <div class="nh"><code class="nm" set:html={breakable(row.key)}></code>{" "}<span class="ty">{row.type.text}{row.type.ref && (routeOf(row.type.ref) ? <a class="mlink" href={routeOf(row.type.ref)} set:html={breakable(row.type.ref)}></a> : <Fragment set:html={breakable(row.type.ref)} />)}</span>{" "}{row.required && <span class="rq">required</span>}{" "}{row.recursive && <span class="rc">Repeats {row.child}</span>}</div>
+    {row.description && <p class="nd" set:html={row.description}></p>}
+    {row.schema.enum && <EnumValues values={row.schema.enum} />}
+  </div>
+))}
