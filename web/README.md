@@ -10,7 +10,7 @@ from `.github/workflows/pages.yml` on `main`, which builds MkDocs.
 npm ci            # once, needs Node 22.23.4 or later
 npm run dev       # local preview with live reload
 npm run build     # static site in dist/, including the Pagefind search index
-npm run check     # validates dist/: URLs, links, disclaimer, noindex and CSP
+npm run check     # validates dist/: URLs, links, disclaimer, CSP, titles, canonicals, sitemap and robots.txt
 npm run preview   # serves dist/
 ```
 
@@ -36,3 +36,13 @@ word boundaries in the way a browser displays them:
   otherwise neighbouring words merge and exact matches stop working.
 - Never put `<wbr>` in an identifier in the HTML. `src/scripts/site.js` adds break
   opportunities in the browser instead.
+
+## Search engines
+
+Pages are indexable unless they pass `noindex` to `Base.astro`. The search page, the 404 page and the
+`ResponseOf…` wrapper models are excluded, and the sitemap leaves them out too. `npm run check` fails on
+a duplicate title or description, a wrong canonical link, more than one `h1`, invalid structured data,
+or a sitemap that doesn't match the indexable pages.
+
+Titles use "… for Marketo Engage", as the site's own name does, so results don't read as Adobe's own
+documentation. The MkDocs site stays `noindex` until deployment switches to this build.

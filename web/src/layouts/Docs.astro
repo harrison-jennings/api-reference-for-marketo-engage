@@ -1,9 +1,9 @@
 ---
 import Base from "./Base.astro";
 import { SECTIONS } from "../lib/reference.js";
-const { title, description, section, where, navLabel = "Operations", meta } = Astro.props;
+const { title, seoTitle, description, section, where, navLabel = "Operations", meta, breadcrumbs } = Astro.props;
 ---
-<Base title={title} description={description} section={section} where={where} navLabel={navLabel} navAlways>
+<Base title={title} seoTitle={seoTitle} breadcrumbs={breadcrumbs} description={description} section={section} where={where} navLabel={navLabel} navAlways>
   <div class="scrim" data-nav-toggle aria-hidden="true"></div>
   <div class="twocol">
     <div class="navwrap" id="nav-panel" tabindex="-1"><slot name="nav" /></div>

@@ -22,6 +22,11 @@ developer documentation. The specifications are © Adobe and licensed under the 
 see [Notices](/notices/). Use of the APIs is subject to Adobe's
 [API License Agreement](https://experienceleague.adobe.com/en/docs/marketo-developer/marketo/api-license).
 
+## Who made this
+
+Built and maintained by [Harrison Jennings](https://harrisonjennings.au/) as an independent
+project.
+
 ## Source code
 
 The site, generator and specifications are on GitHub at

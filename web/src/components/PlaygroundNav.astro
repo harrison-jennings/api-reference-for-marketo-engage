@@ -2,6 +2,7 @@
 import { SECTIONS, SECTION_ORDER, groupsOf, operations } from "../lib/reference.js";
 import Caret from "./Caret.astro";
 import Method from "./Method.astro";
+import SiteLinks from "./SiteLinks.astro";
 const total = operations.length;
 const summary = `${total} operations`;
 ---
@@ -24,5 +25,6 @@ const summary = `${total} operations`;
         ))}
       </Fragment>
     ))}
+    <SiteLinks />
   </div>
 </nav>

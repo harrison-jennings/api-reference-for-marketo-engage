@@ -179,3 +179,49 @@ export function markdownExtras(markdownPath) {
   const source = text.match(/Generated from \[`([^`]+)`\]\(([^)]+)\)/);
   return { examples, source: source ? { name: source[1], url: source[2] } : null };
 }
+
+// --- search engine titles and descriptions ----------------------------------
+
+const clip = (text, limit = 155) => {
+  if (text.length <= limit) return text;
+  const cut = text.slice(0, limit - 1);
+  return `${cut.slice(0, Math.max(cut.lastIndexOf(" "), limit - 30))}…`;
+};
+const firstSentence = (text) => (text.match(/^.+?[.!?](?=\s|$)/) || [text])[0];
+
+/** Says "for", as the site's own name does, so results don't read as Adobe's own documentation. */
+const apiName = (section) => `${SECTIONS[section].short} API for Marketo Engage`;
+export const modelTitle = (model) => `${model.name} model | ${apiName(model.section)}`;
+export const groupTitle = (group, section) => `${group.tag} operations | ${apiName(section)}`;
+export const sectionTitle = (section) => `${SECTIONS[section].short} API reference for Marketo Engage`;
+export function groupDescription(group, section, useful) {
+  const count = `${group.operations.length} ${group.operations.length === 1 ? "operation" : "operations"} in the Marketo Engage ${SECTIONS[section].short} API.`;
+  return useful ? `${clip(firstSentence(useful), 155 - count.length - 1)} ${count}` : `${group.tag}: ${count} Methods, paths and parameters for each one.`;
+}
+
+/** Unique page titles: the group or method only appears where a title would otherwise repeat. */
+const titleUse = new Map();
+const countUse = (key) => titleUse.set(key, (titleUse.get(key) || 0) + 1);
+for (const operation of operations) {
+  countUse(`${operation.section}|${operation.title}`);
+  countUse(`${operation.section}|${operation.title}|${operation.tag}`);
+}
+export function operationTitle(operation) {
+  const api = apiName(operation.section);
+  if (titleUse.get(`${operation.section}|${operation.title}`) === 1) return `${operation.title} | ${api}`;
+  if (titleUse.get(`${operation.section}|${operation.title}|${operation.tag}`) === 1) return `${operation.title} (${operation.tag}) | ${api}`;
+  return `${operation.title}, ${operation.method} ${operation.path} | ${SECTIONS[operation.section].short} API`;
+}
+export function operationDescription(operation, node) {
+  const summary = plainText(descriptionBlocks(node.description).find((block) => block.html)?.html || "");
+  const call = `${operation.method} ${operation.path}`;
+  const where = `in the Marketo Engage ${SECTIONS[operation.section].short} API.`;
+  if (!summary) return `Parameters, responses and a request builder for ${call} ${where}`;
+  const sentence = firstSentence(summary);
+  const full = `${sentence} ${call} ${where}`;
+  return full.length <= 158 ? full : `${clip(sentence, Math.max(70, 157 - call.length))} ${call}.`;
+}
+export function modelDescription(model) {
+  const used = model.users.length ? `Used by ${model.users.length} ${model.users.length === 1 ? "operation" : "operations"}.` : "";
+  return `The ${model.name} schema in the Marketo Engage ${SECTIONS[model.section].short} API: ${model.properties} ${model.properties === 1 ? "property" : "properties"}, with types and a generated example. ${used}`.trim();
+}

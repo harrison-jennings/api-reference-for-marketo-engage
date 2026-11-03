@@ -1,6 +1,7 @@
 ---
 layout: ../layouts/Prose.astro
 title: "Postman collection"
+seoTitle: "Postman collection for Marketo Engage APIs"
 description: "Download an unofficial Postman collection with every Marketo Engage API operation, and a credential-free environment template."
 where: Postman
 site: postman

@@ -2,7 +2,7 @@
 import Method from "../../../../components/Method.astro";
 import OperationsNav from "../../../../components/OperationsNav.astro";
 import Docs from "../../../../layouts/Docs.astro";
-import { REFERENCE, SECTIONS, SECTION_ORDER, groupsOf, pathHtml, plainText } from "../../../../lib/reference.js";
+import { groupDescription, groupTitle, REFERENCE, SECTIONS, SECTION_ORDER, groupsOf, pathHtml, plainText } from "../../../../lib/reference.js";
 import fs from "node:fs";
 import path from "node:path";
 export const getStaticPaths = () => SECTION_ORDER.flatMap((section) => groupsOf(section).map((group) => ({ params: { section, group: group.slug }, props: { group } })));
@@ -14,7 +14,7 @@ for (const operation of group.operations) methods[operation.method] = (methods[o
 const intro = fs.readFileSync(path.join(REFERENCE, section, group.slug, "README.md"), "utf8").split("\n")[2] || "";
 const useful = intro && !intro.startsWith("#") && !/\bController\s*$/.test(intro) && plainText(intro) !== group.tag ? plainText(intro) : "";
 ---
-<Docs meta={`where:${SECTIONS[section].short} › Endpoint group`} title={`${group.tag} · ${SECTIONS[section].short}`} description={useful || `${group.tag} operations in the ${SECTIONS[section].title}.`} section={section}>
+<Docs meta={`where:${SECTIONS[section].short} › Endpoint group`} title={group.tag} seoTitle={groupTitle(group, section)} description={groupDescription(group, section, useful)} breadcrumbs={[{ name: "API Reference", url: "/reference/" }, { name: SECTIONS[section].title, url: `/reference/${section}/` }, { name: group.tag }]} section={section}>
   <OperationsNav slot="nav" section={section} openGroup={group.tag} />
   <nav class="crumbs ctxm" aria-label="Breadcrumb"><a class="ln" href={`/reference/${section}/`}>{SECTIONS[section].short}</a><span aria-hidden="true">›</span><span aria-current="page">{group.tag}</span></nav>
   <div class="ophead">

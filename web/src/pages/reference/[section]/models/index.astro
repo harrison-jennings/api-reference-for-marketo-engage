@@ -5,7 +5,7 @@ import { SECTIONS, SECTION_ORDER, modelsIn } from "../../../../lib/reference.js"
 export const getStaticPaths = () => SECTION_ORDER.map((section) => ({ params: { section } }));
 const { section } = Astro.params;
 ---
-<Base title={`${SECTIONS[section].short} models`} section={section} where="models">
+<Base title={`${SECTIONS[section].short} models`} seoTitle={`${SECTIONS[section].short} API models for Marketo Engage`} description={`All ${modelsIn(section).models.length} request and response schemas in the Marketo Engage ${SECTIONS[section].title}, with properties and the operations that use them.`} breadcrumbs={[{ name: "Models", url: "/models/" }, { name: `${SECTIONS[section].short} models` }]} section={section} where="models">
   <main class="page wide" id="main" data-pagefind-body data-pagefind-filter="kind[data-kind], api[data-api]" data-kind="Overview" data-api={SECTIONS[section].short} data-pagefind-meta={`where:${SECTIONS[section].short} models`}>
     <nav class="crumbs ctxm" aria-label="Breadcrumb"><a class="ln" href="/models/">Models</a><span aria-hidden="true">›</span><span aria-current="page">{SECTIONS[section].short}</span></nav>
     <h1 id="top">{SECTIONS[section].short} models</h1>

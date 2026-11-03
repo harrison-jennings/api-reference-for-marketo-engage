@@ -2,7 +2,7 @@
 import Method from "../../../components/Method.astro";
 import OperationsNav from "../../../components/OperationsNav.astro";
 import Docs from "../../../layouts/Docs.astro";
-import { SECTIONS, SECTION_ORDER, groupsOf, pathHtml, specification } from "../../../lib/reference.js";
+import { sectionTitle, SECTIONS, SECTION_ORDER, groupsOf, pathHtml, specification } from "../../../lib/reference.js";
 export const getStaticPaths = () => SECTION_ORDER.map((section) => ({ params: { section } }));
 const { section } = Astro.params;
 const spec = specification(section);
@@ -17,7 +17,7 @@ const groups = groupsOf(section).map((group) => {
   return { ...group, methods: Object.entries(methods), prefix: commonPath(group.operations.map((operation) => operation.path)) };
 });
 ---
-<Docs meta="where:API overview" title={SECTIONS[section].title} description={SECTIONS[section].summary} section={section}>
+<Docs meta="where:API overview" title={SECTIONS[section].title} seoTitle={sectionTitle(section)} description={`Reference for the Marketo Engage ${SECTIONS[section].title}: ${SECTIONS[section].summary}`} breadcrumbs={[{ name: "API Reference", url: "/reference/" }, { name: SECTIONS[section].title }]} section={section}>
   <OperationsNav slot="nav" section={section} />
   <nav class="crumbs ctxm" aria-label="Breadcrumb"><a class="ln" href="/reference/">Reference</a><span aria-hidden="true">›</span><span aria-current="page">{SECTIONS[section].short}</span></nav>
   <div class="ophead">

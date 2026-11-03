@@ -6,7 +6,7 @@ import PageBar from "../../../../components/PageBar.astro";
 import ParamRows from "../../../../components/ParamRows.astro";
 import Tree from "../../../../components/Tree.astro";
 import Base from "../../../../layouts/Base.astro";
-import { SECTIONS, breakable, countProperties, definitionsOf, descriptionBlocks, markdownExtras, modelsIn, operationDocument, operations, pathHtml, permissionsOf, plainText, refName } from "../../../../lib/reference.js";
+import { SECTIONS, operationDescription, operationTitle, breakable, countProperties, definitionsOf, descriptionBlocks, markdownExtras, modelsIn, operationDocument, operations, pathHtml, permissionsOf, plainText, refName } from "../../../../lib/reference.js";
 export const getStaticPaths = () => operations.map((operation) => ({ params: { section: operation.section, group: operation.group, operation: operation.slug }, props: { operation } }));
 const { operation } = Astro.props;
 const { section } = operation;
@@ -47,10 +47,11 @@ const items = [
   { id: "responses", label: "Responses", count: responses.length },
   referenced.length && { id: "models", label: "Models", count: referenced.length },
 ].filter(Boolean);
-const description = blocks.find((block) => block.html) ? plainText(blocks.find((block) => block.html).html) : operation.title;
+const description = operationDescription(operation, node);
+const breadcrumbs = [{ name: "API Reference", url: "/reference/" }, { name: SECTIONS[section].title, url: `/reference/${section}/` }, { name: operation.tag, url: `/reference/${section}/${operation.group}/` }, { name: operation.title }];
 const route = (model) => models.byName.get(model)?.route;
 ---
-<Base title={`${operation.title} · ${operation.tag} · ${SECTIONS[section].short}`} description={description} section={section} panes navLabel="Operations" builder>
+<Base title={operation.title} seoTitle={operationTitle(operation)} description={description} section={section} panes navLabel="Operations" builder article breadcrumbs={breadcrumbs}>
   <div class="scrim" data-nav-toggle aria-hidden="true"></div>
   <div class="panes">
     <div class="navwrap" id="nav-panel" tabindex="-1"><OperationsNav section={section} current={operation.route} /></div>

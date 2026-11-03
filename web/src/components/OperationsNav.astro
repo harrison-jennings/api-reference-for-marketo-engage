@@ -1,8 +1,8 @@
 ---
 import { SECTIONS, SECTION_ORDER, groupsOf, modelsIn, operations } from "../lib/reference.js";
 import Caret from "./Caret.astro";
-import GitHubIcon from "./GitHubIcon.astro";
 import Method from "./Method.astro";
+import SiteLinks from "./SiteLinks.astro";
 const { section, current, openGroup } = Astro.props;
 const groups = groupsOf(section);
 const total = groups.reduce((sum, group) => sum + group.operations.length, 0);
@@ -31,14 +31,6 @@ const count = (id) => operations.filter((operation) => operation.section === id)
       </details>
     ))}
     <a class="r strong" href={`/reference/${section}/models/`}><span class="grow">{SECTIONS[section].short} models</span><span class="ct">{modelsIn(section).models.length}</span></a>
-    <div class="nav-bottom">
-      <a class="r" href="/models/">All models</a>
-      <a class="r" href="/playground/">Request Playground</a>
-      <a class="r" href="/postman/">Postman</a>
-      <a class="r" href="/search/">Search</a>
-      <a class="r" href="/about/">About</a>
-      <a class="r" href="/notices/">Notices</a>
-      <a class="r" href="https://github.com/harrison-jennings/api-reference-for-marketo-engage"><GitHubIcon /><span class="grow">GitHub</span></a>
-    </div>
+    <SiteLinks section={section} apis={false} />
   </div>
 </nav>
