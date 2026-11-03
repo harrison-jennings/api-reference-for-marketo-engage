@@ -162,6 +162,21 @@ function fieldsFromObjectSchema(schema, resolver, location) {
   });
 }
 
+/**
+ * Adobe's specifications type some multipart uploads as plain strings and only
+ * say "Multipart file" in the description. Treat those as files, so samples
+ * upload the file itself rather than its path as text.
+ */
+function isMultipartFile(field) {
+  const schema = field.schema || {};
+  return schema.type === "string" && (schema.format === "binary" || /multipart file/i.test(field.description || ""));
+}
+
+function withMultipartFiles(kind, fields) {
+  if (kind !== "multipart" || !fields) return fields;
+  return fields.map((field) => (isMultipartFile(field) ? { ...field, schema: { ...field.schema, type: "file" } } : field));
+}
+
 function swagger2Body(operation, parameters, doc, resolver) {
   const consumes = operation.consumes || doc.consumes || [];
   const bodyParameter = parameters.find((parameter) => parameter.in === "body");
@@ -176,9 +191,9 @@ function swagger2Body(operation, parameters, doc, resolver) {
     const resolved = resolver.flatten(schema);
     let fields = null;
     if (kind === "form" || kind === "multipart") {
-      fields = fieldsFromObjectSchema(schema, resolver, "form") || [
+      fields = withMultipartFiles(kind, fieldsFromObjectSchema(schema, resolver, "form") || [
         normaliseField({ ...bodyParameter, in: "form", schema: undefined, ...resolved }, "swagger2", resolver),
-      ];
+      ]);
     }
     return {
       name: bodyParameter.name,
@@ -198,19 +213,20 @@ function swagger2Body(operation, parameters, doc, resolver) {
     const hasFile = formParameters.some((parameter) => parameter.type === "file");
     const contentTypes = consumes.length ? [...consumes] : [hasFile ? "multipart/form-data" : "application/x-www-form-urlencoded"];
     const contentType = hasFile ? "multipart/form-data" : contentTypes[0];
+    const kind = bodyKindFor(contentType) === "json" ? "form" : bodyKindFor(contentType);
     return {
       name: null,
       required: formParameters.some((parameter) => parameter.required),
       description: "",
       contentTypes,
       contentType,
-      kind: bodyKindFor(contentType) === "json" ? "form" : bodyKindFor(contentType),
+      kind,
       schema: null,
       refName: null,
       example: undefined,
-      fields: formParameters.map((parameter) =>
+      fields: withMultipartFiles(kind, formParameters.map((parameter) =>
         normaliseField({ ...parameter, in: "form" }, "swagger2", resolver),
-      ),
+      )),
     };
   }
   return null;
@@ -241,7 +257,7 @@ function openapi3Body(operation, resolver) {
     schema,
     refName: resolved.refName || null,
     example: example ?? schema.example ?? resolved.example,
-    fields: kind === "form" || kind === "multipart" ? fieldsFromObjectSchema(schema, resolver, "form") || [] : null,
+    fields: kind === "form" || kind === "multipart" ? withMultipartFiles(kind, fieldsFromObjectSchema(schema, resolver, "form")) || [] : null,
     media: requestBody.content,
   };
 }

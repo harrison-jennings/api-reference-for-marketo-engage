@@ -200,7 +200,7 @@ describe("request bodies", () => {
       values: {
         "form:name": "Welcome",
         "form:folder": '{"id": 12, "type": "Folder"}',
-        "form:content": "<html></html>",
+        "form:content": "<FILE_PATH>",
       },
     });
     assert.equal(request.valid, true);
@@ -208,7 +208,7 @@ describe("request bodies", () => {
     assert.deepEqual(request.body.fields, [
       { name: "name", value: "Welcome", file: false },
       { name: "folder", value: '{"id":12,"type":"Folder"}', file: false },
-      { name: "content", value: "<html></html>", file: false },
+      { name: "content", value: "<FILE_PATH>", file: true },
     ]);
   });
 
@@ -316,5 +316,27 @@ describe("code generation", () => {
     assert.ok(generateCurl(multipart).includes('--form "file=@<FILE_PATH>"'));
     assert.ok(generateJavaScript(multipart).includes('formData.append("file", file);'));
     assert.ok(generatePython(multipart).includes('"file": open("<FILE_PATH>", "rb"),'));
+  });
+
+  it("uploads fields the specification only describes as multipart files", () => {
+    const uploads = [
+      ["asset/files/create-file", "file"],
+      ["asset/file-contents/update-file-content", "file"],
+      ["asset/email-templates/create-email-template", "content"],
+      ["asset/email-templates/update-email-template-content", "content"],
+      ["asset/emails/update-email-full-content", "content"],
+    ];
+    for (const [id, name] of uploads) {
+      const request = buildRequest(normaliseOperation(loadOperation(id)), { values: { "path:id": "1", [`form:${name}`]: "<FILE_PATH>" } });
+      assert.ok(generateCurl(request).includes(`--form "${name}=@<FILE_PATH>"`), id);
+      assert.ok(generateJavaScript(request).includes(`formData.append("${name}", file);`), id);
+      assert.ok(generatePython(request).includes(`"${name}": open("<FILE_PATH>", "rb"),`), id);
+    }
+  });
+
+  it("leaves URL-encoded fields as text, even when described as multipart files", () => {
+    const op = normaliseOperation(loadOperation("asset/form-fields/add-rich-text-field"));
+    assert.equal(op.body.kind, "form");
+    assert.equal(op.body.fields.find((field) => field.name === "text").schema.type, "string");
   });
 });
