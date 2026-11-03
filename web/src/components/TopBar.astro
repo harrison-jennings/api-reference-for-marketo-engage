@@ -1,0 +1,41 @@
+---
+import { SECTIONS, SECTION_ORDER, operations } from "../lib/reference.js";
+import GitHubIcon from "./GitHubIcon.astro";
+import Logo from "./Logo.astro";
+import SearchIcon from "./SearchIcon.astro";
+const { section, where, panes = false, navLabel, navAlways = false } = Astro.props;
+const count = (id) => operations.filter((operation) => operation.section === id).length;
+const SOURCE = "https://github.com/harrison-jennings/api-reference-for-marketo-engage";
+---
+<a class="skip" href="#main">Skip to content</a>
+<header class="top">
+  <div class="bar1">
+    <a class="brand" href="/"><Logo /><span class="bname">API Reference for Marketo Engage</span></a>
+    <button type="button" class="jump" data-jump-open aria-haspopup="dialog" aria-keyshortcuts="Meta+K Control+K /" aria-label="Jump to an operation, path, model or parameter">
+      <SearchIcon /><span class="jt">Jump to an operation, path, model or parameter</span><kbd data-jump-key>⌘K</kbd>
+    </button>
+    <nav class="sitenav" aria-label="Site">
+      <a class:list={["tl", { on: where === "models" }]} href="/models/" aria-current={where === "models" ? "page" : undefined}>Models</a>
+      <a class:list={["tl", { on: where === "playground" }]} href="/playground/" aria-current={where === "playground" ? "page" : undefined}>Playground</a>
+      <a class:list={["tl", { on: where === "postman" }]} href="/postman/" aria-current={where === "postman" ? "page" : undefined}>Postman</a>
+    </nav>
+    <button type="button" class="ib themeb" data-theme-toggle><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><circle cx="8" cy="8" r="6.200" fill="none" stroke="currentColor" stroke-width="1.400"></circle><path d="M8 1.800a6.200 6.200 0 0 1 0 12.400z" fill="currentColor"></path></svg><span data-theme-label>Auto</span></button>
+    <a class="ib gh" href={SOURCE} aria-label="Source code on GitHub" title="Source code on GitHub"><GitHubIcon /></a>
+    <button type="button" class="ib phone-only" data-jump-open aria-haspopup="dialog" aria-label="Search"><SearchIcon /></button>
+    <button type="button" class="ib phone-only" data-nav-toggle aria-expanded="false" aria-controls="nav-panel" aria-label="Menu"><svg width="16" height="16" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.500"></path></svg></button>
+  </div>
+  <div class="bar2">
+    {navLabel && <button type="button" class:list={["btn ops-btn", { sm: navAlways }]} data-nav-toggle aria-expanded="false" aria-controls="nav-panel"><svg width="14" height="14" viewBox="0 0 16 16" aria-hidden="true"><path d="M2 4h12M2 8h12M2 12h12" stroke="currentColor" stroke-width="1.500"></path></svg>{navLabel}</button>}
+    <nav class="apis" aria-label="APIs">
+      {SECTION_ORDER.map((id) => <a class:list={["tab", { on: id === section }]} href={`/reference/${id}/`} aria-current={id === section ? "true" : undefined}>{SECTIONS[id].short} <span class="ct">{count(id)}</span></a>)}
+    </nav>
+    {panes && (
+      <div class="slide panes-seg" data-pane-switch data-v="split" role="group" aria-label="Pane layout">
+        <span class="pill" aria-hidden="true"></span>
+        <button type="button" data-pane="docs" aria-pressed="false">Docs</button>
+        <button type="button" data-pane="split" aria-pressed="true">Both</button>
+        <button type="button" data-pane="builder" aria-pressed="false">Builder</button>
+      </div>
+    )}
+  </div>
+</header>

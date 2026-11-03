@@ -1,0 +1,14 @@
+---
+import Base from "../../layouts/Base.astro";
+import { SECTIONS, SECTION_ORDER, manifest, specification } from "../../lib/reference.js";
+---
+<Base title="API Reference">
+  <main class="page" id="main" data-pagefind-body>
+    <h1 id="top">API Reference</h1>
+    <p class="desc">Generated from Adobe's Marketo Engage API specifications (Swagger 2.0 and OpenAPI 3).</p>
+    <p class="stats"><span><b>{manifest.summary.specifications}</b> specifications</span><span><b>{manifest.summary.operations}</b> operations</span><span><b>{manifest.summary.models}</b> models</span></p>
+    <div class="tscroll"><table class="tbl"><thead><tr><th>API</th><th>Source</th><th>Groups</th><th>Operations</th><th>Models</th></tr></thead><tbody>
+      {SECTION_ORDER.map((id) => { const spec = specification(id); return <tr><td><a class="cell lnk" href={`/reference/${id}/`}>{SECTIONS[id].title}</a></td><td><a class="cell ln mono" href={spec.sourceUrl}>{spec.source}</a></td><td><span class="cell">{spec.groups}</span></td><td><span class="cell">{spec.operations}</span></td><td><span class="cell">{spec.models}</span></td></tr>; })}
+    </tbody></table></div>
+  </main>
+</Base>

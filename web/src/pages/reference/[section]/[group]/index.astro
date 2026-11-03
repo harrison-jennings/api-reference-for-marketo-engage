@@ -1,0 +1,31 @@
+---
+import Method from "../../../../components/Method.astro";
+import OperationsNav from "../../../../components/OperationsNav.astro";
+import Docs from "../../../../layouts/Docs.astro";
+import { REFERENCE, SECTIONS, SECTION_ORDER, groupsOf, pathHtml, plainText } from "../../../../lib/reference.js";
+import fs from "node:fs";
+import path from "node:path";
+export const getStaticPaths = () => SECTION_ORDER.flatMap((section) => groupsOf(section).map((group) => ({ params: { section, group: group.slug }, props: { group } })));
+const { section } = Astro.params;
+const { group } = Astro.props;
+const methods = {};
+for (const operation of group.operations) methods[operation.method] = (methods[operation.method] || 0) + 1;
+// Adobe's group descriptions: skip ones that only restate the name or say "X Controller".
+const intro = fs.readFileSync(path.join(REFERENCE, section, group.slug, "README.md"), "utf8").split("\n")[2] || "";
+const useful = intro && !intro.startsWith("#") && !/\bController\s*$/.test(intro) && plainText(intro) !== group.tag ? plainText(intro) : "";
+---
+<Docs meta={`where:${SECTIONS[section].short} › Endpoint group`} title={`${group.tag} · ${SECTIONS[section].short}`} description={useful || `${group.tag} operations in the ${SECTIONS[section].title}.`} section={section}>
+  <OperationsNav slot="nav" section={section} openGroup={group.tag} />
+  <nav class="crumbs ctxm" aria-label="Breadcrumb"><a class="ln" href={`/reference/${section}/`}>{SECTIONS[section].short}</a><span aria-hidden="true">›</span><span aria-current="page">{group.tag}</span></nav>
+  <div class="ophead">
+    <h1 id="top">{group.tag}</h1>
+    {useful && <p class="desc">{useful}</p>}
+    <p class="stats"><span><b>{group.operations.length}</b> {group.operations.length === 1 ? "operation" : "operations"}</span>{Object.entries(methods).map(([method, count]) => <span><Method method={method} /> <b>{count}</b></span>)}</p>
+  </div>
+  <section class="sec" data-filter-scope>
+    <div class="tools" data-pagefind-ignore><label class="sr" for="op-filter">Filter operations</label><input class="in" id="op-filter" type="search" placeholder={`Filter ${group.operations.length} operations by name, method, path or ID`} autocomplete="off" data-filter /></div>
+    <div class="tscroll" data-pagefind-ignore><table class="tbl"><thead><tr><th>Method</th><th>Operation</th><th>Path</th></tr></thead><tbody>
+      {group.operations.map((operation) => <tr data-q={`${operation.title} ${operation.path} ${operation.operationId} ${operation.method}`.toLowerCase()}><td><span class="cell"><Method method={operation.method} /></span></td><td><a class="cell lnk" href={operation.route}>{operation.title}</a></td><td class="path"><span class="cell mono"><span set:html={pathHtml(operation.path)}></span></span></td></tr>)}
+    </tbody></table></div>
+  </section>
+</Docs>

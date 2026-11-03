@@ -1,0 +1,13 @@
+---
+import Base from "../layouts/Base.astro";
+---
+<Base title="Search" description="Search the Marketo Engage API reference by operation name, operation ID, endpoint path, parameter or model.">
+  <main class="page" id="main">
+    <h1 id="top">Search</h1>
+    <div class="sbox"><label class="sr" for="search-q">Search every page</label><input class="in" id="search-q" type="search" autocomplete="off" spellcheck="false" placeholder="Search every page" /><button type="button" class="btn" id="search-copy" aria-label="Copy a link to this search">Copy link</button></div>
+    <p class="fc" id="search-status" role="status"></p>
+    <div class="reslist" id="search-results"></div>
+    <noscript><p>Search needs JavaScript. Browse the <a class="ln" href="/reference/">API reference</a> instead.</p></noscript>
+  </main>
+  <script>import "../scripts/search.js";</script>
+</Base>

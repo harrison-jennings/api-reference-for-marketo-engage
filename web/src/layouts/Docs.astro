@@ -1,0 +1,11 @@
+---
+import Base from "./Base.astro";
+const { title, description, section, where, navLabel = "Operations", meta } = Astro.props;
+---
+<Base title={title} description={description} section={section} where={where} navLabel={navLabel} navAlways>
+  <div class="scrim" data-nav-toggle aria-hidden="true"></div>
+  <div class="twocol">
+    <div class="navwrap" id="nav-panel" tabindex="-1"><slot name="nav" /></div>
+    <main class="docs" id="main" data-pagefind-body data-pagefind-meta={meta}><slot /></main>
+  </div>
+</Base>

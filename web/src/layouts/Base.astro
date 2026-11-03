@@ -1,0 +1,49 @@
+---
+import Footer from "../components/Footer.astro";
+import JumpDialog from "../components/JumpDialog.astro";
+import TopBar from "../components/TopBar.astro";
+import "../styles/site.css";
+const SITE = "API Reference for Marketo Engage";
+const DEFAULT_DESCRIPTION = "An independent, searchable reference for the Adobe Marketo Engage APIs, generated from Adobe's Swagger and OpenAPI specifications, with a client-side request builder and mock response generator.";
+const { title, description = DEFAULT_DESCRIPTION, section, where, panes, navLabel, navAlways, builder = false } = Astro.props;
+const fullTitle = title === SITE ? SITE : `${title} · ${SITE}`;
+---
+<!doctype html>
+<html lang="en-AU" data-theme="dark">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>{fullTitle}</title>
+    <meta name="description" content={description} />
+    <meta name="robots" content="noindex, nofollow" />
+    <meta property="og:type" content="website" />
+    <meta property="og:site_name" content={SITE} />
+    <meta property="og:title" content={fullTitle} />
+    <meta property="og:description" content={description} />
+    <meta property="og:url" content={new URL(Astro.url.pathname, Astro.site)} />
+    <meta name="twitter:card" content="summary" />
+    <link rel="icon" href="/assets/images/favicon.svg" type="image/svg+xml" />
+    <link rel="preload" href="/fonts/Geist-Variable.woff2" as="font" type="font/woff2" crossorigin />
+    <script is:inline>
+      (function () {
+        var stored = null;
+        try { stored = localStorage.getItem("site-theme"); } catch (e) {}
+        var pref = stored === "light" || stored === "dark" ? stored : "auto";
+        var theme = pref === "auto" ? (matchMedia("(prefers-color-scheme: light)").matches ? "light" : "dark") : pref;
+        document.documentElement.setAttribute("data-theme", theme);
+        document.documentElement.setAttribute("data-theme-pref", pref);
+      })();
+    </script>
+  </head>
+  <body data-pane="split" data-view="docs" data-nav="false">
+    <TopBar section={section} where={where} panes={panes} navLabel={navLabel} navAlways={navAlways} />
+    <slot />
+    <Footer />
+    <JumpDialog />
+    {builder && <script is:inline type="module" src="/assets/request-builder/index.js"></script>}
+    <script>
+      import "../scripts/site.js";
+      import "../scripts/jump.js";
+    </script>
+  </body>
+</html>

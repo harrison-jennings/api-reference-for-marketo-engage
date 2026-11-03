@@ -1,0 +1,30 @@
+---
+import { SECTIONS, breakable, modelsIn } from "../lib/reference.js";
+import Caret from "./Caret.astro";
+const { section, current } = Astro.props;
+const models = [...modelsIn(section).models].sort((a, b) => a.name.toLowerCase().localeCompare(b.name.toLowerCase()));
+const letters = new Map();
+for (const model of models) {
+  const letter = model.name.charAt(0).toUpperCase();
+  if (!letters.has(letter)) letters.set(letter, []);
+  letters.get(letter).push(model);
+}
+const summary = `${models.length} ${models.length === 1 ? "model" : "models"}, A to Z`;
+---
+<nav class="nav" aria-label={`${SECTIONS[section].short} models`} data-filter-scope>
+  <button type="button" class="btn nav-close" data-nav-toggle>Close</button>
+  <div class="nav-head">
+    <a class="r strong" href={`/reference/${section}/models/`}><span class="grow">{SECTIONS[section].short} models</span><span class="ct">{models.length}</span></a><a class="r" href="/models/">All APIs</a>
+    <label class="sr" for="nav-filter">Filter {models.length} models</label>
+    <input class="in" id="nav-filter" type="search" placeholder={`Filter ${models.length} models`} autocomplete="off" data-filter />
+    <p class="fc" data-filter-count data-total={summary} role="status">{summary}</p>
+  </div>
+  <div class="nav-list">
+    {[...letters].map(([letter, rows]) => (
+      <details class="g" data-filter-group open={rows.some((model) => model.name === current)}>
+        <summary class="gs"><Caret /><span class="grow">{letter}</span><span class="ct">{rows.length}</span></summary>
+        {rows.map((model) => <a class:list={["r", { on: model.name === current }]} href={model.route} aria-current={model.name === current ? "page" : undefined} data-q={model.name.toLowerCase()}><span class="grow mname" set:html={breakable(model.name)}></span></a>)}
+      </details>
+    ))}
+  </div>
+</nav>

@@ -1,0 +1,44 @@
+---
+import { SECTIONS, SECTION_ORDER, groupsOf, modelsIn, operations } from "../lib/reference.js";
+import Caret from "./Caret.astro";
+import GitHubIcon from "./GitHubIcon.astro";
+import Method from "./Method.astro";
+const { section, current, openGroup } = Astro.props;
+const groups = groupsOf(section);
+const total = groups.reduce((sum, group) => sum + group.operations.length, 0);
+const summary = `${groups.length} ${groups.length === 1 ? "group" : "groups"} · ${total} ${total === 1 ? "operation" : "operations"}`;
+const count = (id) => operations.filter((operation) => operation.section === id).length;
+---
+<nav class="nav" aria-label={`${SECTIONS[section].title} operations`} data-filter-scope>
+  <button type="button" class="btn nav-close" data-nav-toggle>Close</button>
+  <details class="nav-api">
+    <summary class="gs"><Caret /><span class="grow">API: {SECTIONS[section].short}</span><span class="ct">Change</span></summary>
+    {SECTION_ORDER.map((id) => <a class:list={["r", { on: id === section }]} href={`/reference/${id}/`} aria-current={id === section ? "true" : undefined}><span class="grow">{SECTIONS[id].short}</span><span class="ct">{count(id)}</span></a>)}
+  </details>
+  <div class="nav-head">
+    <a class="r strong" href={`/reference/${section}/`}><span class="grow">{SECTIONS[section].title}</span><span class="ct">Overview</span></a>
+    <label class="sr" for="nav-filter">Filter {total} operations</label>
+    <input class="in" id="nav-filter" type="search" placeholder={`Filter ${total} operations`} autocomplete="off" data-filter />
+    <p class="fc" data-filter-count data-total={summary} role="status">{summary}</p>
+  </div>
+  <div class="nav-list">
+    {groups.map((group) => (
+      <details class="g" data-filter-group open={group.tag === openGroup || group.operations.some((operation) => operation.route === current)}>
+        <summary class="gs"><Caret /><span class="grow">{group.tag}</span><span class="ct">{group.operations.length}</span></summary>
+        {group.operations.map((operation) => (
+          <a class:list={["r op", { on: operation.route === current }]} href={operation.route} aria-current={operation.route === current ? "page" : undefined} data-q={`${operation.title} ${operation.operationId} ${operation.path} ${operation.method} ${group.tag}`.toLowerCase()}><Method method={operation.method} /><span class="grow">{operation.title}</span></a>
+        ))}
+      </details>
+    ))}
+    <a class="r strong" href={`/reference/${section}/models/`}><span class="grow">{SECTIONS[section].short} models</span><span class="ct">{modelsIn(section).models.length}</span></a>
+    <div class="nav-bottom">
+      <a class="r" href="/models/">All models</a>
+      <a class="r" href="/playground/">Request Playground</a>
+      <a class="r" href="/postman/">Postman</a>
+      <a class="r" href="/search/">Search</a>
+      <a class="r" href="/about/">About</a>
+      <a class="r" href="/notices/">Notices</a>
+      <a class="r" href="https://github.com/harrison-jennings/api-reference-for-marketo-engage"><GitHubIcon /><span class="grow">GitHub</span></a>
+    </div>
+  </div>
+</nav>

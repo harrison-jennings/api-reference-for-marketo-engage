@@ -1,0 +1,23 @@
+---
+import { breakable, plainText, richText } from "../lib/reference.js";
+import EnumValues from "./EnumValues.astro";
+const { params } = Astro.props;
+const rows = params.map((param) => {
+  const schema = param.schema || param;
+  let type = schema.type || "string";
+  if (type === "array") type = `array of ${schema.items?.type || "string"}`;
+  if (schema.format) type += ` (${schema.format})`;
+  const description = plainText(param.description) === param.name ? "" : richText(param.description);
+  return { ...param, type, description, values: schema.enum, credential: param.name === "access_token" };
+});
+---
+{rows.map((param) => (
+  <div class:list={["p", { "p-bare": !param.description && !param.values && !param.credential }]} id={`param-${param.name}`}>
+    <div class="pl"><code class="nm" set:html={breakable(param.name)}></code>{" "}<span class="ty">{param.type}</span>{" "}{param.required && <span class="rq">required</span>}</div>
+    <div class="pd">
+      {param.description && <p class="nd" set:html={param.description}></p>}
+      {param.values && <EnumValues values={param.values} />}
+      {param.credential && <p class="hint">The Request Builder sends the token in the Authorization header instead, so it never appears in URLs.</p>}
+    </div>
+  </div>
+))}

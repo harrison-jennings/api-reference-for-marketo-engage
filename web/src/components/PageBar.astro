@@ -1,0 +1,10 @@
+---
+const { items } = Astro.props;
+---
+<nav class="toc" aria-label="On this page" data-toc>
+  <div class="toc-s">
+    <span class="lbl">On this page</span>
+    {items.map((item) => <a class="tl" href={`#${item.id}`}>{item.label}{item.count !== undefined && <span class="ct">{item.count}</span>}</a>)}
+  </div>
+  <a class="tl totop" href="#top" aria-label="Back to top"><svg width="14" height="14" viewBox="0 0 14 14" aria-hidden="true"><path d="M7 12V2M3 6l4-4 4 4" fill="none" stroke="currentColor" stroke-width="1.500" stroke-linecap="round" stroke-linejoin="round"></path></svg><span class="tt">Back to top</span></a>
+</nav>

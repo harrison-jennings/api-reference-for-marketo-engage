@@ -1,0 +1,14 @@
+---
+import ModelsTable from "../../../../components/ModelsTable.astro";
+import Base from "../../../../layouts/Base.astro";
+import { SECTIONS, SECTION_ORDER, modelsIn } from "../../../../lib/reference.js";
+export const getStaticPaths = () => SECTION_ORDER.map((section) => ({ params: { section } }));
+const { section } = Astro.params;
+---
+<Base title={`${SECTIONS[section].short} models`} section={section} where="models">
+  <main class="page wide" id="main" data-pagefind-body>
+    <nav class="crumbs ctxm" aria-label="Breadcrumb"><a class="ln" href="/models/">Models</a><span aria-hidden="true">›</span><span aria-current="page">{SECTIONS[section].short}</span></nav>
+    <h1 id="top">{SECTIONS[section].short} models</h1>
+    <div data-pagefind-ignore><ModelsTable models={modelsIn(section).models} showApi={false} /></div>
+  </main>
+</Base>

@@ -1,0 +1,119 @@
+---
+import Caret from "../../../../components/Caret.astro";
+import Method from "../../../../components/Method.astro";
+import OperationsNav from "../../../../components/OperationsNav.astro";
+import PageBar from "../../../../components/PageBar.astro";
+import ParamRows from "../../../../components/ParamRows.astro";
+import Tree from "../../../../components/Tree.astro";
+import Base from "../../../../layouts/Base.astro";
+import { SECTIONS, breakable, countProperties, definitionsOf, descriptionBlocks, markdownExtras, modelsIn, operationDocument, operations, pathHtml, permissionsOf, plainText, refName } from "../../../../lib/reference.js";
+export const getStaticPaths = () => operations.map((operation) => ({ params: { section: operation.section, group: operation.group, operation: operation.slug }, props: { operation } }));
+const { operation } = Astro.props;
+const { section } = operation;
+const document = operationDocument(operation);
+const node = document.paths[operation.path][operation.method.toLowerCase()];
+const definitions = definitionsOf(document);
+const { examples, source } = markdownExtras(operation.markdown);
+const models = modelsIn(section);
+
+const all = node.parameters || [];
+const params = all.filter((param) => param.in !== "body");
+const byLocation = [["path", "Path"], ["query", "Query"], ["header", "Header"], ["formData", "Form"]].map(([key, label]) => ({ label, params: params.filter((param) => param.in === key) })).filter((item) => item.params.length);
+const undescribed = params.filter((param) => !plainText(param.description) || plainText(param.description) === param.name).length;
+
+// Swagger 2 body parameter or OpenAPI 3 request body.
+const bodyParam = all.find((param) => param.in === "body");
+const media = node.requestBody?.content ? Object.entries(node.requestBody.content)[0] : null;
+const bodySchema = bodyParam?.schema || media?.[1]?.schema;
+const bodyModel = bodySchema?.$ref ? refName(bodySchema.$ref) : null;
+const consumes = node.consumes || document.consumes || (media ? [media[0]] : ["application/json"]);
+const contentType = consumes[0] || "application/json";
+const bodyRequired = bodyParam ? bodyParam.required : node.requestBody?.required;
+const bodyCount = bodyModel ? countProperties(bodyModel, definitions) : 0;
+
+const responses = Object.entries(node.responses || {}).map(([code, response]) => {
+  const schema = response.schema || Object.values(response.content || {})[0]?.schema;
+  const model = schema?.$ref ? refName(schema.$ref) : schema?.items?.$ref ? refName(schema.items.$ref) : null;
+  return { code, description: plainText(response.description), model, schema, count: model ? countProperties(model, definitions) : 0, example: examples[code] };
+});
+const largest = Math.max(0, ...responses.map((response) => response.count));
+const returns = [...new Set(responses.map((response) => response.model).filter(Boolean))].slice(0, 2);
+const permissions = permissionsOf(node.description);
+const blocks = descriptionBlocks(node.description);
+const referenced = Object.keys(definitions).filter((name) => models.byName.has(name));
+const items = [
+  params.length && { id: "parameters", label: "Parameters", count: params.length },
+  bodySchema && { id: "body", label: "Request body" },
+  { id: "responses", label: "Responses", count: responses.length },
+  referenced.length && { id: "models", label: "Models", count: referenced.length },
+].filter(Boolean);
+const description = blocks.find((block) => block.html) ? plainText(blocks.find((block) => block.html).html) : operation.title;
+const route = (model) => models.byName.get(model)?.route;
+---
+<Base title={`${operation.title} · ${operation.tag} · ${SECTIONS[section].short}`} description={description} section={section} panes navLabel="Operations" builder>
+  <div class="scrim" data-nav-toggle aria-hidden="true"></div>
+  <div class="panes">
+    <div class="navwrap" id="nav-panel" tabindex="-1"><OperationsNav section={section} current={operation.route} /></div>
+    <main class="docs" id="main" data-pagefind-body data-pagefind-meta={`where:${SECTIONS[section].short} › ${operation.tag} › ${operation.method} ${operation.path}`}>
+      <div class="slide two view-seg" data-view-switch data-v="docs" role="group" aria-label="View" data-pagefind-ignore>
+        <span class="pill" aria-hidden="true"></span>
+        <button type="button" data-view="docs" aria-pressed="true">Docs</button>
+        <button type="button" data-view="builder" aria-pressed="false">Builder</button>
+      </div>
+      <nav class="crumbs ctxm" aria-label="Breadcrumb" data-pagefind-ignore><a class="ln" href={`/reference/${section}/`}>{SECTIONS[section].short}</a><span aria-hidden="true">›</span><a class="ln" href={`/reference/${section}/${operation.group}/`}>{operation.tag}</a></nav>
+      <div class="ophead">
+        <h1 id="top">{operation.title}</h1>
+        <div class="pathbar"><Method method={operation.method} />{" "}<code class="pt" data-pagefind-weight="8" set:html={pathHtml(operation.path)}></code>{" "}<button type="button" class="btn" data-copy={operation.path} aria-label="Copy path" data-pagefind-ignore>Copy</button></div>
+        {blocks.length ? blocks.map((block) => block.code ? <pre class="code wrap" tabindex="0">{block.code}</pre> : <p class="desc" set:html={block.html}></p>) : <p class="desc sparse">Adobe's specification has no description for this operation. <a class="ln" href="https://github.com/AdobeDocs/marketo-apis/issues">Report it to Adobe</a>.</p>}
+        <dl class="meta">
+          <div><dt>Operation ID</dt>{" "}<dd><code class="mono" data-pagefind-weight="8" set:html={breakable(operation.operationId)}></code></dd></div>
+          <div><dt>Permissions</dt>{" "}<dd>{permissions.length ? permissions.join(", ") : "Not stated in the specification"}</dd></div>
+          <div><dt>Request format</dt>{" "}<dd><code class="mono">{contentType}</code></dd></div>
+          <div><dt>Returns</dt>{" "}<dd>{returns.length ? returns.map((model, index) => <Fragment>{index > 0 && <span class="sep">, </span>}<a class="mlink" href={route(model)} set:html={breakable(model)}></a></Fragment>) : <code class="mono">{(node.produces || document.produces || ["application/json"])[0]}</code>}</dd></div>
+        </dl>
+      </div>
+      <PageBar items={items} />
+      {params.length > 0 && (
+        <section id="parameters" class="sec">
+          <h2>Parameters</h2>
+          {undescribed >= 3 && <p class="hint">{undescribed} of {params.length} have no description in Adobe's specification.</p>}
+          {byLocation.map((location) => <Fragment><h3>{location.label} <span class="ct">{location.params.length}</span></h3><ParamRows params={location.params} /></Fragment>)}
+        </section>
+      )}
+      {bodySchema && (
+        <section id="body" class="sec">
+          <div class="sech"><h2>Request body</h2>{bodyCount > 8 && <div class="sect-tools" data-pagefind-ignore><button type="button" class="btn" data-tree-all="open">Expand all</button><button type="button" class="btn" data-tree-all="close">Collapse all</button></div>}</div>
+          <p class="kv"><code class="mono">{contentType}</code> · {bodyRequired ? "required" : "optional"}{bodyModel && route(bodyModel) && <Fragment> · <a class="mlink" href={route(bodyModel)} set:html={breakable(bodyModel)}></a></Fragment>}{bodyCount > 0 && ` · ${bodyCount} properties`}</p>
+          {contentType === "multipart/form-data" && <p class="hint">Sent as multipart form fields, one part per property. Upload fields take a file.</p>}
+          {contentType === "application/x-www-form-urlencoded" && <p class="hint">Sent as URL-encoded form fields. Object properties are sent as JSON text in their field.</p>}
+          {bodyModel && <div class="tree"><Tree name={bodyModel} definitions={definitions} section={section} /></div>}
+        </section>
+      )}
+      <section id="responses" class="sec">
+        <div class="sech"><h2>Responses</h2>{largest > 8 && <div class="sect-tools" data-pagefind-ignore><button type="button" class="btn" data-tree-all="open">Expand all</button><button type="button" class="btn" data-tree-all="close">Collapse all</button></div>}</div>
+        {responses.map((response, index) => (
+          <details class="resp" open={index === 0}>
+            <summary class="rs"><Caret /><span class:list={["code-n", response.code.startsWith("2") ? "ok" : "err"]}>{response.code === "default" ? "Default" : response.code}</span>{" "}<span class="grow">{response.description}</span>{" "}{response.model && <span class="mono small" set:html={breakable(response.model)}></span>}</summary>
+            {response.model
+              ? <div class="tree"><Tree name={response.model} definitions={definitions} section={section} openDepth={0} /></div>
+              : <p class="hint pad">{response.schema?.type ? `Returns a ${response.schema.type}.` : "No response body is documented for this status."}</p>}
+            {response.example && <details class="exd"><summary><Caret /><span>Generated example</span></summary><pre class="code" tabindex="0">{response.example}</pre></details>}
+          </details>
+        ))}
+      </section>
+      {referenced.length > 0 && (
+        <section id="models" class="sec">
+          <h2>Referenced models</h2>
+          <ul class="mlist">{referenced.map((name) => <li><a class="mlink blk" href={route(name)} set:html={breakable(name)}></a></li>)}</ul>
+        </section>
+      )}
+      {source && <p class="hint src">Generated from <a class="ln" href={source.url}>{source.name}</a>. Generated examples are inferred from the schema; they are illustrative and may not be valid production payloads.</p>}
+    </main>
+    <aside class="builder" id="request-builder" aria-label="Request Builder" data-pagefind-ignore>
+      <div class="builder-inner" data-request-builder={operation.id}>
+        <p class="rb-loading">Loading Request Builder…</p>
+        <noscript><p class="pad">The Request Builder needs JavaScript. The reference documentation on this page does not.</p></noscript>
+      </div>
+    </aside>
+  </div>
+</Base>
