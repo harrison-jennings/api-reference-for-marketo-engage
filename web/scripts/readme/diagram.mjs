@@ -30,8 +30,6 @@ const CSS = `
   .layout { position: relative; display: grid; grid-template-columns: minmax(0, 1fr) 270px; gap: 20px; }
   .bands { display: flex; flex-direction: column; gap: 20px; min-width: 0; }
   .band, .side { background: var(--surface); border: 1px solid var(--line); border-radius: 16px; padding: 18px 20px 20px; }
-  .band { flex: 1 1 0; display: flex; flex-direction: column; }
-  .band .row { flex: 1; }
   .lbl { font: 500 13px/1 var(--mono); letter-spacing: .02em; color: var(--accent); margin-bottom: 14px; }
   .row { display: flex; align-items: stretch; gap: 26px; }
   .card { flex: 1 1 0; min-width: 0; position: relative; display: flex; flex-direction: column; gap: 6px; padding: 14px; background: var(--raised); border: 1px solid var(--line); border-radius: 12px; }
@@ -43,7 +41,9 @@ const CSS = `
   .m { font-family: var(--mono); font-size: 12px; }
   .down { text-align: center; font: 500 18px/1 var(--mono); color: var(--muted); margin: -8px 0; }
   .side { display: flex; flex-direction: column; }
-  .side .card { flex: 1 1 auto; justify-content: center; }
+  .side .card { flex: 1 1 auto; display: grid; grid-template-columns: auto minmax(0, 1fr); align-content: center; align-items: center; column-gap: 10px; row-gap: 6px; }
+  .side .card .d { grid-column: 1 / -1; }
+  .side .logo { width: 22px; height: 22px; }
   .side .stack { display: flex; flex-direction: column; flex: 1; gap: 22px; }
   .side .stack .card { position: relative; }
   .side .stack .card:not(:last-child)::after { content: "↓"; position: absolute; left: 50%; bottom: -20px; transform: translateX(-50%); font: 500 16px/1 var(--mono); color: var(--muted); }
