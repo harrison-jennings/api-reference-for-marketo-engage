@@ -13,7 +13,8 @@
     "check": "node scripts/check.mjs dist",
     "preview": "astro preview",
     "test": "node --test \"tests/builder/**/*.test.js\"",
-    "test:e2e": "playwright test"
+    "test:e2e": "playwright test",
+    "readme:images": "node scripts/readme/images.mjs"
   },
   "dependencies": {
     "astro": "7.4.5",

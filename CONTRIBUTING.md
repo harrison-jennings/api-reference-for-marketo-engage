@@ -21,4 +21,5 @@ This project doesn't provide support for the Marketo Engage APIs themselves. For
 ## Using the code
 
 You're welcome to fork and adapt this project under the [Apache License 2.0](LICENSE). See
-[NOTICE](NOTICE) for the attribution that must accompany it.
+[NOTICE](NOTICE) for the attribution that must accompany it. [docs/development.md](docs/development.md)
+covers setting it up, and [docs/architecture.md](docs/architecture.md) how it fits together.
