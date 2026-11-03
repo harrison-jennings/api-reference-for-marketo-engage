@@ -210,6 +210,7 @@ export function mountRequestBuilder(container, operationDocument, options = {}) 
         { for: id, className: "rb-field__label" },
         el("code", { className: "rb-field__name", text: field.name }),
         el("span", { className: "rb-field__type", text: describeType(field.schema, operation.resolver) }),
+        field.in === "form" ? null : el("span", { className: "rb-field__in", text: field.in }),
         el("span", {
           className: `rb-badge ${field.required ? "rb-badge--required" : "rb-badge--optional"}`,
           text: field.required ? "required" : "optional",
@@ -277,10 +278,33 @@ export function mountRequestBuilder(container, operationDocument, options = {}) 
   }
   const authGroup = group("Authentication", [], el("div", { className: "rb-auth" }, authLines));
 
-  const editable = (location) => operation.fields.filter((field) => field.in === location && !field.credential);
-  const pathGroup = group("Path parameters", editable("path").map(fieldRow));
-  const queryGroup = group("Query parameters", editable("query").map(fieldRow));
-  const headerGroup = group("Headers", editable("header").map(fieldRow));
+  const parameters = ["path", "query", "header"].flatMap((location) => operation.fields.filter((field) => field.in === location && !field.credential));
+  const requiredGroup = group("Required", parameters.filter((field) => field.required).map(fieldRow));
+  const optionalFields = parameters.filter((field) => !field.required);
+  const optionalSet = el("span", { className: "rb-optional__set" });
+  const optionalRows = optionalFields.map(fieldRow);
+  const optionalFilterId = `${prefix}-optional-filter`;
+  const optionalFilter = optionalFields.length > 6 ? el("input", {
+    id: optionalFilterId,
+    className: "rb-input rb-optional__filter",
+    type: "search",
+    autocomplete: "off",
+    placeholder: `Filter ${optionalFields.length} optional parameters`,
+    "aria-label": "Filter optional parameters",
+  }) : null;
+  optionalFilter?.addEventListener("input", (event) => {
+    const terms = event.target.value.toLowerCase().trim().split(/\s+/).filter(Boolean);
+    optionalRows.forEach((row) => {
+      const text = row.textContent.toLowerCase();
+      row.hidden = !terms.every((term) => text.includes(term));
+    });
+  });
+  const optionalGroup = optionalFields.length ? el(
+    "details",
+    { className: "rb-optional" },
+    el("summary", { className: "rb-optional__summary" }, "Optional ", el("span", { className: "rb-optional__count", text: String(optionalFields.length) }), optionalSet),
+    el("div", { className: "rb-optional__body" }, optionalFilter, optionalRows),
+  ) : null;
 
   // Body
   let bodyGroup = null;
@@ -344,12 +368,12 @@ export function mountRequestBuilder(container, operationDocument, options = {}) 
   const form = el(
     "form",
     { className: "rb-form", novalidate: true, onSubmit: (event) => event.preventDefault() },
-    instanceGroup, authGroup, pathGroup, queryGroup, headerGroup, bodyGroup,
+    instanceGroup, authGroup, requiredGroup, optionalGroup, bodyGroup,
   );
 
   // Request output
   const summary = el("p", { className: "rb-summary", role: "status", "aria-live": "polite" });
-  const generateButton = el("button", { type: "button", className: "rb-button rb-button--primary", text: "Generate Request" });
+  const generateButton = el("button", { type: "button", className: "rb-button rb-button--primary", text: "Generate request" });
   generateButton.addEventListener("click", () => {
     showAllErrors = true;
     const request = update();
@@ -385,44 +409,68 @@ export function mountRequestBuilder(container, operationDocument, options = {}) 
       text: generator.label,
     });
     tab.addEventListener("click", () => selectLanguage(generator.id));
-    tab.addEventListener("keydown", (event) => {
-      const index = GENERATORS.indexOf(generator);
-      const offset = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
-      if (!offset) return;
-      event.preventDefault();
-      const next = GENERATORS[(index + offset + GENERATORS.length) % GENERATORS.length];
-      selectLanguage(next.id);
-      tabs[GENERATORS.indexOf(next)].focus();
-    });
     tabList.append(tab);
     return tab;
+  });
+  const mockTab = el("button", {
+    type: "button",
+    role: "tab",
+    className: "rb-tab",
+    id: `${prefix}-tab-mock`,
+    "aria-controls": `${prefix}-mock`,
+    text: "Mock response",
+  });
+  tabList.append(mockTab);
+  const allTabs = [...tabs, mockTab];
+  allTabs.forEach((tab, index) => tab.addEventListener("keydown", (event) => {
+    const offset = event.key === "ArrowRight" ? 1 : event.key === "ArrowLeft" ? -1 : 0;
+    if (!offset) return;
+    event.preventDefault();
+    const next = allTabs[(index + offset + allTabs.length) % allTabs.length];
+    next.click();
+    next.focus();
+  }));
+  let activePanel = "code";
+  mockTab.addEventListener("click", () => {
+    activePanel = "mock";
+    if (!mockVisible && operation.responses.length) {
+      mockVisible = true;
+      renderMock();
+    }
+    renderCode();
   });
   const codeWarning = el("p", { className: "rb-code__warning", hidden: true });
   const codeSection = el(
     "section",
-    { className: "rb-output", "aria-label": "Code samples" },
-    el("div", { className: "rb-output__header" }, tabList, copyButton(() => codeBlock.textContent, "Copy code sample")),
+    { className: "rb-output rb-output--code", "aria-label": "Code samples" },
+    el("div", { className: "rb-output__tools" }, copyButton(() => codeBlock.textContent, "Copy code sample")),
     codeWarning,
     codePanel,
   );
 
   function selectLanguage(id) {
     language = id;
+    activePanel = "code";
     storeLanguage(id);
     renderCode();
   }
 
   function renderCode() {
     GENERATORS.forEach((generator, index) => {
-      const selected = generator.id === language;
+      const selected = activePanel === "code" && generator.id === language;
       tabs[index].setAttribute("aria-selected", String(selected));
       tabs[index].tabIndex = selected ? 0 : -1;
-      if (selected) {
+      if (generator.id === language) {
         codePanel.setAttribute("aria-labelledby", tabs[index].id);
         codeBlock.textContent = generator.generate(currentRequest);
         codeBlock.className = `language-${generator.language}`;
       }
     });
+    const showMock = activePanel === "mock";
+    mockTab.setAttribute("aria-selected", String(showMock));
+    mockTab.tabIndex = showMock ? 0 : -1;
+    codeSection.hidden = showMock;
+    mockSection.hidden = !showMock;
   }
 
   // Mock response
@@ -439,7 +487,7 @@ export function mountRequestBuilder(container, operationDocument, options = {}) 
     if (mockVisible) renderMock();
   });
 
-  const mockButton = el("button", { type: "button", className: "rb-button rb-button--primary", text: "Generate Mock Response", disabled: !operation.responses.length });
+  const mockButton = el("button", { type: "button", className: "rb-button rb-button--primary", text: "Generate mock response", disabled: !operation.responses.length });
   const mockResetButton = el("button", { type: "button", className: "rb-button rb-button--small", text: "Reset", hidden: true });
   const mockCopy = copyButton(() => mockPre.textContent, "Copy mock response");
   mockCopy.hidden = true;
@@ -448,7 +496,7 @@ export function mountRequestBuilder(container, operationDocument, options = {}) 
   const mockOutput = el(
     "div",
     { className: "rb-mock__output", hidden: true, role: "region", "aria-label": "Mock response output" },
-    el("p", { className: "rb-mock__label" }, el("strong", { text: "Mock response" }), " — No request was sent to Marketo."),
+    el("p", { className: "rb-mock__label" }, "Mock response. No request was sent to Marketo."),
     mockMeta,
     mockPre,
   );
@@ -465,7 +513,7 @@ export function mountRequestBuilder(container, operationDocument, options = {}) 
     mockOutput.hidden = true;
     mockResetButton.hidden = true;
     mockCopy.hidden = true;
-    mockButton.textContent = "Generate Mock Response";
+    mockButton.textContent = "Generate mock response";
     mockButton.focus();
   });
 
@@ -502,8 +550,8 @@ export function mountRequestBuilder(container, operationDocument, options = {}) 
 
   const mockSection = el(
     "section",
-    { className: "rb-output rb-mock", "aria-label": "Mock response" },
-    el("div", { className: "rb-output__header" }, el("h3", { className: "rb-output__title", text: "Mock response" }), el("div", { className: "rb-output__tools" }, mockCopy, mockResetButton)),
+    { className: "rb-output rb-mock", id: `${prefix}-mock`, role: "tabpanel", "aria-labelledby": `${prefix}-tab-mock`, hidden: true },
+    el("div", { className: "rb-mock__tools" }, mockCopy, mockResetButton),
     operation.responses.length
       ? el("div", { className: "rb-mock__controls" },
         // Offer a choice only when the specification documents more than one response.
@@ -537,10 +585,11 @@ export function mountRequestBuilder(container, operationDocument, options = {}) 
     }
 
     urlCode.textContent = request.url;
+    optionalSet.textContent = `${optionalFields.filter((field) => String(state.values[field.key] ?? "").trim()).length} set`;
     const count = request.errors.length;
     summary.className = `rb-summary ${count ? "rb-summary--invalid" : "rb-summary--valid"}`;
     summary.textContent = count
-      ? `${count} ${count === 1 ? "issue" : "issues"} to resolve${showAllErrors ? "" : " — select Generate Request to review"}.`
+      ? `${count} ${count === 1 ? "issue" : "issues"} to resolve.${showAllErrors ? "" : " Select Generate request to review."}`
       : "Request is valid.";
     codeWarning.hidden = count === 0;
     codeWarning.textContent = "Incomplete: missing or invalid values are omitted from these samples.";
@@ -561,13 +610,22 @@ export function mountRequestBuilder(container, operationDocument, options = {}) 
       el("h2", { className: "rb__title", id: `${prefix}-title`, text: options.title || "Request Builder" }),
       el("span", { className: "rb__mode", title: "Requests are constructed locally and never sent", text: "Mock mode" }),
     ),
-    el("p", { className: "rb__notice" }, "Builds requests in your browser. Nothing is sent to Marketo and no credentials are requested."),
+    el("p", { className: "rb__notice" }, "Nothing is sent to Marketo. No credentials are requested or stored."),
     operation.deprecated ? el("p", { className: "rb__deprecated", text: "This operation is marked deprecated in the specification." }) : null,
-    form,
-    el("div", { className: "rb-actions" }, generateButton, summary),
-    requestSection,
-    codeSection,
-    mockSection,
+    el(
+      "div",
+      { className: "rb-body" },
+      form,
+      el(
+        "div",
+        { className: "rb-dock" },
+        el("div", { className: "rb-actions" }, summary, generateButton),
+        requestSection,
+        tabList,
+        codeSection,
+        mockSection,
+      ),
+    ),
   );
 
   container.replaceChildren(root);
