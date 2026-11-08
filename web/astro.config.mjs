@@ -2,7 +2,7 @@ import { defineConfig } from "astro/config";
 import config from "./site.json" with { type: "json" };
 
 export default defineConfig({
-  site: process.env.SITE_URL || config.url,
+  site: config.url,
   trailingSlash: "always",
   build: { format: "directory", inlineStylesheets: "never" },
   devToolbar: { enabled: false },

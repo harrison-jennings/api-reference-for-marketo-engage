@@ -1,7 +1,7 @@
 name: Documentation site
 
-# Pull requests and pushes build and validate the site. Cloudflare Workers Builds deploys it
-# (docs/architecture.md). Until GitHub Pages is retired, pushes to main also deploy there, as a rollback.
+# Pull requests and pushes to main build and validate the site. Cloudflare Workers Builds deploys it
+# (docs/architecture.md). The main ruleset requires the "Build and validate" check, so keep that job name.
 on:
   push:
     branches: [main]
@@ -13,7 +13,7 @@ permissions:
   contents: read
 
 concurrency:
-  group: pages-${{ github.ref }}
+  group: site-${{ github.ref }}
   cancel-in-progress: ${{ github.event_name == 'pull_request' }}
 
 jobs:
@@ -23,7 +23,6 @@ jobs:
     timeout-minutes: 15
     permissions:
       contents: read
-      pages: read # actions/configure-pages reads the Pages site configuration
     steps:
       - name: Check out repository
         uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
@@ -47,11 +46,6 @@ jobs:
       - name: Install site dependencies
         run: make web-install
 
-      - name: Configure GitHub Pages
-        id: pages
-        if: github.event_name != 'pull_request'
-        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6.0.0
-
       - name: Test Request Builder
         run: make docs-test
 
@@ -71,17 +65,7 @@ jobs:
         run: make postman-runtime-test
 
       - name: Build and validate site
-        env:
-          PAGES_BASE_URL: ${{ steps.pages.outputs.base_url }}
-        run: |
-          # Use the Pages URL (including any custom domain) for canonical links.
-          # Pages reports http:// until HTTPS is enforced; the site is served
-          # over HTTPS, so always use it. Pull requests use web/site.json.
-          if [ -n "$PAGES_BASE_URL" ]; then
-            base="${PAGES_BASE_URL%/}"
-            export SITE_URL="https://${base#http*://}/"
-          fi
-          make docs-build
+        run: make docs-build
 
       - name: Install browsers for the end-to-end tests
         working-directory: web
@@ -97,26 +81,3 @@ jobs:
           name: playwright-report
           path: web/playwright-report
           retention-days: 7
-
-      - name: Upload Pages artifact
-        if: github.event_name != 'pull_request'
-        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
-        with:
-          path: web/dist
-
-  deploy:
-    name: Deploy to GitHub Pages
-    if: github.event_name != 'pull_request' && github.ref == 'refs/heads/main'
-    needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      pages: write # actions/deploy-pages publishes the site
-      id-token: write # actions/deploy-pages proves the deployment came from this workflow
-    environment:
-      name: github-pages
-      url: ${{ steps.deploy.outputs.page_url }}
-    steps:
-      - name: Deploy
-        id: deploy
-        uses: actions/deploy-pages@368f82528645a54fb793d4d04e342629a3f51346 # v5.0.1
