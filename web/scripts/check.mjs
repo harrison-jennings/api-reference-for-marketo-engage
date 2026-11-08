@@ -37,7 +37,7 @@ for (const file of walk(REFERENCE).filter((item) => item.endsWith(".md") && !ite
   if (!fs.existsSync(path.join(root, "reference", route, "index.html"))) errors.push(`missing page: /reference/${route}`);
 }
 
-const site = (process.env.SITE_URL || config.url).replace(/\/$/, "");
+const site = config.url.replace(/\/$/, "");
 const titles = new Map();
 const descriptions = new Map();
 const indexable = new Set();

@@ -73,10 +73,9 @@ every other branch to a preview at `<branch>-mkto-ref.harrisonjennings-au.worker
 Access. `web/wrangler.jsonc` configures the Worker, which serves `web/dist/` with no script, and
 `web/scripts/headers.mjs` writes `dist/_headers` after each build.
 
-`.github/workflows/pages.yml` builds and tests every pull request and push. The `main` ruleset requires
-its "Build and validate" check on a branch that's up to date, and squash merges, so a commit on `main` is
-always one that passed. Keep that job name. Until GitHub Pages is retired, pushes to `main` also deploy
-there, as a rollback.
+`.github/workflows/site.yml` builds and tests every pull request and push to `main`. The `main` ruleset
+requires its "Build and validate" check on a branch that's up to date, and squash merges, so a commit on
+`main` is always one that passed. Keep that job name.
 
 When Cloudflare finishes deploying `main`, `.github/workflows/deployed.yml` runs `scripts/smoke-test.sh`
 against that version's own `workers.dev` address, with the Access service token in the

@@ -9,7 +9,7 @@
 **An independent, searchable reference for the Adobe Marketo Engage APIs**<br>
 Generated from Adobe's published specifications, with a request builder and mock responses that run entirely in your browser.
 
-[![Build and deploy](https://github.com/harrison-jennings/api-reference-for-marketo-engage/actions/workflows/pages.yml/badge.svg?branch=main)](https://github.com/harrison-jennings/api-reference-for-marketo-engage/actions/workflows/pages.yml)
+[![Build and validate](https://github.com/harrison-jennings/api-reference-for-marketo-engage/actions/workflows/site.yml/badge.svg?branch=main)](https://github.com/harrison-jennings/api-reference-for-marketo-engage/actions/workflows/site.yml)
 [![Weekly spec check](https://github.com/harrison-jennings/api-reference-for-marketo-engage/actions/workflows/adobe-spec-check.yml/badge.svg)](https://github.com/harrison-jennings/api-reference-for-marketo-engage/actions/workflows/adobe-spec-check.yml)
 [![Live site](https://img.shields.io/badge/site-live-B8F34A?style=flat-square&labelColor=0B0D10)](https://mkto-ref.harrisonjennings.au/)
 [![Operations](https://img.shields.io/badge/dynamic/json?url=https%3A%2F%2Fraw.githubusercontent.com%2Fharrison-jennings%2Fapi-reference-for-marketo-engage%2Fmain%2Freference%2Fmanifest.json&query=%24.summary.operations&label=operations&color=B8F34A&style=flat-square&labelColor=0B0D10)](reference/README.md)
