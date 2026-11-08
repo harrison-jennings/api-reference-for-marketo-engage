@@ -12,7 +12,9 @@ name: Deployed version
 #
 # Every app's finished check starts this workflow (check_run can't be filtered by name), so a run for
 # another check, such as "Build and validate", skips its job.
-# Run it by hand (Actions → Deployed version → Run workflow) to repeat the test for main's latest commit.
+# Run it by hand (Actions → Deployed version → Run workflow) to repeat the test for main's latest commit,
+# or give a Version ID from the Worker's Deployments tab, for a build Cloudflare posted no check for (a
+# retried build isn't linked to a commit).
 # A failure emails the repository owner; roll back from the Worker's Deployments tab in Cloudflare.
 run-name: >-
   ${{ github.event_name == 'check_run' && format('{0}: {1}', github.event.check_run.name, github.event.check_run.check_suite.head_branch)
@@ -22,6 +24,11 @@ on:
   check_run:
     types: [completed]
   workflow_dispatch:
+    inputs:
+      version:
+        description: Version ID to test (optional; default is the version Cloudflare deployed for main's latest commit)
+        type: string
+        default: ""
 
 permissions:
   contents: read
@@ -58,20 +65,30 @@ jobs:
           fi
 
       # The version's address is https://<first 8 characters of its Version ID>-mkto-ref.<account's
-      # workers.dev subdomain>, from the Version ID in Cloudflare's check.
+      # workers.dev subdomain>, from the Version ID given, or in Cloudflare's check.
       - name: Find the version's address
         id: version
         env:
           GH_TOKEN: ${{ github.token }}
           REPO: ${{ github.repository }}
           SHA: ${{ github.event.check_run.head_sha || github.sha }}
+          # Passed as data, never pasted into the script.
+          GIVEN: ${{ inputs.version }}
         run: |
-          summary=$(gh api "repos/$REPO/commits/$SHA/check-runs" \
-            --jq '[.check_runs[] | select(.name == "Workers Builds: mkto-ref")][0].output.summary // ""')
-          version=$(printf '%s' "$summary" | grep -oE 'Version ID: [0-9a-f-]+' | head -1 | cut -d' ' -f3)
-          if [ -z "$version" ]; then
-            echo "::error::No Version ID in Cloudflare's check for $SHA"
-            exit 1
+          if [ -n "$GIVEN" ]; then
+            if ! [[ "$GIVEN" =~ ^[0-9a-f]{8}(-[0-9a-f-]+)?$ ]]; then
+              echo "::error::Not a Version ID: give one from the Worker's Deployments tab, such as 890b04e9-b130-…"
+              exit 1
+            fi
+            version=$GIVEN
+          else
+            summary=$(gh api "repos/$REPO/commits/$SHA/check-runs" \
+              --jq '[.check_runs[] | select(.name == "Workers Builds: mkto-ref")][0].output.summary // ""')
+            version=$(printf '%s' "$summary" | grep -oE 'Version ID: [0-9a-f-]+' | head -1 | cut -d' ' -f3)
+            if [ -z "$version" ]; then
+              echo "::error::No Version ID in Cloudflare's check for $SHA. Run this by hand with the Version ID from the Worker's Deployments tab."
+              exit 1
+            fi
           fi
           url="https://${version:0:8}-mkto-ref.harrisonjennings-au.workers.dev"
           echo "Testing $url"
