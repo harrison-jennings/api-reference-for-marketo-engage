@@ -4,11 +4,15 @@ name: Deployed version
 # branches to previews. This never deploys anything itself.
 #
 # When Cloudflare finishes a build it posts a "Workers Builds: mkto-ref" check on the commit, and GitHub
-# runs this workflow for it (check_run). For main, this smoke-tests that exact version at its own address
-# on workers.dev (scripts/smoke-test.sh). Bot Fight Mode challenges GitHub's runners on the real domain,
-# and workers.dev is outside the zone's bot protection. Cloudflare Access protects the address, so the
-# preview-checks service token goes with each request (repository secrets CF_ACCESS_CLIENT_ID and
-# CF_ACCESS_CLIENT_SECRET).
+# runs this workflow for it (check_run). Each build is recorded as a GitHub deployment
+# (scripts/record-deployment.sh), so it shows in the repository's Deployments panel and on its pull request:
+# - another branch: a Preview deployment, with the branch's Preview URL (scripts/preview-url.sh);
+# - main: this smoke-tests that exact version at its own address on workers.dev
+#   (scripts/smoke-test.sh), and records a Production deployment that succeeds only if the test passes.
+#   Bot Fight Mode challenges GitHub's runners on the real domain, and workers.dev is outside the zone's
+#   bot protection. Cloudflare Access protects the address, so the preview-checks service token goes with
+#   each request (repository secrets CF_ACCESS_CLIENT_ID and CF_ACCESS_CLIENT_SECRET).
+# check_run runs this file as it is on main, so changes here take effect once merged.
 #
 # Every app's finished check starts this workflow (check_run can't be filtered by name), so a run for
 # another check, such as "Build and validate", skips its job.
@@ -33,11 +37,47 @@ on:
 permissions:
   contents: read
 
-concurrency:
-  group: deployed-version
-  cancel-in-progress: false
-
 jobs:
+  preview:
+    name: Record the preview
+    if: >-
+      github.event_name == 'check_run'
+      && github.event.check_run.name == 'Workers Builds: mkto-ref'
+      && github.event.check_run.check_suite.head_branch != 'main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    permissions:
+      contents: read
+      deployments: write
+    concurrency:
+      group: preview-${{ github.event.check_run.check_suite.head_branch }}
+      cancel-in-progress: true
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Record the deployment
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+          # Passed as data, never pasted into the script: branch names can contain anything.
+          BRANCH: ${{ github.event.check_run.check_suite.head_branch }}
+          SHA: ${{ github.event.check_run.head_sha }}
+          CONCLUSION: ${{ github.event.check_run.conclusion }}
+        run: |
+          url=$(bash scripts/preview-url.sh "$BRANCH")
+          id=$(bash scripts/record-deployment.sh start Preview "$BRANCH" "$SHA")
+          [ -n "$id" ] || exit 0
+          if [ "$CONCLUSION" = success ]; then
+            bash scripts/record-deployment.sh finish "$id" success "$url"
+          else
+            bash scripts/record-deployment.sh finish "$id" failure "$url"
+            echo "::error::Cloudflare's preview build didn't succeed: $CONCLUSION"
+            exit 1
+          fi
+
   smoke:
     name: Smoke test the deployed version
     if: >-
@@ -49,10 +89,26 @@ jobs:
     permissions:
       contents: read
       checks: read # reads the Version ID from Cloudflare's check
+      deployments: write # records the Production deployment
+    concurrency:
+      group: production
+      cancel-in-progress: false
+    env:
+      GH_TOKEN: ${{ github.token }}
+      REPO: ${{ github.repository }}
+      RUN_URL: ${{ github.server_url }}/${{ github.repository }}/actions/runs/${{ github.run_id }}
+      SHA: ${{ github.event.check_run.head_sha || github.sha }}
     steps:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+
+      # Recorded for Cloudflare's builds of main, and for runs by hand on main without a Version ID
+      # (which test main's latest commit). A Version ID given by hand may not match any commit.
+      - name: Start the deployment record
+        id: record
+        if: github.ref_name == 'main' && inputs.version == ''
+        run: echo "id=$(bash scripts/record-deployment.sh start Production main "$SHA")" >> "$GITHUB_OUTPUT"
 
       - name: Check Cloudflare's deploy succeeded
         if: github.event_name == 'check_run'
@@ -69,9 +125,6 @@ jobs:
       - name: Find the version's address
         id: version
         env:
-          GH_TOKEN: ${{ github.token }}
-          REPO: ${{ github.repository }}
-          SHA: ${{ github.event.check_run.head_sha || github.sha }}
           # Passed as data, never pasted into the script.
           GIVEN: ${{ inputs.version }}
         run: |
@@ -100,3 +153,10 @@ jobs:
           CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
           URL: ${{ steps.version.outputs.url }}
         run: bash scripts/smoke-test.sh "$URL"
+
+      - name: Finish the deployment record
+        if: always() && steps.record.outputs.id != ''
+        env:
+          ID: ${{ steps.record.outputs.id }}
+          STATE: ${{ job.status == 'success' && 'success' || 'failure' }}
+        run: bash scripts/record-deployment.sh finish "$ID" "$STATE" https://mkto-ref.harrisonjennings.au/
