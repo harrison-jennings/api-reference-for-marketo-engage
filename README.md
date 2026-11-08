@@ -104,7 +104,7 @@ leaves the site.
 
 <picture>
   <source media="(prefers-color-scheme: dark)" srcset="docs/images/architecture-dark.png">
-  <img src="docs/images/architecture-light.png" alt="How the project is built, in three bands. Generate: Adobe's specifications, a Python generator, reference files and a Postman collection. Build and check: Astro, Pagefind, a site check and browser tests. Serve: GitHub Pages, the reference and search, the Request Builder and mock responses. Beside them, a weekly action fetches Adobe's specifications, compares, regenerates and tests, and opens a draft pull request for a person to merge." width="100%">
+  <img src="docs/images/architecture-light.png" alt="How the project is built, in three bands. Generate: Adobe's specifications, a Python generator, reference files and a Postman collection. Build and check: Astro, Pagefind, a site check and browser tests. Serve: Cloudflare Workers, the reference and search, the Request Builder and mock responses. Beside them, a weekly action fetches Adobe's specifications, compares, regenerates and tests, and opens a draft pull request for a person to merge." width="100%">
 </picture>
 
 ### Notable engineering decisions
@@ -120,9 +120,9 @@ leaves the site.
 - **Static, with no client framework.** Every page is a file. The only JavaScript is a few small scripts,
   and the builder only loads on the pages that use it.
 - **Self-contained by policy.** A Content Security Policy on every page blocks connections to other hosts,
-  fonts are self-hosted, and there's no analytics.
+  fonts are self-hosted, and the only analytics is Cloudflare's cookieless Web Analytics.
 - **Tested the way it's served.** Browser tests run in Chromium, Firefox and WebKit against the built
-  site, served as GitHub Pages serves it, with axe accessibility checks in both themes.
+  site, served as Cloudflare serves it, with axe accessibility checks in both themes.
 - **Built to be found.** Unique titles and descriptions, canonical links, structured data and a sitemap,
   all enforced by the site check.
 

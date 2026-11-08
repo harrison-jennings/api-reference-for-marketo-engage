@@ -7,7 +7,7 @@ The [Astro](https://astro.build/) site published at <https://mkto-ref.harrisonje
 npm ci
 npm run dev        # http://localhost:4321/
 npm run build      # copies assets, builds the site and its search index into dist/
-npm run check      # validates dist/: URLs, links, disclaimer, CSP, secrets, titles, canonicals, sitemap
+npm run check      # validates dist/: URLs, links, disclaimer, CSP and headers, secrets, titles, canonicals, sitemap
 npm test           # Request Builder unit tests
 npm run test:e2e   # browser tests against dist/ (needs `npx playwright install` once)
 ```
@@ -19,6 +19,7 @@ npm run test:e2e   # browser tests against dist/ (needs `npx playwright install`
 | `builder/` | The Request Builder: plain JavaScript modules with no dependencies |
 | `public/` | Fonts, images and other static files. `scripts/prepare.mjs` copies in the builder, `reference/` data and Postman files, which aren't committed here |
 | `scripts/prepare.mjs` | Runs before each build, and writes the search and jump indexes |
+| `scripts/headers.mjs` | Runs after each build, and writes `dist/_headers`: the CSP and security headers Cloudflare serves |
 | `scripts/check.mjs` | Validates the built site |
 | `scripts/readme/` | Draws the README's images |
 | `site.json` | The published URL, also read by the Postman generator |
@@ -28,6 +29,7 @@ npm run test:e2e   # browser tests against dist/ (needs `npx playwright install`
 | `src/scripts/` | The small client behaviours: theme, panes, menu, filters, jump bar and search |
 | `src/styles/site.css` | Everything visual. Tokens are at the top |
 | `tests/builder/`, `tests/e2e/` | Unit tests and browser tests |
+| `wrangler.jsonc` | The Cloudflare Worker that serves `dist/` |
 
 ## Pagefind
 

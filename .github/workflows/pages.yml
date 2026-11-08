@@ -1,7 +1,7 @@
 name: Documentation site
 
-# Pull requests build and validate the site without deploying.
-# Pushes to main build, validate and deploy to GitHub Pages.
+# Pull requests and pushes build and validate the site. Cloudflare Workers Builds deploys it
+# (docs/architecture.md). Until GitHub Pages is retired, pushes to main also deploy there, as a rollback.
 on:
   push:
     branches: [main]

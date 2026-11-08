@@ -77,7 +77,7 @@ export function diagramHtml(vars, options = {}) {
         </div></section>
         <div class="down">↓</div>
         <section class="band"><p class="lbl">Serve, in your browser</p><div class="row">
-          ${card(logo("github", mono), "GitHub Pages", "Deployed from <span class='m'>main</span> as plain files, with no application server or database")}
+          ${card(logo("cloudflare", "#F38020"), "Cloudflare Workers", "Deployed from <span class='m'>main</span> as plain files, with no application server or database")}
           ${card(ICONS.doc, "Reference and search", "Docs, models, a jump bar and an operation finder")}
           ${card(ICONS.form, "Request Builder", "A form drawn from the schema, with cURL, JavaScript and Python samples")}
           ${card(ICONS.braces, "Mock responses", "Generated from the response schema. Nothing is sent to Marketo")}

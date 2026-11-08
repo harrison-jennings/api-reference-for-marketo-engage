@@ -71,7 +71,31 @@ Adobe branding.
 Interface and reading text use sentence case, and names, code and trademarks stay exactly as written. The
 theme follows the device on the first visit, then a Light or Dark choice is remembered.
 
-## GitHub Pages
+## Cloudflare Workers, not GitHub Pages
 
-The site is static files, so Pages is enough. Cloudflare remains an option, but Bot Fight Mode would need
-sorting out first.
+The site moved from GitHub Pages to Cloudflare Workers static assets in November 2026, for real response
+headers (the CSP as a header, with `frame-ancestors`, HSTS and the rest), Web Analytics and a preview of
+every branch. There's no Worker script, so every request is a free static asset request.
+
+- **Workers Builds deploys.** Cloudflare builds every push: `main` to production, other branches to
+  previews behind Cloudflare Access. The `main` ruleset is the gate: changes arrive by pull request,
+  squash-merged, and "Build and validate" must pass on a branch that's up to date with `main`, so what
+  deploys is what was tested. Deploying from GitHub Actions with Wrangler would ship the exact tested
+  files and test before going live, but needs an account-wide Cloudflare API token in GitHub.
+- **Bot Fight Mode** is on for the whole `harrisonjennings.au` zone and can't be exempted on the free plan.
+  Nothing calls the live site from a data centre: CI tests the build, and the smoke test uses the deployed
+  version's `workers.dev` address. Its injected scripts are refused by the CSP, which is harmless.
+- **Zone settings.** Email Address Obfuscation doesn't apply to Workers static assets, and a configuration
+  rule turns it off for this hostname in case that changes, so example addresses stay as written. AI
+  training crawlers get a 403 across the zone, and Cloudflare adds its managed block to `robots.txt`.
+- **URLs are unchanged.** A missing trailing slash redirects with a 307 rather than Pages' 301, and
+  `/…/index.html` redirects to `/…/`. Canonical links and the sitemap use the trailing-slash URLs.
+- **A route, not a Custom Domain.** A Workers Route serves `mkto-ref.harrisonjennings.au`. A Custom Domain
+  needs the DNS record deleted first, which leaves the name unresolvable for a while.
+
+## Cookieless analytics
+
+Cloudflare Web Analytics counts visits without cookies or local storage. Cloudflare adds its beacon to each
+page, the CSP allows its script, and it reports to `/cdn-cgi/rum` on this site, so `connect-src` stays
+`'self'` and the Request Builder still can't send anything elsewhere. Previews on `workers.dev` aren't
+counted.

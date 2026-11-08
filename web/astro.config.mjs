@@ -1,7 +1,6 @@
 import { defineConfig } from "astro/config";
 import config from "./site.json" with { type: "json" };
 
-// CI can set SITE_URL from the repository's Pages configuration.
 export default defineConfig({
   site: process.env.SITE_URL || config.url,
   trailingSlash: "always",
@@ -21,6 +20,10 @@ export default defineConfig({
         "base-uri 'self'",
         "form-action 'none'",
       ],
+      // 'wasm-unsafe-eval' lets Pagefind's search run its WebAssembly; it doesn't allow eval().
+      // Cloudflare adds its Web Analytics beacon to each page it serves. The beacon reports to
+      // /cdn-cgi/rum on this site, so connect-src stays 'self'.
+      scriptDirective: { resources: ["'self'", "'wasm-unsafe-eval'", "https://static.cloudflareinsights.com"] },
     },
   },
 });
