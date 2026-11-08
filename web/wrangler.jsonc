@@ -15,4 +15,7 @@
   // workers.dev copy. Branch previews and version addresses are on workers.dev, behind Cloudflare Access.
   "workers_dev": false,
   "preview_urls": true,
+  // Required by `wrangler preview`, which Workers Builds runs for every other branch. Empty: the site has
+  // no bindings, and assets and compatibility settings stay at the top level.
+  "previews": {},
 }
