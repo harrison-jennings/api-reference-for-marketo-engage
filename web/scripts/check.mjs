@@ -3,7 +3,9 @@
  * - every current reference URL exists, every operation has a Request Builder
  *   and a parseable operation file, and internal links resolve;
  * - every page carries Adobe's required disclaimer and a CSP that blocks
- *   connections to other hosts;
+ *   connections to other hosts and allows scripts only from the site and
+ *   Cloudflare's analytics beacon, and _headers serves the same policy;
+ * - the files fit Cloudflare's limits for static assets;
  * - no private files or secret-looking values are published, and the Postman
  *   downloads match the reviewed files, with a template holding no values but
  *   the public Data Ingestion API host;
@@ -14,6 +16,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import config from "../site.json" with { type: "json" };
+import { headerPolicy, inlineScriptHashes, metaPolicy } from "./headers.mjs";
 
 const root = path.resolve(process.argv[2] || "dist");
 const REPO = path.resolve(import.meta.dirname, "..", "..");
@@ -21,6 +24,10 @@ const REFERENCE = path.join(REPO, "reference");
 const DISCLAIMER = "THIS SITE IS NOT AUTHORIZED, ENDORSED OR SPONSORED BY ADOBE, PUBLISHER OF ADOBE MARKETO ENGAGE.";
 
 const errors = [];
+const BEACON = "https://static.cloudflareinsights.com";
+const directive = (policy, name) => policy.split("; ").find((item) => item.startsWith(`${name} `))?.split(" ").slice(1);
+const policies = new Set();
+const scriptHashes = new Set();
 const long = [];
 const pages = fs.readdirSync(root, { recursive: true }).filter((file) => file.endsWith("index.html") || file === "404.html");
 
@@ -41,9 +48,15 @@ for (const page of pages) {
   const head = html.slice(0, html.indexOf("</head>"));
   const noindex = /<meta name="robots" content="noindex/.test(head);
   if (!html.includes(DISCLAIMER)) errors.push(`${page}: no disclaimer`);
-  const csp = html.match(/http-equiv="content-security-policy"[^>]*content="([^"]*)"/i)?.[1];
+  const csp = metaPolicy(html);
   if (!csp) errors.push(`${page}: no CSP`);
-  else if (!/connect-src 'self'/.test(csp)) errors.push(`${page}: CSP allows connections to other hosts`);
+  else {
+    policies.add(csp);
+    if (directive(csp, "connect-src")?.join(" ") !== "'self'") errors.push(`${page}: CSP allows connections to other hosts`);
+    const scripts = directive(csp, "script-src") || [];
+    for (const hash of inlineScriptHashes(html)) scriptHashes.add(hash);
+    if (scripts.some((source) => !["'self'", "'wasm-unsafe-eval'", BEACON].includes(source) && !/^'sha(256|384|512)-/.test(source))) errors.push(`${page}: CSP allows scripts from elsewhere: script-src ${scripts.join(" ")}`);
+  }
   if (/fonts\.(googleapis|gstatic)\.com/.test(html)) errors.push(`${page}: requests Google Fonts`);
   if (!/<html lang="en-AU"/.test(html)) errors.push(`${page}: no language`);
 
@@ -77,6 +90,20 @@ for (const page of pages) {
   }
 }
 
+// Cloudflare serves the same policy as a header, for every file.
+const headersFile = fs.existsSync(path.join(root, "_headers")) ? fs.readFileSync(path.join(root, "_headers"), "utf8") : "";
+const served = headersFile.match(/^\/\*\n(?:  .*\n)*?  Content-Security-Policy: (.*)$/m)?.[1];
+if (!served) errors.push("_headers has no Content-Security-Policy for /*");
+else if (policies.size === 1 && served !== headerPolicy([...policies][0], [...scriptHashes])) errors.push("_headers serves a different CSP from the pages, or misses an inline script");
+if (policies.size > 1) errors.push(`pages have ${policies.size} different CSPs`);
+
+// Cloudflare's limits for static assets on the free plan.
+const MAX_FILES = 20000;
+const MAX_FILE_BYTES = 25 * 1024 * 1024;
+const files = walk(root);
+if (files.length > MAX_FILES) errors.push(`${files.length} files: Cloudflare's free plan takes ${MAX_FILES}`);
+for (const file of files) if (fs.statSync(file).size > MAX_FILE_BYTES) errors.push(`${path.relative(root, file)} is over Cloudflare's 25 MiB limit for a file`);
+
 // The sitemap lists every indexable page and nothing else.
 const sitemap = fs.existsSync(path.join(root, "sitemap.xml")) ? fs.readFileSync(path.join(root, "sitemap.xml"), "utf8") : "";
 const listed = new Set([...sitemap.matchAll(/<loc>([^<]*)<\/loc>/g)].map(([, url]) => url.replace(site, "")));
@@ -109,7 +136,7 @@ const SECRETS = {
 };
 const ENVIRONMENT = "downloads/marketo-engage.postman_environment.json";
 const TEXT = /\.(html|js|json|css|xml|txt|map)$/;
-for (const file of walk(root)) {
+for (const file of files) {
   const relative = path.relative(root, file);
   const postmanEnvironment = /\.postman_environment\.json$/.test(relative) && relative !== ENVIRONMENT;
   if (postmanEnvironment || FORBIDDEN_FILES.some((pattern) => pattern.test(relative))) errors.push(`private file published: ${relative}`);
@@ -134,4 +161,5 @@ if (errors.length) {
   console.error(`${errors.length} problems:\n${[...new Set(errors)].slice(0, 40).join("\n")}`);
   process.exit(1);
 }
-console.log(`Site validation passed: ${pages.length} pages, ${indexable.size} indexable, ${links} internal links checked, ${long.length} titles over 70 characters.`);
+console.log(`Site validation passed: ${pages.length} pages, ${indexable.size} indexable, ${links} internal links checked, ${long.length} titles over 70 characters, ${files.length} of ${MAX_FILES} files.`);
+if (files.length > MAX_FILES * 0.75) console.warn(`Warning: ${files.length} files is over three-quarters of Cloudflare's ${MAX_FILES}-file limit.`);

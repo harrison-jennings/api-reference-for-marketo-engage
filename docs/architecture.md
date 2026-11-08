@@ -11,8 +11,8 @@ reference/             Markdown, one JSON file per operation, manifest.json
 postman/               collection and environment template
   ↓ web/scripts/prepare.mjs, astro build, pagefind
 web/dist/              static site, validated by web/scripts/check.mjs
-  ↓ .github/workflows/pages.yml
-GitHub Pages           https://mkto-ref.harrisonjennings.au/
+  ↓ Cloudflare Workers Builds, web/wrangler.jsonc
+Cloudflare Workers     https://mkto-ref.harrisonjennings.au/
 ```
 
 ## The generator
@@ -62,17 +62,38 @@ never change a request.
 | Script tests | `scripts/tests/` | The generators and the change summaries |
 | `reference-check`, `postman-check` | `Makefile` | Generated files that don't match their source |
 | Postman runtime test | `scripts/postman-runtime/` | The collection, sent with Postman's own engine to a local server |
-| Site check | `web/scripts/check.mjs` | Missing pages, broken links, the disclaimer, CSP, secrets, Postman files, titles, canonicals, sitemap |
-| Browser tests | `web/tests/e2e/` | Navigation, search, the builder and accessibility, in Chromium, Firefox and WebKit |
+| Site check | `web/scripts/check.mjs` | Missing pages, broken links, the disclaimer, CSP and `_headers`, secrets, Postman files, titles, canonicals, sitemap, Cloudflare's file limits |
+| Browser tests | `web/tests/e2e/` | Navigation, search, the builder and accessibility, in Chromium, Firefox and WebKit, served as Cloudflare serves the site |
+| Smoke test | `scripts/smoke-test.sh` | The deployed version: pages, search, downloads, redirects, the 404, headers, unobfuscated example addresses |
 
 ## Deployment
 
-`.github/workflows/pages.yml` runs on pull requests and on pushes to `main`. Pull requests build and
-test without deploying. Pushes to `main` deploy `web/dist/` to GitHub Pages, and the custom domain is set
-in the repository's Pages settings. The `main` ruleset requires the "Build and validate" check, so keep
-that job name.
+Cloudflare Workers Builds deploys the site from `web/`: every push to `main` goes to production, and
+every other branch to a preview at `<branch>-mkto-ref.harrisonjennings-au.workers.dev`, behind Cloudflare
+Access. `web/wrangler.jsonc` configures the Worker, which serves `web/dist/` with no script, and
+`web/scripts/headers.mjs` writes `dist/_headers` after each build.
 
-To roll back, revert the commit and let the workflow deploy the previous version.
+`.github/workflows/pages.yml` builds and tests every pull request and push. The `main` ruleset requires
+its "Build and validate" check on a branch that's up to date, and squash merges, so a commit on `main` is
+always one that passed. Keep that job name. Until GitHub Pages is retired, pushes to `main` also deploy
+there, as a rollback.
+
+When Cloudflare finishes deploying `main`, `.github/workflows/deployed.yml` runs `scripts/smoke-test.sh`
+against that version's own `workers.dev` address, with the Access service token in the
+`CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET` secrets. Bot Fight Mode challenges GitHub's runners on
+the real domain. A failure emails the repository owner.
+
+To roll back, open the Worker's **Deployments** tab in Cloudflare and deploy the previous version, then
+revert the commit.
+
+Cloudflare settings that live outside the repository:
+
+- **Workers Builds:** Worker `mkto-ref`, root directory `web`, build variable `NODE_VERSION` = `24`, build command `npm run build && npm run check`,
+  deploy command `npx wrangler deploy`, preview command `npx wrangler preview`.
+- **Access:** the Worker's previews only, for members of the account and the `preview-checks` service token.
+- **Route:** `mkto-ref.harrisonjennings.au/*` to `mkto-ref`, over a proxied DNS record.
+- **Configuration rule:** Email Obfuscation off for `mkto-ref.harrisonjennings.au`.
+- **Web Analytics:** the zone's site adds the beacon to every hostname.
 
 ## The weekly check
 

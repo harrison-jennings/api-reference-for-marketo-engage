@@ -59,4 +59,7 @@ operation, in both Swagger 2.0 and OpenAPI 3.0 formats.
 
 ## Privacy
 
-The site has no analytics, cookies, third-party scripts or web fonts from external services.
+The site uses [Cloudflare Web Analytics](https://www.cloudflare.com/web-analytics/) to count visits. It
+doesn't use cookies or local storage, and doesn't track you across sites. Its script loads from Cloudflare
+and reports to this site. There are no other analytics, no cookies and no web fonts from external
+services.

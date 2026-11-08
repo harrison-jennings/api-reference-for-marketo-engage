@@ -1,0 +1,85 @@
+name: Deployed version
+
+# Did the deploy work? Cloudflare Workers Builds builds and deploys the site: main to production, other
+# branches to previews. This never deploys anything itself.
+#
+# When Cloudflare finishes a build it posts a "Workers Builds: mkto-ref" check on the commit, and GitHub
+# runs this workflow for it (check_run). For main, this smoke-tests that exact version at its own address
+# on workers.dev (scripts/smoke-test.sh). Bot Fight Mode challenges GitHub's runners on the real domain,
+# and workers.dev is outside the zone's bot protection. Cloudflare Access protects the address, so the
+# preview-checks service token goes with each request (repository secrets CF_ACCESS_CLIENT_ID and
+# CF_ACCESS_CLIENT_SECRET).
+#
+# Every app's finished check starts this workflow (check_run can't be filtered by name), so a run for
+# another check, such as "Build and validate", skips its job.
+# Run it by hand (Actions → Deployed version → Run workflow) to repeat the test for main's latest commit.
+# A failure emails the repository owner; roll back from the Worker's Deployments tab in Cloudflare.
+run-name: >-
+  ${{ github.event_name == 'check_run' && format('{0}: {1}', github.event.check_run.name, github.event.check_run.check_suite.head_branch)
+  || 'Smoke test by hand' }}
+
+on:
+  check_run:
+    types: [completed]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: deployed-version
+  cancel-in-progress: false
+
+jobs:
+  smoke:
+    name: Smoke test the deployed version
+    if: >-
+      github.event_name == 'workflow_dispatch'
+      || (github.event.check_run.name == 'Workers Builds: mkto-ref'
+      && github.event.check_run.check_suite.head_branch == 'main')
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    permissions:
+      contents: read
+      checks: read # reads the Version ID from Cloudflare's check
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check Cloudflare's deploy succeeded
+        if: github.event_name == 'check_run'
+        env:
+          CONCLUSION: ${{ github.event.check_run.conclusion }}
+        run: |
+          if [ "$CONCLUSION" != success ]; then
+            echo "::error::Cloudflare's build or deploy didn't succeed: $CONCLUSION"
+            exit 1
+          fi
+
+      # The version's address is https://<first 8 characters of its Version ID>-mkto-ref.<account's
+      # workers.dev subdomain>, from the Version ID in Cloudflare's check.
+      - name: Find the version's address
+        id: version
+        env:
+          GH_TOKEN: ${{ github.token }}
+          REPO: ${{ github.repository }}
+          SHA: ${{ github.event.check_run.head_sha || github.sha }}
+        run: |
+          summary=$(gh api "repos/$REPO/commits/$SHA/check-runs" \
+            --jq '[.check_runs[] | select(.name == "Workers Builds: mkto-ref")][0].output.summary // ""')
+          version=$(printf '%s' "$summary" | grep -oE 'Version ID: [0-9a-f-]+' | head -1 | cut -d' ' -f3)
+          if [ -z "$version" ]; then
+            echo "::error::No Version ID in Cloudflare's check for $SHA"
+            exit 1
+          fi
+          url="https://${version:0:8}-mkto-ref.harrisonjennings-au.workers.dev"
+          echo "Testing $url"
+          echo "url=$url" >> "$GITHUB_OUTPUT"
+
+      - name: Smoke-test it
+        env:
+          CF_ACCESS_CLIENT_ID: ${{ secrets.CF_ACCESS_CLIENT_ID }}
+          CF_ACCESS_CLIENT_SECRET: ${{ secrets.CF_ACCESS_CLIENT_SECRET }}
+          URL: ${{ steps.version.outputs.url }}
+        run: bash scripts/smoke-test.sh "$URL"
