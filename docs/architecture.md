@@ -83,6 +83,12 @@ against that version's own `workers.dev` address, with the Access service token 
 `CF_ACCESS_CLIENT_ID` and `CF_ACCESS_CLIENT_SECRET` secrets. Bot Fight Mode challenges GitHub's runners on
 the real domain. A failure emails the repository owner.
 
+The same workflow records each build as a GitHub deployment (`scripts/record-deployment.sh`), shown in the
+repository's **Deployments** panel and on pull requests: **Preview** for other branches, with the branch's
+Preview URL, and **Production** for `main`, marked successful only if the smoke test passes. The
+Cloudflare Workers and Pages GitHub app needs access to this repository: without it, pushes aren't built,
+and no check, comment or deployment appears.
+
 To roll back, open the Worker's **Deployments** tab in Cloudflare and deploy the previous version, then
 revert the commit.
 
