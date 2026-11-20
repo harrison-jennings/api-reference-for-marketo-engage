@@ -13,7 +13,7 @@ const total = sorted.length;
   </div>
   <p class="fc" data-count role="status">Showing {total} of {total}</p>
   <nav class="azj" aria-label="Filter by first letter" data-pagefind-ignore>
-    {"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map((letter) => letters.has(letter) ? <a href={`#m-${letter}`} data-letter={letter}>{letter}</a> : <span class="az-off"><span aria-hidden="true">{letter}</span><span class="sr">{letter}: no models</span></span>)}
+    {"ABCDEFGHIJKLMNOPQRSTUVWXYZ".split("").map((letter) => letters.has(letter) ? <a href={`#m-${letter}`} data-letter={letter}>{letter}</a> : <span class="az-off" aria-hidden="true">{letter}</span>)}
   </nav>
   <div class="tscroll modelsbox" tabindex="0" role="region" aria-label="Models table">
     <table class="tbl mstack"><thead><tr><th>Name</th>{showApi && <th>API</th>}<th>Kind</th><th class="num">Properties</th><th class="num">Used by</th></tr></thead><tbody>

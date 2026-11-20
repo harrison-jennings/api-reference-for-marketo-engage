@@ -212,12 +212,14 @@ export function operationTitle(operation) {
   if (titleUse.get(`${operation.section}|${operation.title}|${operation.tag}`) === 1) return `${operation.title} (${operation.tag}) | ${api}`;
   return `${operation.title}, ${operation.method} ${operation.path} | ${SECTIONS[operation.section].short} API`;
 }
+/** The first sentence of Adobe's description of an operation, as plain text ("" when there is none). */
+const summaryOf = (node) => firstSentence(plainText(descriptionBlocks(node.description).find((block) => block.html)?.html || ""));
+export const operationSummary = (operation) => summaryOf(operationDocument(operation).paths[operation.path][operation.method.toLowerCase()]);
 export function operationDescription(operation, node) {
-  const summary = plainText(descriptionBlocks(node.description).find((block) => block.html)?.html || "");
+  const sentence = summaryOf(node);
   const call = `${operation.method} ${operation.path}`;
   const where = `in the Marketo Engage ${SECTIONS[operation.section].short} API.`;
-  if (!summary) return `Parameters, responses and a request builder for ${call} ${where}`;
-  const sentence = firstSentence(summary);
+  if (!sentence) return `Parameters, responses and a request builder for ${call} ${where}`;
   const full = `${sentence} ${call} ${where}`;
   return full.length <= 158 ? full : `${clip(sentence, Math.max(70, 157 - call.length))} ${call}.`;
 }
